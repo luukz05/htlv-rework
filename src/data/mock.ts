@@ -115,7 +115,7 @@ export interface RoundHighlight {
 }
 
 // -- Base path for static assets (must match next.config.ts basePath) --
-const B = process.env.NODE_ENV === "production" ? "/repositorio-des-web" : "";
+const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 // -- Team Logos (local, downloaded from Liquipedia) --
 const logo = {

@@ -2,7 +2,7 @@
 import { liveMatches } from "@/data/mock";
 import TeamLogo from "./TeamLogo";
 
-const B = process.env.NODE_ENV === "production" ? "/repositorio-des-web" : "";
+const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export default function HeroMatch() {
   const match = liveMatches[0];

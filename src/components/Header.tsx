@@ -18,6 +18,8 @@ const navLinks = [
   { label: "Games", href: "/games" },
 ];
 
+const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 export default function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -32,9 +34,8 @@ export default function Header() {
       <header className="sticky top-0 z-50 border-b border-border bg-bg-surface">
         <div className="mx-auto flex max-w-[1440px] items-center gap-6 px-6 h-14">
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <path d="M6 8h5v16H6zM13 14h5v10h-5zM20 10h5v14h-5z" fill="#2563eb"/>
-            </svg>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`${B}/hltv-logo.png`} alt="HLTV" className="h-8 w-8 rounded-md" />
             <span className="text-lg font-bold text-text-primary">HLTV</span>
           </Link>
 
