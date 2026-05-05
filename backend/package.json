@@ -1,0 +1,24 @@
+{
+  "name": "hltv-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/server.js",
+  "exports": {
+    "./data/mock": {
+      "types": "./dist/data/mock.d.ts",
+      "default": "./dist/data/mock.js"
+    }
+  },
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.21.0",
+    "typescript": "5.9.3"
+  }
+}
