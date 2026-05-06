@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "setup": "npm --prefix backend install && npm --prefix frontend install",
+    "dev": "npm run frontend:dev",
+    "build": "npm run frontend:build",
+    "start": "npm run frontend:start",
+    "lint": "npm --prefix frontend run lint",
     "frontend:dev": "npm --prefix frontend run dev",
     "frontend:build": "npm --prefix frontend run build",
     "frontend:start": "npm --prefix frontend run start",

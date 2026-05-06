@@ -11,7 +11,13 @@ Os dados que o frontend usa ficam no backend em `backend/src/data/mock.ts`. O fr
 
 ## Instalar dependencias
 
-Rode uma vez para cada parte:
+Forma mais simples:
+
+```bash
+npm run setup
+```
+
+Se preferir, ainda pode instalar por parte:
 
 ```bash
 npm --prefix backend install
@@ -21,6 +27,12 @@ npm --prefix frontend install
 ## Rodar em desenvolvimento
 
 Frontend:
+
+```bash
+npm run dev
+```
+
+Alias equivalente:
 
 ```bash
 npm run frontend:dev
@@ -42,12 +54,24 @@ Por padrao:
 Gerar build do frontend:
 
 ```bash
+npm run build
+```
+
+Alias equivalente:
+
+```bash
 npm run frontend:build
 ```
 
 Esse comando tambem compila o backend antes, porque o frontend consome os dados compilados do pacote local.
 
 Rodar frontend exportado:
+
+```bash
+npm run start
+```
+
+Alias equivalente:
 
 ```bash
 npm run frontend:start
@@ -85,6 +109,12 @@ curl http://localhost:4000/players/top
 ## Scripts da raiz
 
 ```bash
+npm run setup
+npm run dev
+npm run build
+npm run start
+npm run lint
+
 npm run frontend:dev
 npm run frontend:build
 npm run frontend:start

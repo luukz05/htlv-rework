@@ -14,7 +14,7 @@ export default function MapsPage() {
       <main className="mx-auto max-w-[1200px] px-5 py-8">
         {/* Breadcrumb */}
         <div className="mb-6 text-sm text-text-muted">
-          <a href="/" className="hover:text-text-secondary">Home</a>
+          <Link href="/" className="hover:text-text-secondary">Home</Link>
           <span className="mx-2">&rsaquo;</span>
           <span className="text-text-primary">Maps</span>
         </div>

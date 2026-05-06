@@ -4,7 +4,6 @@ import NewsSection from "@/components/NewsSection";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
-import Link from "next/link";
 import { news, events, topPlayers, forumThreads, streams, playerOfTheWeek, roundHighlight, legends } from "@/data/mock";
 
 /* ── Ad placeholder ── */

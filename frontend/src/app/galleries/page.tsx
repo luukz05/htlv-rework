@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { news, events } from "@/data/mock";
+import Link from "next/link";
+import { news } from "@/data/mock";
 
 const galleries = [
   {
@@ -86,7 +87,7 @@ export default function GalleriesPage() {
       <main className="mx-auto max-w-[1200px] px-5 py-8">
         {/* Breadcrumb */}
         <div className="mb-6 text-sm text-text-muted">
-          <a href="/" className="hover:text-text-secondary">Home</a>
+          <Link href="/" className="hover:text-text-secondary">Home</Link>
           <span className="mx-2">&rsaquo;</span>
           <span className="text-text-primary">Galleries</span>
         </div>

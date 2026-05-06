@@ -1,1 +1,1 @@
-export * from "hltv-backend/data/mock";
+export * from "./backend-mock";

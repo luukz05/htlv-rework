@@ -26,8 +26,6 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
   }
 
   const winCount = team.last10Results.filter((r) => r === "W").length;
-  const captain = team.roster.find((p) => p.isCaptain);
-
   return (
     <>
       <Header />

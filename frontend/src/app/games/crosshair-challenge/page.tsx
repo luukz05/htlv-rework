@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Link from "next/link";
 import {
   loadProfile,
   saveProfile,
@@ -274,13 +275,9 @@ export default function CrosshairChallengePage() {
       <main className="mx-auto max-w-[900px] px-5 py-8">
         {/* Breadcrumb */}
         <div className="mb-6 text-sm text-text-muted">
-          <a href="/" className="hover:text-text-secondary">
-            Home
-          </a>
+          <Link href="/" className="hover:text-text-secondary">Home</Link>
           <span className="mx-2">&rsaquo;</span>
-          <a href="/games" className="hover:text-text-secondary">
-            Games
-          </a>
+          <Link href="/games" className="hover:text-text-secondary">Games</Link>
           <span className="mx-2">&rsaquo;</span>
           <span className="text-text-primary">Crosshair Challenge</span>
         </div>
