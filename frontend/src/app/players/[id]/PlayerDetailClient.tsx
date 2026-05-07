@@ -41,7 +41,12 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
               </div>
               <p className="text-text-secondary mb-1">{p.realName} &middot; Age {p.age}</p>
               <p className="text-sm text-text-muted mb-4">
-                <Link href={`/teams/${p.teamSlug}`} className="hover:text-blue-light transition-colors">{p.team}</Link> &middot; {p.role}
+                {p.teamSlug ? (
+                  <Link href={`/teams/${p.teamSlug}`} className="hover:text-blue-light transition-colors">{p.team}</Link>
+                ) : (
+                  <span>{p.team}</span>
+                )}{" "}
+                &middot; {p.role}
               </p>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
                 {[
