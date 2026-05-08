@@ -7,7 +7,7 @@ Projeto reorganizado em um monorepo simples, com frontend e backend em pastas se
 - `frontend/`: aplicacao Next.js com o visual atual, assets, logo e favicon.
 - `backend/`: dados centralizados dos jogadores e API inicial para evoluir depois.
 
-Os dados que o frontend usa ficam no backend em `backend/src/data/mock.ts`. O frontend importa esses dados pelo pacote local `hltv-backend`, configurado como `file:../backend`.
+Os dados ficam centralizados no backend em `backend/src/data/mock.ts`. O backend ja tem uma API Node basica com `routes`, `controllers` e helpers HTTP. O frontend ainda mantem a ponte `frontend/src/data/mock.ts` para preservar as telas atuais, e tambem ganhou `frontend/src/services/api.ts` para migrarmos as paginas aos poucos para chamadas HTTP.
 
 ## Instalar dependencias
 
@@ -93,8 +93,35 @@ Endpoints disponiveis no backend:
 ```txt
 GET /health
 GET /players
-GET /players/:id
 GET /players/top
+GET /players/of-the-week
+GET /players/:id
+GET /teams
+GET /teams/cards
+GET /teams/rosters
+GET /teams/:id
+GET /rankings
+GET /matches
+GET /matches/live
+GET /matches/upcoming
+GET /matches/results
+GET /matches/:id
+GET /news
+GET /news/:id
+GET /events
+GET /events/:id
+GET /forums
+GET /forums/:id
+GET /forums/:id/replies
+GET /maps
+GET /maps/:slug
+GET /map-callout-quizzes
+GET /academy
+GET /academy/:id
+GET /highlights
+GET /highlights/round
+GET /streams
+GET /galleries
 ```
 
 Exemplos:
@@ -104,6 +131,8 @@ curl http://localhost:4000/health
 curl http://localhost:4000/players
 curl http://localhost:4000/players/1
 curl http://localhost:4000/players/top
+curl http://localhost:4000/matches/live
+curl http://localhost:4000/news/1
 ```
 
 ## Scripts da raiz
