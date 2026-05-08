@@ -1,14 +1,14 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { playerProfiles } from "@/data/mock";
 import PlayerDetailClient from "./PlayerDetailClient";
-
-export function generateStaticParams() {
-  return playerProfiles.map((p) => ({ id: p.id.toString() }));
-}
+import { api } from "@/services/api";
 
 export default async function PlayerDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { playerProfiles } = await resolvePageData({
+    playerProfiles: api.players(),
+  });
+
   const { id } = await params;
   const p = playerProfiles.find((pl) => pl.id.toString() === id);
 
@@ -23,4 +23,9 @@ export default async function PlayerDetailPage({ params }: { params: Promise<{ i
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

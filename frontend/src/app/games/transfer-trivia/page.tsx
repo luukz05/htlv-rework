@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import { playerProfiles, teams } from "@/data/mock";
+import { countryFlag } from "@/lib/country-flags";
 import {
   loadProfile,
   saveProfile,
@@ -307,17 +308,17 @@ export default function TransferTriviaPage() {
             {/* Player card */}
             <div className="rounded-xl border border-border bg-bg-card p-6 mb-6 card-glow animate-fade-in-up">
               <div className="flex flex-col sm:flex-row items-center gap-5">
-                <div className="relative shrink-0">
+                <div className="player-photo-frame relative h-28 w-28 shrink-0 overflow-hidden rounded-xl border-2 border-border">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={roundData.player.image}
                     alt={roundData.player.nickname}
-                    className="w-28 h-28 rounded-xl object-cover object-top border-2 border-border"
+                    className="player-photo player-photo--avatar"
                   />
                 </div>
                 <div className="text-center sm:text-left">
                   <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                    <span className="text-2xl">{roundData.player.countryFlag}</span>
+                    <span className="text-2xl">{countryFlag(roundData.player.country, roundData.player.countryFlag)}</span>
                     <h2 className="text-2xl font-black">{roundData.player.nickname}</h2>
                   </div>
                   <p className="text-text-secondary text-sm">{roundData.player.realName}</p>

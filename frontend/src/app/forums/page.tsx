@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { forumThreads } from "@/data/mock";
+import { api } from "@/services/api";
 
 const rankColors: Record<string, string> = {
   "Global Elite": "text-red",
@@ -13,7 +13,11 @@ const rankColors: Record<string, string> = {
   "Silver": "text-text-muted",
 };
 
-export default function ForumsPage() {
+export default async function ForumsPage() {
+  const { forumThreads } = await resolvePageData({
+    forumThreads: api.forums(),
+  });
+
   const categories = ["All", "General", "Match Discussion", "Team Discussion", "Help", "Multimedia", "Off Topic"];
   const pinned = forumThreads.filter((t) => t.pinned);
   const regular = forumThreads.filter((t) => !t.pinned);
@@ -110,4 +114,9 @@ export default function ForumsPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

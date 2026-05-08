@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { academyGuides } from "@/data/mock";
+import { api } from "@/services/api";
 
 const categoryIcons: Record<string, { icon: string; color: string; bg: string }> = {
   economy: { icon: "M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", color: "#22c55e", bg: "bg-green/15" },
@@ -18,7 +18,11 @@ const difficultyColors: Record<string, string> = {
   Advanced: "bg-red/20 text-red",
 };
 
-export default function AcademyPage() {
+export default async function AcademyPage() {
+  const { academyGuides } = await resolvePageData({
+    academyGuides: api.academy(),
+  });
+
   return (
     <>
       <Header />
@@ -133,4 +137,9 @@ export default function AcademyPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

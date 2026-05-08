@@ -3,9 +3,14 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { topPlayers } from "@/data/mock";
+import { countryFlag } from "@/lib/country-flags";
+import { api } from "@/services/api";
 
-export default function StatsPage() {
+export default async function StatsPage() {
+  const { topPlayers } = await resolvePageData({
+    topPlayers: api.topPlayers(),
+  });
+
   return (
     <>
       <Header />
@@ -42,12 +47,12 @@ export default function StatsPage() {
                   </td>
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full overflow-hidden shrink-0 border-2 border-border">
-                        <img src={player.image} alt={player.name} className="h-full w-full object-cover" />
+                      <div className="player-photo-frame h-10 w-10 rounded-full overflow-hidden shrink-0 border-2 border-border">
+                        <img src={player.image} alt={player.name} className="player-photo player-photo--avatar" />
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-base">{player.countryFlag}</span>
+                          <span className="text-base">{countryFlag(player.country, player.countryFlag)}</span>
                           <p className="font-semibold leading-tight">{player.name}</p>
                         </div>
                         <p className="text-[11px] text-text-muted">{player.realName}</p>
@@ -86,4 +91,9 @@ export default function StatsPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

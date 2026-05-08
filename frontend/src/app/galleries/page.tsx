@@ -1,86 +1,15 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { news } from "@/data/mock";
-
-const galleries = [
-  {
-    id: 1,
-    title: "IEM Katowice 2026 — Grand Final",
-    category: "Events",
-    images: 48,
-    image: news[0].image,
-    date: "Mar 3, 2026",
-  },
-  {
-    id: 2,
-    title: "BLAST Premier Spring — Opening Day",
-    category: "Events",
-    images: 32,
-    image: news[4].image,
-    date: "Mar 1, 2026",
-  },
-  {
-    id: 3,
-    title: "NAVI — Behind the Scenes at IEM",
-    category: "Behind the Scenes",
-    images: 24,
-    image: news[8].image,
-    date: "Feb 28, 2026",
-  },
-  {
-    id: 4,
-    title: "FaZe Clan — Bootcamp Photos",
-    category: "Teams",
-    images: 18,
-    image: news[6].image,
-    date: "Feb 25, 2026",
-  },
-  {
-    id: 5,
-    title: "ESL Pro League Season 21 — Venue Reveal",
-    category: "Events",
-    images: 36,
-    image: news[7].image,
-    date: "Feb 22, 2026",
-  },
-  {
-    id: 6,
-    title: "G2 Esports — New Facility Tour",
-    category: "Teams",
-    images: 22,
-    image: news[6].image,
-    date: "Feb 20, 2026",
-  },
-  {
-    id: 7,
-    title: "Vitality — Player Portraits 2026",
-    category: "Teams",
-    images: 15,
-    image: news[1].image,
-    date: "Feb 18, 2026",
-  },
-  {
-    id: 8,
-    title: "PGL Major Copenhagen — Stage Setup",
-    category: "Behind the Scenes",
-    images: 28,
-    image: news[11].image,
-    date: "Feb 15, 2026",
-  },
-  {
-    id: 9,
-    title: "Trophy Collection — Major Trophies Through the Years",
-    category: "Behind the Scenes",
-    images: 40,
-    image: news[3].image,
-    date: "Feb 10, 2026",
-  },
-];
+import { api } from "@/services/api";
 
 const categories = ["All", "Events", "Teams", "Behind the Scenes"];
 
-export default function GalleriesPage() {
+export default async function GalleriesPage() {
+  const { galleries } = await resolvePageData({
+    galleries: api.galleries(),
+  });
+
   return (
     <>
       <Header />
@@ -151,4 +80,9 @@ export default function GalleriesPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

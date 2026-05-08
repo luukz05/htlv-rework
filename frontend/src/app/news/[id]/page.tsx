@@ -1,13 +1,13 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { news } from "@/data/mock";
-
-export function generateStaticParams() {
-  return news.map((n) => ({ id: n.id.toString() }));
-}
+import { api } from "@/services/api";
 
 export default async function NewsDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { news } = await resolvePageData({
+    news: api.news(),
+  });
+
   const { id } = await params;
   const article = news.find((n) => n.id.toString() === id);
   if (!article) {
@@ -99,4 +99,9 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

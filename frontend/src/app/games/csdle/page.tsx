@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { playerProfiles } from "@/data/mock";
 import type { PlayerProfile } from "@/data/mock";
 import { getDailySeed, getTimeUntilMidnight } from "@/lib/daily-seed";
+import { countryFlag, countryLabel } from "@/lib/country-flags";
 import { loadProfile, saveProfile, addXP, updateDailyStreak } from "@/lib/gamification";
 import type { UserProfile } from "@/lib/gamification";
 
@@ -71,7 +72,7 @@ function buildClues(guess: PlayerProfile, answer: PlayerProfile): ClueCell[] {
 
   return [
     { label: "Player", value: guess.nickname, status: nameMatch ? "green" : "red" },
-    { label: "Country", value: guess.countryFlag + " " + guess.country, status: countryMatch ? "green" : "red" },
+    { label: "Country", value: countryLabel(guess.country, guess.countryFlag), status: countryMatch ? "green" : "red" },
     { label: "Team", value: guess.team, status: teamMatch ? "green" : "red" },
     { label: "Role", value: guess.role.split(" / ")[0], status: roleMatch ? "green" : "red" },
     { label: "Age", value: String(guess.age), status: ageStatus, arrow: ageArrow },
@@ -286,12 +287,14 @@ export default function CsdlePage() {
                   className="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-bg-card-hover transition-colors"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.image} alt={p.nickname} className="w-8 h-8 rounded-lg object-cover object-top" />
+                  <span className="player-photo-frame h-8 w-8 overflow-hidden rounded-lg">
+                    <img src={p.image} alt={p.nickname} className="player-photo player-photo--avatar" />
+                  </span>
                   <div className="flex-1 min-w-0">
                     <span className="font-semibold">{p.nickname}</span>
                     <span className="text-text-muted ml-2 text-xs">{p.team}</span>
                   </div>
-                  <span className="text-xs">{p.countryFlag}</span>
+                  <span className="text-xs">{countryFlag(p.country, p.countryFlag)}</span>
                 </button>
               ))}
             </div>

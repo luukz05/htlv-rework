@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import TeamLogo from "@/components/TeamLogo";
 import type { PlayerProfile } from "@/data/mock";
+import { countryFlag, countryLabel } from "@/lib/country-flags";
 
 const tabs = ["Overview", "Statistics", "Matches", "Achievements"] as const;
 type Tab = (typeof tabs)[number];
@@ -30,12 +31,14 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
           <div className="flex flex-col md:flex-row items-start gap-6">
             <div className="relative shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.image} alt={p.nickname} className="w-32 h-32 md:w-40 md:h-40 rounded-xl object-cover object-top border-2 border-border" />
+              <span className="player-photo-frame block w-32 h-32 md:w-40 md:h-40 overflow-hidden rounded-xl border-2 border-border">
+                <img src={p.image} alt={p.nickname} className="player-photo player-photo--avatar" />
+              </span>
               <div className="absolute -bottom-2 -right-2"><TeamLogo src={p.teamLogo} name={p.team} size={32} /></div>
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-1">
-                <span className="text-2xl">{p.countryFlag}</span>
+                <span className="text-2xl">{countryFlag(p.country, p.countryFlag)}</span>
                 <h1 className="text-3xl font-black">{p.nickname}</h1>
                 <span className="text-sm text-text-muted">#{p.id}</span>
               </div>
@@ -296,7 +299,7 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
                   ["Nickname", p.nickname],
                   ["Real Name", p.realName],
                   ["Age", p.age.toString()],
-                  ["Country", `${p.countryFlag} ${p.country}`],
+                  ["Country", countryLabel(p.country, p.countryFlag)],
                   ["Team", p.team],
                   ["Role", p.role],
                   ["Signature", p.signatureWeapon],

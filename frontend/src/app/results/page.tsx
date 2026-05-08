@@ -2,9 +2,14 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { recentResults, Match } from "@/data/mock";
+import { api } from "@/services/api";
+import type { Match } from "@/services/types";
 
-export default function ResultsPage() {
+export default async function ResultsPage() {
+  const { recentResults } = await resolvePageData({
+    recentResults: api.results(),
+  });
+
   const grouped = recentResults.reduce((acc, m) => {
     const key = m.date || "Unknown";
     if (!acc[key]) acc[key] = [];
@@ -85,4 +90,9 @@ export default function ResultsPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

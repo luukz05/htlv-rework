@@ -7,8 +7,9 @@
     "dev": "next dev",
     "prebuild": "node ./scripts/sync-mock-data.mjs && npm --prefix ../backend run build",
     "build": "next build --webpack",
-    "start": "serve out -l 3000",
-    "lint": "eslint"
+    "start": "next start -p 3000",
+    "lint": "eslint",
+    "sync-team-logos": "node ./scripts/sync-team-logos.mjs"
   },
   "dependencies": {
     "hltv-backend": "file:../backend",

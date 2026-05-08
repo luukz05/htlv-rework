@@ -2,28 +2,14 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import TeamLogo from "@/components/TeamLogo";
-import { upcomingMatches } from "@/data/mock";
+import { api } from "@/services/api";
 
-const bookmakers = ["Betway", "GG.bet", "Pinnacle"];
-
-function generateOdds() {
-  return upcomingMatches.slice(0, 6).map((match) => {
-    const team1Base = 1.3 + Math.random() * 2;
-    const team2Base = 1.3 + Math.random() * 2;
-    return {
-      match,
-      odds: bookmakers.map((bk) => ({
-        bookmaker: bk,
-        team1: +(team1Base + (Math.random() * 0.3 - 0.15)).toFixed(2),
-        team2: +(team2Base + (Math.random() * 0.3 - 0.15)).toFixed(2),
-      })),
-    };
+export default async function BettingPage() {
+  const { bookmakers, bettingMatches } = await resolvePageData({
+    bookmakers: api.bookmakers(),
+    bettingMatches: api.bettingOdds(),
   });
-}
 
-const bettingMatches = generateOdds();
-
-export default function BettingPage() {
   return (
     <>
       <Header />
@@ -112,4 +98,9 @@ export default function BettingPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

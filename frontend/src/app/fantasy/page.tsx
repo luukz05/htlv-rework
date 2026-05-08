@@ -2,29 +2,15 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import TeamLogo from "@/components/TeamLogo";
-import { topPlayers } from "@/data/mock";
+import { countryFlag } from "@/lib/country-flags";
+import { api } from "@/services/api";
 
-const leaderboard = [
-  { rank: 1, name: "FragMaster99", points: 2845, team: "Team Alpha", change: "+12" },
-  { rank: 2, name: "ClutchKing", points: 2790, team: "Spirit Hunters", change: "+5" },
-  { rank: 3, name: "AWPGod_BR", points: 2734, team: "FURIA Fantasy", change: "-1" },
-  { rank: 4, name: "TacticianPro", points: 2698, team: "G2 Believers", change: "+8" },
-  { rank: 5, name: "NadeExpert", points: 2651, team: "Smoke Squad", change: "+3" },
-  { rank: 6, name: "HeadshotHero", points: 2623, team: "Click Heads FC", change: "-4" },
-  { rank: 7, name: "CS_Veteran42", points: 2589, team: "Old Guard", change: "+1" },
-  { rank: 8, name: "RushBNoStop", points: 2545, team: "B Site Rush", change: "-2" },
-  { rank: 9, name: "SilentEntry", points: 2512, team: "Quiet Storm", change: "+6" },
-  { rank: 10, name: "GlobalElite1", points: 2480, team: "Elite Squad", change: "0" },
-];
+export default async function FantasyPage() {
+  const { leaderboard, fantasyPlayers } = await resolvePageData({
+    leaderboard: api.fantasyLeaderboard(),
+    fantasyPlayers: api.fantasyPlayers(),
+  });
 
-const fantasyPlayers = topPlayers.slice(0, 8).map((p, i) => ({
-  ...p,
-  fantasyPoints: 320 - i * 28 + Math.floor(Math.random() * 20),
-  price: (5.0 - i * 0.4).toFixed(1),
-  owned: `${85 - i * 7}%`,
-}));
-
-export default function FantasyPage() {
   return (
     <>
       <Header />
@@ -76,14 +62,16 @@ export default function FantasyPage() {
                   <div className="flex items-start gap-3">
                     <div className="relative">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={player.image} alt={player.name} className="w-14 h-14 rounded-lg object-cover object-top" />
+                      <span className="player-photo-frame block w-14 h-14 overflow-hidden rounded-lg">
+                        <img src={player.image} alt={player.name} className="player-photo player-photo--avatar" />
+                      </span>
                       <div className="absolute -bottom-1 -right-1">
                         <TeamLogo src={player.teamLogo} name={player.team} size={18} />
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-sm">{player.countryFlag}</span>
+                        <span className="text-sm">{countryFlag(player.country, player.countryFlag)}</span>
                         <h3 className="text-sm font-bold">{player.name}</h3>
                       </div>
                       <p className="text-[11px] text-text-muted mb-2">{player.team}</p>
@@ -160,4 +148,9 @@ export default function FantasyPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

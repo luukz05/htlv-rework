@@ -1,11 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { forumThreads } from "@/data/mock";
-
-export function generateStaticParams() {
-  return forumThreads.map((t) => ({ id: t.id.toString() }));
-}
+import { api } from "@/services/api";
 
 const mockReplies = [
   { user: "ProAnalyst", rank: "Global Elite", time: "5 min ago", text: "Great discussion topic! I think the current meta really favors aggressive play styles. Teams that can execute fast site takes with coordinated utility will dominate.", likes: 67 },
@@ -18,6 +14,10 @@ const mockReplies = [
 ];
 
 export default async function ForumThreadPage({ params }: { params: Promise<{ id: string }> }) {
+  const { forumThreads } = await resolvePageData({
+    forumThreads: api.forums(),
+  });
+
   const { id } = await params;
   const thread = forumThreads.find((t) => t.id.toString() === id);
   if (!thread) {
@@ -113,4 +113,9 @@ export default async function ForumThreadPage({ params }: { params: Promise<{ id
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

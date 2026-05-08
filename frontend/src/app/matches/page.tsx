@@ -2,8 +2,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { liveMatches, upcomingMatches } from "@/data/mock";
-import { Match } from "@/data/mock";
+import { api } from "@/services/api";
+import type { Match } from "@/services/types";
 
 function MatchRow({ match, index }: { match: Match; index: number }) {
   const isLive = match.status === "live";
@@ -77,7 +77,12 @@ function MatchRow({ match, index }: { match: Match; index: number }) {
   );
 }
 
-export default function MatchesPage() {
+export default async function MatchesPage() {
+  const { liveMatches, upcomingMatches } = await resolvePageData({
+    liveMatches: api.liveMatches(),
+    upcomingMatches: api.upcomingMatches(),
+  });
+
   const grouped = upcomingMatches.reduce((acc, m) => {
     const key = m.date || "TBD";
     if (!acc[key]) acc[key] = [];
@@ -112,4 +117,9 @@ export default function MatchesPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

@@ -2,9 +2,14 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { playerProfiles } from "@/data/mock";
+import { countryFlag } from "@/lib/country-flags";
+import { api } from "@/services/api";
 
-export default function PlayersPage() {
+export default async function PlayersPage() {
+  const { playerProfiles } = await resolvePageData({
+    playerProfiles: api.players(),
+  });
+
   return (
     <>
       <Header />
@@ -28,9 +33,9 @@ export default function PlayersPage() {
                 i === 0 ? "border-yellow/30 md:row-start-1 md:-mt-0" : i === 1 ? "border-text-muted/30" : "border-orange/30"
               }`}
             >
-              <div className="relative h-48 overflow-hidden">
+              <div className="player-photo-frame relative h-48 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.image} alt={p.nickname} className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+                <img src={p.image} alt={p.nickname} className="player-photo player-photo--portrait" />
                 <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-bg-card/30 to-transparent" />
                 <div className="absolute top-3 left-3">
                   <span className={`text-2xl font-black ${i === 0 ? "rank-gold" : i === 1 ? "rank-silver" : "rank-bronze"}`}>#{p.id}</span>
@@ -41,7 +46,7 @@ export default function PlayersPage() {
               </div>
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-lg">{p.countryFlag}</span>
+                  <span className="text-lg">{countryFlag(p.country, p.countryFlag)}</span>
                   <h3 className="text-xl font-black group-hover:text-blue-light transition-colors">{p.nickname}</h3>
                 </div>
                 <p className="text-xs text-text-muted mb-3">{p.realName} &middot; {p.role}</p>
@@ -88,10 +93,12 @@ export default function PlayersPage() {
                 </span>
                 <div className="flex items-center gap-2 min-w-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.image} alt={p.nickname} className="w-8 h-8 rounded-full object-cover object-top shrink-0" />
+                  <span className="player-photo-frame h-8 w-8 shrink-0 overflow-hidden rounded-full">
+                    <img src={p.image} alt={p.nickname} className="player-photo player-photo--avatar" />
+                  </span>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-sm">{p.countryFlag}</span>
+                      <span className="text-sm">{countryFlag(p.country, p.countryFlag)}</span>
                       <span className="text-sm font-semibold truncate">{p.nickname}</span>
                     </div>
                     <span className="text-[10px] text-text-muted">{p.realName}</span>
@@ -114,4 +121,9 @@ export default function PlayersPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

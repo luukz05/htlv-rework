@@ -4,7 +4,9 @@ import NewsSection from "@/components/NewsSection";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
-import { news, events, topPlayers, forumThreads, streams, playerOfTheWeek, roundHighlight, legends } from "@/data/mock";
+import { events, topPlayers, forumThreads, streams, playerOfTheWeek, roundHighlight, legends } from "@/data/mock";
+import { countryFlag, languageFlag } from "@/lib/country-flags";
+import { api } from "@/services/api";
 
 /* ── Ad placeholder ── */
 function AdBanner({ height, label }: { height: string; label: string }) {
@@ -38,9 +40,9 @@ function PlayerOfTheWeek() {
       <div className="rounded-xl border border-border bg-bg-card overflow-hidden card-glow">
         <div className="relative grid grid-cols-1 md:grid-cols-[240px_1fr]">
           {/* Player image */}
-          <div className="relative h-64 md:h-auto overflow-hidden bg-gradient-to-b from-bg-surface to-bg-card">
+          <div className="player-photo-frame relative h-64 md:h-auto overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={player.image} alt={player.name} className="h-full w-full object-cover object-top" />
+            <img src={player.image} alt={player.name} className="player-photo player-photo--hero" />
             <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-bg-card" />
             <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-yellow/20 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-yellow/30">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="#eab308">
@@ -57,7 +59,7 @@ function PlayerOfTheWeek() {
               <span className="text-xs font-medium text-text-muted uppercase tracking-wider">{player.team}</span>
             </div>
             <div className="flex items-center gap-3 mb-1">
-              <span className="text-lg">{player.countryFlag}</span>
+              <span className="text-lg">{countryFlag(player.country, player.countryFlag)}</span>
               <h3 className="text-2xl font-black">{player.name}</h3>
             </div>
             <p className="text-sm text-text-muted mb-4">{player.realName}</p>
@@ -150,7 +152,7 @@ function RoundHighlightSection() {
 }
 
 /* ── Legend Anthem — Hall of Fame ── */
-function LegendAnthem() {
+function LegacyLegendAnthem() {
   const legend = legends[0]; // FalleN
   return (
     <section className="relative overflow-hidden border-b border-border">
@@ -177,17 +179,17 @@ function LegendAnthem() {
         <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 items-center">
           {/* Left — Player visual */}
           <div className="relative mx-auto lg:mx-0">
-            <div className="relative w-64 h-80 rounded-2xl overflow-hidden border-2 border-yellow/20 shadow-[0_0_60px_rgba(234,179,8,0.15)]">
+            <div className="player-photo-frame relative h-[417px] w-[400px] max-w-full rounded-2xl overflow-hidden border-2 border-yellow/20 shadow-[0_0_60px_rgba(234,179,8,0.15)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={legend.image} alt={legend.nickname} className="h-full w-full object-cover" />
+              <img src={legend.image} alt={legend.nickname} className="player-photo player-photo--hero" />
               <div className="absolute inset-0 bg-gradient-to-t from-bg-body via-transparent to-transparent" />
               {/* Country flag + name overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-4">
+              <div className="absolute bottom-0 left-0 right-0 p-3">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-2xl">{legend.countryFlag}</span>
+                  <span className="text-2xl">{countryFlag(legend.country, legend.countryFlag)}</span>
                   <span className="text-xs font-bold text-yellow uppercase tracking-wider">{legend.epithet}</span>
                 </div>
-                <h3 className="text-3xl font-black text-white" style={{ textShadow: "0 0 30px rgba(234,179,8,0.4)" }}>{legend.nickname}</h3>
+                <h3 className="text-2xl font-black text-white" style={{ textShadow: "0 0 30px rgba(234,179,8,0.4)" }}>{legend.nickname}</h3>
                 <p className="text-sm text-text-muted">{legend.realName}</p>
               </div>
             </div>
@@ -247,7 +249,69 @@ function LegendAnthem() {
 }
 
 /* ── Breaking News Ticker ── */
-function BreakingNewsTicker() {
+function LegendAnthem() {
+  const legend = legends[0]; // FalleN
+  const hallOfFameImage = `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/players/fallen_hall_of_fame.jpg`;
+
+  return (
+    <section className="relative min-h-[560px] overflow-hidden border-b border-border bg-bg-body">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={hallOfFameImage} alt={legend.nickname} className="absolute inset-0 h-full w-full object-cover object-center" />
+      <div className="absolute inset-0 bg-gradient-to-r from-bg-body via-bg-body/85 to-bg-body/15" />
+      <div className="absolute inset-0 bg-gradient-to-t from-bg-body via-transparent to-bg-body/25" />
+      <div className="absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_72%_45%,rgba(234,179,8,0.16),transparent_54%)]" />
+
+      <div className="relative mx-auto flex min-h-[560px] max-w-[1440px] items-center px-6 py-12 md:py-16">
+        <div className="max-w-3xl">
+          <div className="mb-6 inline-flex items-center gap-2 border border-yellow/25 bg-yellow/10 px-4 py-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#eab308">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-yellow">Hall of Fame</span>
+          </div>
+
+          <div className="mb-3 flex items-center gap-3">
+            <span className="text-3xl">{countryFlag(legend.country, legend.countryFlag)}</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-yellow">{legend.epithet}</span>
+          </div>
+
+          <h2 className="mb-4 text-4xl font-black leading-none text-white md:text-6xl">{legend.nickname}</h2>
+          <p className="mb-2 text-lg font-semibold text-text-primary">{legend.realName}</p>
+          <p className="mb-6 text-xs font-bold uppercase tracking-widest text-yellow/75">{legend.role}</p>
+
+          <p className="max-w-2xl text-sm leading-7 text-text-secondary md:text-base">{legend.bio}</p>
+
+          <div className="my-7 max-w-2xl border-l-2 border-yellow/40 pl-4">
+            <p className="text-sm italic leading-6 text-text-secondary">&ldquo;{legend.quote}&rdquo;</p>
+            <p className="mt-2 text-xs font-semibold text-yellow">- {legend.nickname}</p>
+          </div>
+
+          <div className="mb-7 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
+            {legend.careerStats.slice(0, 4).map((s) => (
+              <div key={s.label} className="border-t border-yellow/25 pt-3">
+                <p className="text-xl font-black text-yellow tabular-nums">{s.value}</p>
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="max-w-3xl">
+            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-text-muted">Career Achievements</h3>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              {legend.achievements.slice(0, 8).map((a) => (
+                <span key={`${a.title}-${a.year}`} className="text-xs text-text-secondary">
+                  <span className="text-yellow">{a.year}</span> {a.title}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BreakingNewsTicker({ news }: { news: Awaited<ReturnType<typeof api.news>> }) {
   const headlines = news.slice(0, 3);
   return (
     <div className="relative bg-bg-surface border-b border-border overflow-hidden">
@@ -420,7 +484,7 @@ function TopPlayerRatings() {
                 {player.rank}.
               </span>
               <div className="flex items-center gap-2 min-w-0">
-                <span className="text-sm">{player.countryFlag}</span>
+                <span className="text-sm">{countryFlag(player.country, player.countryFlag)}</span>
                 <span className="text-sm font-semibold truncate">{player.name}</span>
               </div>
               <span className="text-sm font-bold text-green text-right tabular-nums">{player.rating.toFixed(2)}</span>
@@ -466,7 +530,7 @@ function PopularStreams() {
           <div className="flex items-center gap-2 mt-1">
             <span className="text-[11px] font-medium text-purple-400">{stream.channel}</span>
             <span className="text-[10px] text-text-muted">&middot;</span>
-            <span className="text-[10px] text-text-muted">{stream.language}</span>
+            <span className="text-[10px] text-text-muted">{languageFlag(stream.language)} {stream.language}</span>
           </div>
         </div>
       </a>
@@ -549,7 +613,7 @@ function UpcomingEvents() {
 }
 
 /* ── More News (full-width bottom grid) ── */
-function MoreNews() {
+function MoreNews({ news }: { news: Awaited<ReturnType<typeof api.news>> }) {
   const moreArticles = news.slice(7, 12);
   if (moreArticles.length === 0) return null;
   return (
@@ -597,13 +661,17 @@ function MoreNews() {
 }
 
 /* ── Main Page ── */
-export default function Home() {
+export default async function Home() {
+  const { news } = await resolvePageData({
+    news: api.news(),
+  });
+
   return (
     <>
       <Header />
 
       {/* Breaking News Ticker — full bleed */}
-      <BreakingNewsTicker />
+      <BreakingNewsTicker news={news} />
 
       {/* Leaderboard Ad */}
       <div className="mx-auto max-w-[1440px] px-6 pt-6">
@@ -624,7 +692,7 @@ export default function Home() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
           {/* Left column */}
           <div className="space-y-8">
-            <NewsSection />
+            <NewsSection news={news} />
 
             <PlayerOfTheWeek />
 
@@ -666,9 +734,14 @@ export default function Home() {
       </div>
 
       {/* More News — full bleed bg */}
-      <MoreNews />
+      <MoreNews news={news} />
 
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

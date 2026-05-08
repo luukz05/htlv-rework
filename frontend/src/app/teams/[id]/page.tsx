@@ -2,13 +2,14 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { teamProfiles } from "@/data/mock";
-
-export function generateStaticParams() {
-  return teamProfiles.map((t) => ({ id: t.id }));
-}
+import { countryFlag, countryLabel } from "@/lib/country-flags";
+import { api } from "@/services/api";
 
 export default async function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { teamProfiles } = await resolvePageData({
+    teamProfiles: api.teams(),
+  });
+
   const { id } = await params;
   const team = teamProfiles.find((t) => t.id === id);
 
@@ -54,7 +55,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
                 <span className="rounded-md bg-blue/15 px-2 py-0.5 text-xs font-bold text-blue-light">{team.region}</span>
                 <span className="rounded-md bg-yellow/15 px-2 py-0.5 text-xs font-bold text-yellow">World #{team.worldRanking}</span>
               </div>
-              <p className="text-sm text-text-muted mb-4">{team.countryFlag} {team.country} &middot; Est. {team.founded}</p>
+              <p className="text-sm text-text-muted mb-4">{countryLabel(team.country, team.countryFlag)} &middot; Est. {team.founded}</p>
 
               {/* Key stats row */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -90,7 +91,9 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
                 {team.roster.map((player) => (
                   <div key={player.nickname} className="flex items-center gap-4 px-5 py-3 hover:bg-bg-card-hover transition-all">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={player.image} alt={player.nickname} className="w-12 h-12 rounded-full object-cover object-top border border-border shrink-0" />
+                    <span className="player-photo-frame h-12 w-12 shrink-0 overflow-hidden rounded-full border border-border">
+                      <img src={player.image} alt={player.nickname} className="player-photo player-photo--avatar" />
+                    </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         {player.playerId > 0 ? (
@@ -105,7 +108,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                           </svg>
                         )}
-                        <span className="text-xs text-text-muted">{player.countryFlag}</span>
+                        <span className="text-xs text-text-muted">{countryFlag(player.country, player.countryFlag)}</span>
                       </div>
                       <p className="text-xs text-text-muted truncate">{player.realName}</p>
                     </div>
@@ -127,7 +130,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold">{team.coach.nickname}</span>
-                    <span className="text-xs text-text-muted">{team.coach.countryFlag}</span>
+                    <span className="text-xs text-text-muted">{countryFlag(team.coach.country, team.coach.countryFlag)}</span>
                   </div>
                   <p className="text-xs text-text-muted">{team.coach.realName}</p>
                 </div>
@@ -305,9 +308,9 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
                   ["Full Name", team.name],
                   ["Abbreviation", team.abbr],
                   ["Region", team.region],
-                  ["Country", `${team.countryFlag} ${team.country}`],
+                  ["Country", countryLabel(team.country, team.countryFlag)],
                   ["Founded", team.founded],
-                  ["Coach", `${team.coach.nickname} ${team.coach.countryFlag}`],
+                  ["Coach", `${team.coach.nickname} ${countryFlag(team.coach.country, team.coach.countryFlag)}`],
                   ["World Ranking", `#${team.worldRanking}`],
                   ["Peak Ranking", `#${team.peakRanking} (${team.peakRankingDate})`],
                   ["Weeks in Top 5", team.weeksInTop5.toString()],
@@ -366,4 +369,9 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

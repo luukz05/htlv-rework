@@ -1,9 +1,13 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { events } from "@/data/mock";
+import { api } from "@/services/api";
 
-export default function EventsPage() {
+export default async function EventsPage() {
+  const { events } = await resolvePageData({
+    events: api.events(),
+  });
+
   const ongoing = events.filter((e) => e.progress > 0);
   const upcoming = events.filter((e) => e.progress === 0);
 
@@ -94,4 +98,9 @@ export default function EventsPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

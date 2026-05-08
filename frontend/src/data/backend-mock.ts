@@ -6,6 +6,12 @@ export interface Team {
   logo: string;
 }
 
+export interface MapVeto {
+  team: string;
+  action: "picked" | "banned" | "decider";
+  map: string;
+}
+
 export interface Match {
   id: number;
   team1: Team;
@@ -15,6 +21,8 @@ export interface Match {
   event: string;
   format: string;
   map?: string;
+  mapVeto?: MapVeto[];
+  broadcastUrl?: string;
   time?: string;
   date?: string;
   status: "live" | "upcoming" | "finished";
@@ -133,13 +141,13 @@ const logo = {
   cloud9: `${B}/teams/cloud9.png`,
   complexity: `${B}/teams/complexity.png`,
   pain: `${B}/teams/pain.png`,
-  falcons: `${B}/teams/falcons.svg`,
-  imperial: `${B}/teams/imperial.svg`,
+  falcons: `${B}/teams/falcons.png`,
+  imperial: `${B}/teams/imperial.png`,
   nine_z: `${B}/teams/9z.png`,
-  mongolz: `${B}/teams/mongolz.svg`,
+  mongolz: `${B}/teams/mongolz.png`,
   virtuspro: `${B}/teams/virtuspro.png`,
-  gamerlegion: `${B}/teams/gamerlegion.svg`,
-  saw: `${B}/teams/saw.svg`,
+  gamerlegion: `${B}/teams/gamerlegion.png`,
+  saw: `${B}/teams/saw.png`,
 };
 
 // -- Player Photos (local, downloaded from HLTV) --
@@ -245,7 +253,27 @@ const t = (i: number) => teams[i];
 
 // -- Live Matches --
 export const liveMatches: Match[] = [
-  { id: 1, team1: t(0), team2: t(2), score1: 13, score2: 11, event: "IEM Katowice 2026", format: "BO3", map: "Mirage", status: "live" },
+  {
+    id: 1,
+    team1: t(0),
+    team2: t(2),
+    score1: 13,
+    score2: 11,
+    event: "IEM Katowice 2026",
+    format: "BO3",
+    map: "Mirage",
+    mapVeto: [
+      { team: "NAVI", action: "banned", map: "Nuke" },
+      { team: "FaZe", action: "banned", map: "Ancient" },
+      { team: "NAVI", action: "picked", map: "Mirage" },
+      { team: "FaZe", action: "picked", map: "Inferno" },
+      { team: "NAVI", action: "banned", map: "Anubis" },
+      { team: "FaZe", action: "banned", map: "Dust II" },
+      { team: "Decider", action: "decider", map: "Overpass" },
+    ],
+    broadcastUrl: "https://www.twitch.tv/eslcs",
+    status: "live",
+  },
   { id: 2, team1: t(1), team2: t(4), score1: 16, score2: 9, event: "IEM Katowice 2026", format: "BO3", map: "Inferno", status: "live" },
   { id: 3, team1: t(3), team2: t(5), score1: 7, score2: 10, event: "BLAST Premier", format: "BO1", map: "Anubis", status: "live" },
 ];
@@ -836,7 +864,7 @@ export const legends: Legend[] = [
     realName: "Gabriel Toledo",
     country: "BR",
     countryFlag: flag.BR,
-    image: trophyCup,
+    image: playerPhoto.fallen,
     role: "AWPer / In-Game Leader",
     epithet: "The Professor",
     bio: "Gabriel \"FalleN\" Toledo is the godfather of Brazilian Counter-Strike. An AWPer, in-game leader, mentor, and visionary, FalleN didn't just play the game — he built an entire region's scene from the ground up. He founded Games Academy, mentored an entire generation of Brazilian talent, and led Luminosity/SK Gaming to back-to-back Major championships in 2016, making history as the first South American team to ever win a Major. Known as \"The Professor\" for his tactical genius and leadership, FalleN's legacy extends far beyond his trophies. He proved that greatness can come from anywhere.",

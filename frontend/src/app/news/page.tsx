@@ -1,9 +1,13 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { news } from "@/data/mock";
+import { api } from "@/services/api";
 
-export default function NewsPage() {
+export default async function NewsPage() {
+  const { news } = await resolvePageData({
+    news: api.news(),
+  });
+
   const featured = news[0];
   const rest = news.slice(1);
 
@@ -75,4 +79,9 @@ export default function NewsPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

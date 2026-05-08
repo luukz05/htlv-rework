@@ -2,9 +2,13 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { gameMaps } from "@/data/mock";
+import { api } from "@/services/api";
 
-export default function MapsPage() {
+export default async function MapsPage() {
+  const { gameMaps } = await resolvePageData({
+    gameMaps: api.maps(),
+  });
+
   const activeMaps = gameMaps.filter((m) => m.pool === "active");
   const removedMaps = gameMaps.filter((m) => m.pool === "removed");
 
@@ -146,4 +150,9 @@ export default function MapsPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

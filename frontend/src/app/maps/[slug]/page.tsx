@@ -2,11 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { gameMaps } from "@/data/mock";
-
-export function generateStaticParams() {
-  return gameMaps.map((m) => ({ slug: m.slug }));
-}
+import { api } from "@/services/api";
 
 const utilityColors: Record<string, { bg: string; text: string; label: string }> = {
   smoke: { bg: "bg-blue/15", text: "text-blue-light", label: "Smoke" },
@@ -22,6 +18,10 @@ const diffColors: Record<string, string> = {
 };
 
 export default async function MapDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { gameMaps } = await resolvePageData({
+    gameMaps: api.maps(),
+  });
+
   const { slug } = await params;
   const map = gameMaps.find((m) => m.slug === slug);
 
@@ -324,4 +324,9 @@ export default async function MapDetailPage({ params }: { params: Promise<{ slug
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

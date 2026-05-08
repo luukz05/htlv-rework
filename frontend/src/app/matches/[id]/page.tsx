@@ -2,16 +2,19 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { liveMatches, upcomingMatches, recentResults, topPlayers } from "@/data/mock";
-
-const allMatches = [...liveMatches, ...upcomingMatches, ...recentResults];
-
-export function generateStaticParams() {
-  return allMatches.map((m) => ({ id: m.id.toString() }));
-}
+import { countryFlag } from "@/lib/country-flags";
+import { api } from "@/services/api";
 
 export default async function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { liveMatches, upcomingMatches, recentResults, topPlayers } = await resolvePageData({
+    liveMatches: api.liveMatches(),
+    upcomingMatches: api.upcomingMatches(),
+    recentResults: api.results(),
+    topPlayers: api.topPlayers(),
+  });
+
   const { id } = await params;
+  const allMatches = [...liveMatches, ...upcomingMatches, ...recentResults];
   const match = allMatches.find((m) => m.id.toString() === id);
   if (!match) {
     return (<><Header /><main className="mx-auto max-w-[800px] px-5 py-16 text-center"><h1 className="text-2xl font-bold mb-4">Match not found</h1><Link href="/matches" className="text-blue-light">Back to Matches</Link></main><Footer /></>);
@@ -59,7 +62,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
             <div className="divide-y divide-border">
               {fakePlayers.map((p) => (
                 <Link key={p.rank} href={`/players/${p.rank}`} className="grid grid-cols-[1fr_60px_60px_50px_60px] gap-2 items-center px-5 py-2.5 hover:bg-bg-card-hover transition-all">
-                  <div className="flex items-center gap-2"><span className="text-sm">{p.countryFlag}</span><span className="text-sm font-semibold">{p.name}</span></div>
+                  <div className="flex items-center gap-2"><span className="text-sm">{countryFlag(p.country, p.countryFlag)}</span><span className="text-sm font-semibold">{p.name}</span></div>
                   <span className="text-sm text-right tabular-nums">{18 + Math.floor(Math.random() * 10)}</span>
                   <span className="text-sm text-right tabular-nums">{10 + Math.floor(Math.random() * 8)}</span>
                   <span className="text-xs text-right tabular-nums text-text-muted">{65 + Math.floor(Math.random() * 30)}</span>
@@ -105,4 +108,9 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

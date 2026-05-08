@@ -5,9 +5,14 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { ranking, teamProfiles } from "@/data/mock";
+import { api } from "@/services/api";
 
-export default function RankingsPage() {
+export default async function RankingsPage() {
+  const { ranking, teamProfiles } = await resolvePageData({
+    ranking: api.rankings(),
+    teamProfiles: api.teams(),
+  });
+
   const [expanded, setExpanded] = useState<number | null>(null);
   const top3 = ranking.slice(0, 3);
   const rest = ranking.slice(3);
@@ -133,7 +138,9 @@ export default function RankingsPage() {
                           {tp ? tp.roster.slice(0, 5).map((p, idx) => (
                             <div key={idx} className="flex flex-col items-center gap-1.5">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={p.image} alt={p.nickname} className="h-10 w-10 rounded-full object-cover object-top border border-border" />
+                              <span className="player-photo-frame block h-10 w-10 overflow-hidden rounded-full border border-border">
+                                <img src={p.image} alt={p.nickname} className="player-photo player-photo--avatar" />
+                              </span>
                               <span className="text-[11px] text-text-secondary">{p.nickname}</span>
                             </div>
                           )) : [1,2,3,4,5].map((idx) => (
@@ -181,4 +188,9 @@ export default function RankingsPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

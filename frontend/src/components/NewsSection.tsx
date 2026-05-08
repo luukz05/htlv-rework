@@ -1,6 +1,7 @@
-import { news } from "@/data/mock";
 
-export default function NewsSection() {
+import type { NewsArticle } from "@/services/types";
+
+export default function NewsSection({ news }: { news: NewsArticle[] }) {
   const featured = news[0];
   const sideNews = news.slice(1, 4);
   const bottomNews = news.slice(4, 7);

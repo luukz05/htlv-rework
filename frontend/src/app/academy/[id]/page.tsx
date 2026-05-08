@@ -1,11 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { academyGuides } from "@/data/mock";
-
-export function generateStaticParams() {
-  return academyGuides.map((g) => ({ id: g.id.toString() }));
-}
+import { api } from "@/services/api";
 
 const categoryColors: Record<string, { color: string; bg: string }> = {
   economy: { color: "#22c55e", bg: "bg-green/15" },
@@ -23,6 +19,10 @@ const difficultyColors: Record<string, string> = {
 };
 
 export default async function GuideDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { academyGuides } = await resolvePageData({
+    academyGuides: api.academy(),
+  });
+
   const { id } = await params;
   const guide = academyGuides.find((g) => g.id.toString() === id);
 
@@ -147,4 +147,9 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ id
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

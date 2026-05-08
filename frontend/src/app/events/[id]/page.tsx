@@ -2,13 +2,15 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { events, teams, recentResults } from "@/data/mock";
-
-export function generateStaticParams() {
-  return events.map((e) => ({ id: e.id.toString() }));
-}
+import { api } from "@/services/api";
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { events, teams, recentResults } = await resolvePageData({
+    events: api.events(),
+    teams: api.teamCards(),
+    recentResults: api.results(),
+  });
+
   const { id } = await params;
   const event = events.find((e) => e.id.toString() === id);
   if (!event) {
@@ -119,4 +121,9 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

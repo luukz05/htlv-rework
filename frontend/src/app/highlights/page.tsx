@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import TeamLogo from "@/components/TeamLogo";
-import { highlights } from "@/data/mock";
+import { api } from "@/services/api";
 
 const typeLabels: Record<string, { label: string; color: string }> = {
   clutch: { label: "Clutch", color: "bg-purple-500/20 text-purple-400" },
@@ -15,7 +15,11 @@ const typeLabels: Record<string, { label: string; color: string }> = {
 
 const allTypes = ["all", "clutch", "ace", "awp", "pistol", "wallbang", "deagle"];
 
-export default function HighlightsPage() {
+export default async function HighlightsPage() {
+  const { highlights } = await resolvePageData({
+    highlights: api.highlights(),
+  });
+
   const featured = highlights[0];
   const rest = highlights.slice(1);
 
@@ -69,7 +73,9 @@ export default function HighlightsPage() {
             <div className="flex flex-col justify-center p-6 md:p-8">
               <div className="flex items-center gap-3 mb-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={featured.playerImage} alt={featured.player} className="w-10 h-10 rounded-full object-cover object-top" />
+                <span className="player-photo-frame block h-10 w-10 overflow-hidden rounded-full">
+                  <img src={featured.playerImage} alt={featured.player} className="player-photo player-photo--avatar" />
+                </span>
                 <div>
                   <p className="text-sm font-bold">{featured.player}</p>
                   <div className="flex items-center gap-1.5">
@@ -128,7 +134,9 @@ export default function HighlightsPage() {
               <div className="p-4">
                 <div className="flex items-center gap-2 mb-2">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={hl.playerImage} alt={hl.player} className="w-6 h-6 rounded-full object-cover object-top" />
+                  <span className="player-photo-frame block h-6 w-6 overflow-hidden rounded-full">
+                    <img src={hl.playerImage} alt={hl.player} className="player-photo player-photo--avatar" />
+                  </span>
                   <span className="text-xs font-semibold">{hl.player}</span>
                   <TeamLogo src={hl.teamLogo} name={hl.team} size={14} />
                 </div>
@@ -149,4 +157,9 @@ export default function HighlightsPage() {
       <Footer />
     </>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

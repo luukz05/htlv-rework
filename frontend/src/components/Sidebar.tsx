@@ -1,7 +1,8 @@
-import { liveMatches, upcomingMatches, recentResults, ranking } from "@/data/mock";
 import TeamLogo from "./TeamLogo";
+import { api } from "@/services/api";
+import type { Match, RankedTeam } from "@/services/types";
 
-function LiveMatches() {
+function LiveMatches({ liveMatches, upcomingMatches }: { liveMatches: Match[]; upcomingMatches: Match[] }) {
   const upcoming3 = upcomingMatches.slice(0, 3);
   return (
     <div className="rounded-xl border border-border bg-bg-card overflow-hidden card-glow">
@@ -78,7 +79,7 @@ function LiveMatches() {
   );
 }
 
-function RecentResults() {
+function RecentResults({ recentResults }: { recentResults: Match[] }) {
   return (
     <div className="rounded-xl border border-border bg-bg-card overflow-hidden card-glow">
       <div className="px-4 py-3 border-b border-border">
@@ -117,7 +118,7 @@ function RecentResults() {
   );
 }
 
-function TopRanking() {
+function TopRanking({ ranking }: { ranking: RankedTeam[] }) {
   return (
     <div className="rounded-xl border border-border bg-bg-card overflow-hidden card-glow">
       <div className="px-4 py-3 border-b border-border">
@@ -154,12 +155,24 @@ function TopRanking() {
   );
 }
 
-export default function Sidebar() {
+export default async function Sidebar() {
+  const { liveMatches, upcomingMatches, recentResults, ranking } = await resolvePageData({
+    liveMatches: api.liveMatches(),
+    upcomingMatches: api.upcomingMatches(),
+    recentResults: api.results(),
+    ranking: api.rankings(),
+  });
+
   return (
     <aside className="space-y-4">
-      <LiveMatches />
-      <RecentResults />
-      <TopRanking />
+      <LiveMatches liveMatches={liveMatches} upcomingMatches={upcomingMatches} />
+      <RecentResults recentResults={recentResults} />
+      <TopRanking ranking={ranking} />
     </aside>
   );
+}
+
+async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
+  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
+  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }
