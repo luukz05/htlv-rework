@@ -1,46 +1,21 @@
 import { createServer } from "node:http";
-import { playerProfiles, topPlayers } from "./data/mock.js";
+import { createRouter } from "./routes/index.js";
 
 const port = Number(process.env.PORT || 4000);
+const router = createRouter();
 
 const server = createServer((req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
-
-  if (url.pathname === "/health") {
-    res.end(JSON.stringify({ ok: true }));
+  if (req.method === "OPTIONS") {
+    res.statusCode = 204;
+    res.end();
     return;
   }
 
-  if (url.pathname === "/players") {
-    res.end(JSON.stringify(playerProfiles));
-    return;
-  }
-
-  if (url.pathname === "/players/top") {
-    res.end(JSON.stringify(topPlayers));
-    return;
-  }
-
-  const playerMatch = url.pathname.match(/^\/players\/([^/]+)$/);
-  if (playerMatch) {
-    const id = Number(playerMatch[1]);
-    const player = playerProfiles.find((profile) => profile.id === id);
-
-    if (!player) {
-      res.statusCode = 404;
-      res.end(JSON.stringify({ error: "Player not found" }));
-      return;
-    }
-
-    res.end(JSON.stringify(player));
-    return;
-  }
-
-  res.statusCode = 404;
-  res.end(JSON.stringify({ error: "Not found" }));
+  router.handle(req, res);
 });
 
 server.listen(port, () => {
