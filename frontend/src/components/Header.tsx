@@ -11,6 +11,7 @@ const navLinks = [
   { label: "Events", href: "/events" },
   { label: "Stats", href: "/stats" },
   { label: "Maps", href: "/maps" },
+  { label: "Hall of Fame", shortLabel: "HOF", href: "/hall-of-fame" },
   { label: "Galleries", href: "/galleries" },
   { label: "Rankings", href: "/rankings" },
   { label: "Forums", href: "/forums" },
@@ -32,23 +33,23 @@ export default function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-border bg-bg-surface">
-        <div className="mx-auto flex max-w-[1440px] items-center gap-6 px-6 h-14">
+        <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-4 px-6">
           <Link href="/" className="flex items-center gap-2 shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`${B}/hltv-logo.png`} alt="HLTV" className="h-8 w-8 rounded-md" />
             <span className="text-lg font-bold text-text-primary">HLTV</span>
           </Link>
 
-          <nav className="hidden items-center gap-0.5 lg:flex">
+          <nav className="hidden items-center gap-0 lg:flex">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative px-3 py-4 text-sm font-medium transition-colors ${
+                className={`relative px-2 py-4 text-[13px] font-medium transition-colors ${
                   isActive(link.href) ? "text-blue-light" : "text-text-secondary hover:text-text-primary"
                 }`}
               >
-                {link.label}
+                {link.shortLabel || link.label}
                 {link.label === "Games" && <span className="ml-1 text-[8px] font-black uppercase bg-red text-white px-1 py-0.5 rounded-full leading-none">NEW</span>}
                 {isActive(link.href) && (
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-full bg-blue-light rounded-full" />
@@ -58,7 +59,7 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-3 ml-auto">
-            <div className="hidden sm:flex items-center gap-2 rounded-lg border border-border bg-bg-input px-3 py-1.5 w-60">
+            <div className="hidden sm:flex items-center gap-2 rounded-lg border border-border bg-bg-input px-3 py-1.5 w-52 xl:w-60">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>

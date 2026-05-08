@@ -4,7 +4,7 @@ import NewsSection from "@/components/NewsSection";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
-import { events, topPlayers, forumThreads, streams, playerOfTheWeek, roundHighlight, legends } from "@/data/mock";
+import { events, topPlayers, forumThreads, streams, playerOfTheWeek, roundHighlight } from "@/data/mock";
 import { countryFlag, languageFlag } from "@/lib/country-flags";
 import { api } from "@/services/api";
 
@@ -145,166 +145,6 @@ function RoundHighlightSection() {
             </svg>
             Watch Replay
           </a>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ── Legend Anthem — Hall of Fame ── */
-function LegacyLegendAnthem() {
-  const legend = legends[0]; // FalleN
-  return (
-    <section className="relative overflow-hidden border-b border-border">
-      {/* Background atmosphere */}
-      <div className="absolute inset-0 bg-gradient-to-r from-yellow/5 via-bg-body to-yellow/5" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(234,179,8,0.08),transparent_70%)]" />
-
-      <div className="relative mx-auto max-w-[1440px] px-6 py-10 md:py-16">
-        {/* Header badge */}
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="h-px flex-1 max-w-[120px] bg-gradient-to-r from-transparent to-yellow/40" />
-          <div className="flex items-center gap-2 bg-yellow/10 border border-yellow/20 rounded-full px-5 py-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#eab308">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
-            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-yellow">Hall of Fame</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#eab308">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
-          </div>
-          <div className="h-px flex-1 max-w-[120px] bg-gradient-to-l from-transparent to-yellow/40" />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 items-center">
-          {/* Left — Player visual */}
-          <div className="relative mx-auto lg:mx-0">
-            <div className="player-photo-frame relative h-[417px] w-[400px] max-w-full rounded-2xl overflow-hidden border-2 border-yellow/20 shadow-[0_0_60px_rgba(234,179,8,0.15)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={legend.image} alt={legend.nickname} className="player-photo player-photo--hero" />
-              <div className="absolute inset-0 bg-gradient-to-t from-bg-body via-transparent to-transparent" />
-              {/* Country flag + name overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-2xl">{countryFlag(legend.country, legend.countryFlag)}</span>
-                  <span className="text-xs font-bold text-yellow uppercase tracking-wider">{legend.epithet}</span>
-                </div>
-                <h3 className="text-2xl font-black text-white" style={{ textShadow: "0 0 30px rgba(234,179,8,0.4)" }}>{legend.nickname}</h3>
-                <p className="text-sm text-text-muted">{legend.realName}</p>
-              </div>
-            </div>
-            {/* Glow ring */}
-            <div className="absolute -inset-4 rounded-3xl border border-yellow/10 -z-10" />
-            <div className="absolute -inset-8 rounded-3xl border border-yellow/5 -z-10" />
-          </div>
-
-          {/* Right — Legend content */}
-          <div>
-            <p className="text-xs font-bold text-yellow/70 uppercase tracking-widest mb-2">{legend.role}</p>
-            <h2 className="text-2xl md:text-3xl font-black mb-4 leading-tight">
-              The Legend Who Built a Region
-            </h2>
-            <p className="text-sm text-text-secondary leading-relaxed mb-6 max-w-2xl">
-              {legend.bio}
-            </p>
-
-            {/* Quote */}
-            <div className="mb-6 pl-4 border-l-2 border-yellow/30">
-              <p className="text-sm italic text-text-secondary">&ldquo;{legend.quote}&rdquo;</p>
-              <p className="text-xs text-yellow mt-1">— {legend.nickname}</p>
-            </div>
-
-            {/* Trophies grid */}
-            <div className="mb-6">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-3">Career Achievements</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {legend.achievements.slice(0, 8).map((a, i) => (
-                  <div key={i} className="flex items-center gap-2 rounded-lg bg-yellow/5 border border-yellow/10 px-3 py-2">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#eab308" className="shrink-0">
-                      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
-                    </svg>
-                    <div>
-                      <p className="text-xs font-semibold text-text-primary">{a.title}</p>
-                      <p className="text-[10px] text-text-muted">{a.year}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Career stats */}
-            <div className="grid grid-cols-4 gap-3">
-              {legend.careerStats.slice(0, 4).map((s) => (
-                <div key={s.label} className="text-center rounded-lg bg-bg-card border border-border px-2 py-3">
-                  <p className="text-lg font-black text-yellow tabular-nums">{s.value}</p>
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-text-muted mt-0.5">{s.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ── Breaking News Ticker ── */
-function LegendAnthem() {
-  const legend = legends[0]; // FalleN
-  const hallOfFameImage = `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/players/fallen_hall_of_fame.jpg`;
-
-  return (
-    <section className="relative min-h-[560px] overflow-hidden border-b border-border bg-bg-body">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={hallOfFameImage} alt={legend.nickname} className="absolute inset-0 h-full w-full object-cover object-center" />
-      <div className="absolute inset-0 bg-gradient-to-r from-bg-body via-bg-body/85 to-bg-body/15" />
-      <div className="absolute inset-0 bg-gradient-to-t from-bg-body via-transparent to-bg-body/25" />
-      <div className="absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_72%_45%,rgba(234,179,8,0.16),transparent_54%)]" />
-
-      <div className="relative mx-auto flex min-h-[560px] max-w-[1440px] items-center px-6 py-12 md:py-16">
-        <div className="max-w-3xl">
-          <div className="mb-6 inline-flex items-center gap-2 border border-yellow/25 bg-yellow/10 px-4 py-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#eab308">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
-            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-yellow">Hall of Fame</span>
-          </div>
-
-          <div className="mb-3 flex items-center gap-3">
-            <span className="text-3xl">{countryFlag(legend.country, legend.countryFlag)}</span>
-            <span className="text-xs font-bold uppercase tracking-widest text-yellow">{legend.epithet}</span>
-          </div>
-
-          <h2 className="mb-4 text-4xl font-black leading-none text-white md:text-6xl">{legend.nickname}</h2>
-          <p className="mb-2 text-lg font-semibold text-text-primary">{legend.realName}</p>
-          <p className="mb-6 text-xs font-bold uppercase tracking-widest text-yellow/75">{legend.role}</p>
-
-          <p className="max-w-2xl text-sm leading-7 text-text-secondary md:text-base">{legend.bio}</p>
-
-          <div className="my-7 max-w-2xl border-l-2 border-yellow/40 pl-4">
-            <p className="text-sm italic leading-6 text-text-secondary">&ldquo;{legend.quote}&rdquo;</p>
-            <p className="mt-2 text-xs font-semibold text-yellow">- {legend.nickname}</p>
-          </div>
-
-          <div className="mb-7 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
-            {legend.careerStats.slice(0, 4).map((s) => (
-              <div key={s.label} className="border-t border-yellow/25 pt-3">
-                <p className="text-xl font-black text-yellow tabular-nums">{s.value}</p>
-                <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">{s.label}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="max-w-3xl">
-            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-text-muted">Career Achievements</h3>
-            <div className="flex flex-wrap gap-x-4 gap-y-2">
-              {legend.achievements.slice(0, 8).map((a) => (
-                <span key={`${a.title}-${a.year}`} className="text-xs text-text-secondary">
-                  <span className="text-yellow">{a.year}</span> {a.title}
-                </span>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -677,9 +517,6 @@ export default async function Home() {
       <div className="mx-auto max-w-[1440px] px-6 pt-6">
         <AdBanner height="90px" label="728 × 90 — Leaderboard" />
       </div>
-
-      {/* Legend Anthem — full bleed */}
-      <LegendAnthem />
 
       {/* Hero Match — full bleed bg */}
       <HeroMatch />

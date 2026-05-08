@@ -33,11 +33,7 @@ export default async function HeroMatch() {
 
   const match = liveMatches[0];
   const mapVeto = match.mapVeto ?? [];
-  const picks = mapVeto.filter((item) => item.action === "picked");
-  const bans = mapVeto.filter((item) => item.action === "banned");
-  const decider = mapVeto.find((item) => item.action === "decider");
   const mapBackground = getMapAsset(mapBackgrounds, match.map) ?? `${B}/news/katowice-bg.jpg`;
-  const currentMapIcon = getMapAsset(mapIcons, match.map);
 
   return (
     <section className="relative overflow-hidden">
@@ -86,10 +82,32 @@ export default async function HeroMatch() {
                 <span className="text-xl text-text-muted font-light">:</span>
                 <span className="text-5xl md:text-7xl font-black tabular-nums tracking-tight" style={{ color: (match.score2 ?? 0) >= (match.score1 ?? 0) ? match.team2.color : undefined }}>{match.score2}</span>
               </div>
-              {currentMapIcon && (
-                <span className="mt-3 flex h-14 w-14 items-center justify-center overflow-hidden rounded-lg border border-blue/25 bg-bg-body/65 shadow-lg shadow-black/25 md:h-16 md:w-16" title={match.map}>
-                  <img src={currentMapIcon} alt={match.map || "Current map"} className="h-full w-full object-cover" />
-                </span>
+              {mapVeto.length > 0 && (
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                  {mapVeto.map((item) => {
+                    const icon = getMapAsset(mapIcons, item.map);
+                    const isPlaying = item.map.toLowerCase() === match.map?.toLowerCase();
+                    const isBanned = item.action === "banned";
+
+                    if (!icon) {
+                      return null;
+                    }
+
+                    return (
+                      <img
+                        key={`${item.team}-${item.action}-${item.map}`}
+                        src={icon}
+                        alt={item.map}
+                        title={`${item.team} ${item.action} ${item.map}`}
+                        className={[
+                          "h-8 w-8 object-contain transition-all md:h-9 md:w-9",
+                          isPlaying ? "animate-pulse" : "",
+                          isBanned ? "opacity-45 grayscale brightness-50" : "opacity-100",
+                        ].join(" ")}
+                      />
+                    );
+                  })}
+                </div>
               )}
             </div>
 
@@ -102,26 +120,6 @@ export default async function HeroMatch() {
 
           {/* Actions */}
           <div className="w-full max-w-md space-y-4 animate-slide-in md:w-[360px]">
-            {mapVeto.length > 0 && (
-              <div className="space-y-3">
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  <MapPoolGroup title="Picks" items={picks} tone="text-green" />
-                  <MapPoolGroup title="Bans" items={bans} tone="text-red" muted />
-                </div>
-                {decider && (
-                  <div className="flex items-center justify-between rounded-lg border border-border/70 bg-bg-body/50 px-3 py-2 text-xs">
-                    <span className="flex items-center gap-2 font-bold uppercase tracking-wider text-text-muted">
-                      {getMapAsset(mapIcons, decider.map) && (
-                        <img src={getMapAsset(mapIcons, decider.map)} alt="" className="h-6 w-6 rounded object-cover" />
-                      )}
-                      Decider
-                    </span>
-                    <span className="font-semibold text-text-primary">{decider.map}</span>
-                  </div>
-                )}
-              </div>
-            )}
-
             <div className="flex flex-col gap-2.5">
               <a href={match.broadcastUrl || "#"} target={match.broadcastUrl ? "_blank" : undefined} rel={match.broadcastUrl ? "noreferrer" : undefined} className="flex items-center justify-center gap-2 rounded-lg bg-blue px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-blue-light hover:shadow-lg hover:shadow-blue/20 hover:-translate-y-0.5 active:scale-95">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -135,37 +133,6 @@ export default async function HeroMatch() {
         </div>
       </div>
     </section>
-  );
-}
-
-function MapPoolGroup({
-  title,
-  items,
-  tone,
-  muted = false,
-}: {
-  title: string;
-  items: Array<{ team: string; map: string }>;
-  tone: string;
-  muted?: boolean;
-}) {
-  return (
-    <div className="rounded-lg border border-border/70 bg-bg-body/50 p-3">
-      <p className={`mb-2 text-[11px] font-bold uppercase tracking-wider ${tone}`}>{title}</p>
-      <div className="space-y-1.5">
-        {items.map((item) => (
-          <div key={`${title}-${item.team}-${item.map}`} className={`flex items-center justify-between gap-3 text-xs ${muted ? "opacity-45 grayscale" : ""}`}>
-            <span className="flex min-w-0 items-center gap-2 text-text-muted">
-              {getMapAsset(mapIcons, item.map) && (
-                <img src={getMapAsset(mapIcons, item.map)} alt="" className="h-8 w-8 rounded object-cover" />
-              )}
-              <span className="truncate">{item.team}</span>
-            </span>
-            <span className="shrink-0 font-semibold text-text-primary">{item.map}</span>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }
 
