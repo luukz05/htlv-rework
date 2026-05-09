@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import TeamLogo from "@/components/TeamLogo";
-import { countryFlag } from "@/lib/country-flags";
+import CountryFlag from "@/components/CountryFlag";
 import { api } from "@/services/api";
 
 export default async function FantasyPage() {
@@ -14,7 +14,7 @@ export default async function FantasyPage() {
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-[1200px] px-5 py-8">
+      <main className="mx-auto max-w-[1380px] px-4 py-8">
         {/* Breadcrumb */}
         <div className="mb-6 text-sm text-text-muted">
           <Link href="/" className="hover:text-text-secondary">Home</Link>
@@ -71,7 +71,7 @@ export default async function FantasyPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-sm">{countryFlag(player.country, player.countryFlag)}</span>
+                        <span className="text-sm"><CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} /></span>
                         <h3 className="text-sm font-bold">{player.name}</h3>
                       </div>
                       <p className="text-[11px] text-text-muted mb-2">{player.team}</p>

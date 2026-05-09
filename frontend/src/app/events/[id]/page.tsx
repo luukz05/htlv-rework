@@ -28,7 +28,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         <img src={event.image} alt={event.name} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-body via-bg-body/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0">
-          <div className="mx-auto max-w-[1200px] px-5 pb-6">
+          <div className="mx-auto max-w-[1380px] px-4 pb-6">
             <div className="mb-2 text-sm text-text-muted">
               <Link href="/" className="hover:text-text-secondary">Home</Link><span className="mx-2">&rsaquo;</span>
               <Link href="/events" className="hover:text-text-secondary">Events</Link><span className="mx-2">&rsaquo;</span>
@@ -41,7 +41,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           </div>
         </div>
       </div>
-      <main className="mx-auto max-w-[1200px] px-5 py-8">
+      <main className="mx-auto max-w-[1380px] px-4 py-8">
         {/* Info cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
           {[

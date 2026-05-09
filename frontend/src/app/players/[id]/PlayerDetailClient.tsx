@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import TeamLogo from "@/components/TeamLogo";
+import CountryFlag, { CountryLabel } from "@/components/CountryFlag";
 import type { PlayerProfile } from "@/data/mock";
-import { countryFlag, countryLabel } from "@/lib/country-flags";
 
 const tabs = ["Overview", "Statistics", "Matches", "Achievements"] as const;
 type Tab = (typeof tabs)[number];
@@ -20,7 +21,7 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
     <>
       {/* Hero */}
       <div className="border-b border-border bg-gradient-to-b from-bg-surface to-bg-body">
-        <div className="mx-auto max-w-[1200px] px-5 py-8">
+        <div className="mx-auto max-w-[1380px] px-4 py-8">
           <div className="mb-4 text-sm text-text-muted">
             <Link href="/" className="hover:text-text-secondary">Home</Link>
             <span className="mx-2">&rsaquo;</span>
@@ -38,7 +39,7 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-1">
-                <span className="text-2xl">{countryFlag(p.country, p.countryFlag)}</span>
+                <CountryFlag countryCode={p.country} preferredFlag={p.countryFlag} className="text-2xl" />
                 <h1 className="text-3xl font-black">{p.nickname}</h1>
                 <span className="text-sm text-text-muted">#{p.id}</span>
               </div>
@@ -73,7 +74,7 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
 
       {/* Tab Bar */}
       <div className="border-b border-border bg-bg-surface sticky top-14 z-40">
-        <div className="mx-auto max-w-[1200px] px-5 flex gap-1">
+        <div className="mx-auto max-w-[1380px] px-4 flex gap-1">
           {tabs.map((tab) => (
             <button
               key={tab}
@@ -87,7 +88,7 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
         </div>
       </div>
 
-      <main className="mx-auto max-w-[1200px] px-5 py-8">
+      <main className="mx-auto max-w-[1380px] px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8">
           {/* Main Content */}
           <div className="space-y-8">
@@ -295,11 +296,11 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
             <section className="rounded-xl border border-border bg-bg-card p-4 card-glow animate-fade-in-up">
               <h3 className="text-sm font-bold mb-3">Player Info</h3>
               <div className="space-y-2 text-xs">
-                {[
+                {([
                   ["Nickname", p.nickname],
                   ["Real Name", p.realName],
                   ["Age", p.age.toString()],
-                  ["Country", countryLabel(p.country, p.countryFlag)],
+                  ["Country", <CountryLabel key="country" countryCode={p.country} preferredFlag={p.countryFlag} />],
                   ["Team", p.team],
                   ["Role", p.role],
                   ["Signature", p.signatureWeapon],
@@ -308,7 +309,7 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
                   ["Majors Won", p.majorWins.toString()],
                   ["DPR", p.dpr.toString()],
                   ["AWP K/R", p.awpKillsRound.toString()],
-                ].map(([label, value]) => (
+                ] as [string, ReactNode][]).map(([label, value]) => (
                   <div key={label} className="flex items-center justify-between">
                     <span className="text-text-muted">{label}</span>
                     <span className="font-bold">{value}</span>

@@ -1,8 +1,9 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
+import CountryFlag, { CountryLabel } from "@/components/CountryFlag";
 import Link from "next/link";
-import { countryFlag, countryLabel } from "@/lib/country-flags";
+import type { ReactNode } from "react";
 import { api } from "@/services/api";
 
 export default async function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -33,7 +34,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
 
       {/* Hero Banner */}
       <div className="border-b border-border" style={{ background: `linear-gradient(to bottom, ${team.color}12, var(--color-bg-body))` }}>
-        <div className="mx-auto max-w-[1200px] px-5 py-8">
+        <div className="mx-auto max-w-[1380px] px-4 py-8">
           {/* Breadcrumb */}
           <div className="mb-4 text-sm text-text-muted">
             <Link href="/" className="hover:text-text-secondary">Home</Link>
@@ -55,7 +56,10 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
                 <span className="rounded-md bg-blue/15 px-2 py-0.5 text-xs font-bold text-blue-light">{team.region}</span>
                 <span className="rounded-md bg-yellow/15 px-2 py-0.5 text-xs font-bold text-yellow">World #{team.worldRanking}</span>
               </div>
-              <p className="text-sm text-text-muted mb-4">{countryLabel(team.country, team.countryFlag)} &middot; Est. {team.founded}</p>
+              <p className="flex items-center gap-1.5 text-sm text-text-muted mb-4">
+                <CountryLabel countryCode={team.country} preferredFlag={team.countryFlag} />
+                <span>&middot; Est. {team.founded}</span>
+              </p>
 
               {/* Key stats row */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -77,7 +81,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
       </div>
 
       {/* Main content */}
-      <main className="mx-auto max-w-[1200px] px-5 py-8">
+      <main className="mx-auto max-w-[1380px] px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8">
           {/* Left column */}
           <div className="space-y-8">
@@ -108,7 +112,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                           </svg>
                         )}
-                        <span className="text-xs text-text-muted">{countryFlag(player.country, player.countryFlag)}</span>
+                        <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-xs text-text-muted" />
                       </div>
                       <p className="text-xs text-text-muted truncate">{player.realName}</p>
                     </div>
@@ -130,7 +134,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold">{team.coach.nickname}</span>
-                    <span className="text-xs text-text-muted">{countryFlag(team.coach.country, team.coach.countryFlag)}</span>
+                    <CountryFlag countryCode={team.coach.country} preferredFlag={team.coach.countryFlag} className="text-xs text-text-muted" />
                   </div>
                   <p className="text-xs text-text-muted">{team.coach.realName}</p>
                 </div>
@@ -304,19 +308,19 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
                 <span className="text-xs text-text-muted">{team.abbr}</span>
               </div>
               <div className="p-4 space-y-2 text-xs">
-                {[
+                {([
                   ["Full Name", team.name],
                   ["Abbreviation", team.abbr],
                   ["Region", team.region],
-                  ["Country", countryLabel(team.country, team.countryFlag)],
+                  ["Country", <CountryLabel key="country" countryCode={team.country} preferredFlag={team.countryFlag} />],
                   ["Founded", team.founded],
-                  ["Coach", `${team.coach.nickname} ${countryFlag(team.coach.country, team.coach.countryFlag)}`],
+                  ["Coach", <span key="coach" className="inline-flex items-center gap-1.5">{team.coach.nickname} <CountryFlag countryCode={team.coach.country} preferredFlag={team.coach.countryFlag} /></span>],
                   ["World Ranking", `#${team.worldRanking}`],
                   ["Peak Ranking", `#${team.peakRanking} (${team.peakRankingDate})`],
                   ["Weeks in Top 5", team.weeksInTop5.toString()],
                   ["Weeks in Top 10", team.weeksInTop10.toString()],
                   ["Total Prize", team.totalPrizeEarnings],
-                ].map(([label, value]) => (
+                ] as [string, ReactNode][]).map(([label, value]) => (
                   <div key={label} className="flex items-center justify-between">
                     <span className="text-text-muted">{label}</span>
                     <span className="font-bold text-right">{value}</span>

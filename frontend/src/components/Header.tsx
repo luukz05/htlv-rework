@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import TeamLogo from "./TeamLogo";
+import { events, liveMatches, ranking, topPlayers } from "@/data/mock";
 
 const navLinks = [
   { label: "News", href: "/news" },
@@ -21,6 +23,125 @@ const navLinks = [
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
+const featuredMatch = liveMatches[0];
+const featuredPlayer = topPlayers[0];
+const featuredPlayers = topPlayers.slice(0, 5);
+const featuredTeams = ranking.slice(0, 5);
+const mainEvent = events[0];
+
+function RibbonGroup({
+  label,
+  href,
+  children,
+  className = "",
+}: {
+  label: string;
+  href?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const content = (
+    <>
+      <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">{label}</span>
+      {children}
+    </>
+  );
+
+  const classes = `flex h-11 shrink-0 items-center gap-2 rounded-lg border border-border bg-bg-surface/70 px-3 shadow-sm shadow-black/10 ${className}`;
+
+  if (href) {
+    return (
+      <Link href={href} className={`${classes} transition-all hover:border-border-hover hover:bg-bg-card`}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={classes}>{content}</div>;
+}
+
+function DataRibbon() {
+  const [liveIndex, setLiveIndex] = useState(0);
+  const [isCycling, setIsCycling] = useState(false);
+  const currentLiveMatch = liveMatches[liveIndex % liveMatches.length] ?? featuredMatch;
+
+  useEffect(() => {
+    if (liveMatches.length <= 1) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      setIsCycling(true);
+      window.setTimeout(() => {
+        setLiveIndex((index) => (index + 1) % liveMatches.length);
+        setIsCycling(false);
+      }, 180);
+    }, 3500);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  if (!featuredMatch || !featuredPlayer) {
+    return null;
+  }
+
+  return (
+    <div className="border-t border-border/70 bg-bg-body/80 backdrop-blur-md">
+      <div className="data-ribbon-scroll mx-auto flex h-[60px] max-w-[1460px] items-center gap-3 overflow-x-auto px-4 py-2 sm:px-5">
+        <Link href="/rankings" className="flex h-11 min-w-max shrink-0 items-center gap-2 transition-colors hover:text-text-primary">
+          <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Top 5 global</span>
+          {featuredTeams.map((team) => (
+            <span
+              key={team.name}
+              title={`${team.rank}. ${team.name}`}
+              className="group flex items-center gap-1"
+            >
+              <span className="text-[10px] font-black tabular-nums text-text-muted">{team.rank}</span>
+              <TeamLogo src={team.logo} name={team.name} size={22} className="transition-transform group-hover:scale-110" />
+            </span>
+          ))}
+        </Link>
+
+        <RibbonGroup
+          label=""
+          href={`/matches/${currentLiveMatch.id}`}
+          className={`h-11 w-[300px] min-w-[300px] max-w-[300px] overflow-hidden border-red/20 bg-red/10 transition-opacity duration-200 hover:bg-red/15 ${
+            isCycling ? "opacity-45" : "opacity-100"
+          }`}
+        >
+          <span className="flex w-11 shrink-0 items-center gap-1 text-[10px] font-black uppercase tracking-wider text-red">
+            <span className="h-1.5 w-1.5 rounded-full bg-red animate-pulse-dot" />
+            Live
+          </span>
+          <TeamLogo src={currentLiveMatch.team1.logo} name={currentLiveMatch.team1.name} size={20} />
+          <span className="w-5 text-center text-xs font-bold tabular-nums text-text-primary">{currentLiveMatch.score1}</span>
+          <span className="w-2 text-center text-[10px] text-text-muted">:</span>
+          <span className="w-5 text-center text-xs font-bold tabular-nums text-text-primary">{currentLiveMatch.score2}</span>
+          <TeamLogo src={currentLiveMatch.team2.logo} name={currentLiveMatch.team2.name} size={20} />
+          <span className="min-w-0 flex-1 truncate text-[10px] font-bold uppercase tracking-wider text-text-muted">{currentLiveMatch.event}</span>
+        </RibbonGroup>
+
+        <Link href="/stats" className="grid h-11 min-w-[360px] shrink-0 grid-cols-[auto_repeat(5,minmax(44px,1fr))] items-center gap-2 transition-colors hover:text-text-primary">
+          <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Top 5 players</span>
+          {featuredPlayers.map((player) => (
+            <span key={player.rank} title={`${player.rank}. ${player.name}`} className="group flex min-w-0 items-center justify-center gap-1">
+              <span className="text-[10px] font-black tabular-nums text-text-muted">{player.rank}</span>
+              <span className="truncate text-xs font-bold text-text-primary group-hover:text-blue-light">{player.name}</span>
+            </span>
+          ))}
+        </Link>
+
+        <Link href={`/events/${mainEvent.id}`} className="flex h-11 min-w-max flex-1 items-center justify-end gap-2 transition-colors hover:text-text-primary">
+          <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Evento do mes</span>
+          <span className="max-w-40 truncate text-xs font-bold text-text-primary">{mainEvent.name}</span>
+          <span className="rounded bg-yellow/15 px-1.5 py-0.5 text-[10px] font-black uppercase text-yellow">{mainEvent.tier}-Tier</span>
+          <span className="hidden text-[10px] font-bold uppercase tracking-wider text-text-muted lg:inline">{mainEvent.location}</span>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -32,8 +153,8 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-border bg-bg-surface">
-        <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-4 px-6">
+      <header className="sticky top-0 z-50 border-b border-border bg-bg-surface/95 backdrop-blur-md">
+        <div className="mx-auto flex h-14 max-w-[1460px] items-center gap-4 px-4 sm:px-5">
           <Link href="/" className="flex items-center gap-2 shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`${B}/hltv-logo.png`} alt="HLTV" className="h-8 w-8 rounded-md" />
@@ -72,6 +193,7 @@ export default function Header() {
             </button>
           </div>
         </div>
+        <DataRibbon />
       </header>
 
       {mobileOpen && (

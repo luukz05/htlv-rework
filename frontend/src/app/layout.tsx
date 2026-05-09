@@ -23,7 +23,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={roboto.variable}>{children}</body>
+      <body className={roboto.variable}>
+        <div className="site-page-frame">{children}</div>
+      </body>
     </html>
   );
 }

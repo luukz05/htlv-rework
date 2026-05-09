@@ -25,7 +25,7 @@ export default async function ForumsPage() {
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-[1200px] px-5 py-8">
+      <main className="mx-auto max-w-[1380px] px-4 py-8">
         <div className="mb-6 text-sm text-text-muted">
           <a href="#" className="hover:text-text-secondary">Home</a>
           <span className="mx-2">&rsaquo;</span>

@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { countryFlag } from "@/lib/country-flags";
+import CountryFlag from "@/components/CountryFlag";
 import { api } from "@/services/api";
 
 export default async function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -62,7 +62,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
             <div className="divide-y divide-border">
               {fakePlayers.map((p) => (
                 <Link key={p.rank} href={`/players/${p.rank}`} className="grid grid-cols-[1fr_60px_60px_50px_60px] gap-2 items-center px-5 py-2.5 hover:bg-bg-card-hover transition-all">
-                  <div className="flex items-center gap-2"><span className="text-sm">{countryFlag(p.country, p.countryFlag)}</span><span className="text-sm font-semibold">{p.name}</span></div>
+                  <div className="flex items-center gap-2"><span className="text-sm"><CountryFlag countryCode={p.country} preferredFlag={p.countryFlag} /></span><span className="text-sm font-semibold">{p.name}</span></div>
                   <span className="text-sm text-right tabular-nums">{18 + Math.floor(Math.random() * 10)}</span>
                   <span className="text-sm text-right tabular-nums">{10 + Math.floor(Math.random() * 8)}</span>
                   <span className="text-xs text-right tabular-nums text-text-muted">{65 + Math.floor(Math.random() * 30)}</span>

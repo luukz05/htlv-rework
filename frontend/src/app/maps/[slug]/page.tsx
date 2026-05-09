@@ -29,7 +29,7 @@ export default async function MapDetailPage({ params }: { params: Promise<{ slug
     return (
       <>
         <Header />
-        <main className="mx-auto max-w-[1200px] px-5 py-16 text-center">
+        <main className="mx-auto max-w-[1380px] px-4 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Map not found</h1>
           <Link href="/maps" className="text-blue-light hover:text-blue">Back to Maps</Link>
         </main>
@@ -48,7 +48,7 @@ export default async function MapDetailPage({ params }: { params: Promise<{ slug
         <img src={map.image} alt={map.name} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-body via-bg-body/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0">
-          <div className="mx-auto max-w-[1200px] px-5 pb-6">
+          <div className="mx-auto max-w-[1380px] px-4 pb-6">
             <div className="flex items-center gap-2 mb-2 text-sm text-text-muted">
               <Link href="/" className="hover:text-text-secondary">Home</Link>
               <span>&rsaquo;</span>
@@ -68,7 +68,7 @@ export default async function MapDetailPage({ params }: { params: Promise<{ slug
         </div>
       </div>
 
-      <main className="mx-auto max-w-[1200px] px-5 py-8">
+      <main className="mx-auto max-w-[1380px] px-4 py-8">
         {/* Description */}
         <p className="text-text-secondary leading-relaxed mb-8 max-w-3xl">{map.description}</p>
 

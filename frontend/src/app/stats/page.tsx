@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { countryFlag } from "@/lib/country-flags";
+import CountryFlag from "@/components/CountryFlag";
 import { api } from "@/services/api";
 
 export default async function StatsPage() {
@@ -14,7 +14,7 @@ export default async function StatsPage() {
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-[1200px] px-5 py-8">
+      <main className="mx-auto max-w-[1380px] px-4 py-8">
         <div className="mb-6 text-sm text-text-muted">
           <a href="#" className="hover:text-text-secondary">Home</a><span className="mx-2">&rsaquo;</span><span className="text-text-primary">Stats</span>
         </div>
@@ -52,7 +52,7 @@ export default async function StatsPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-base">{countryFlag(player.country, player.countryFlag)}</span>
+                          <span className="text-base"><CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} /></span>
                           <p className="font-semibold leading-tight">{player.name}</p>
                         </div>
                         <p className="text-[11px] text-text-muted">{player.realName}</p>

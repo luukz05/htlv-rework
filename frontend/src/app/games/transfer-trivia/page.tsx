@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import { playerProfiles, teams } from "@/data/mock";
-import { countryFlag } from "@/lib/country-flags";
+import CountryFlag from "@/components/CountryFlag";
 import {
   loadProfile,
   saveProfile,
@@ -318,7 +318,7 @@ export default function TransferTriviaPage() {
                 </div>
                 <div className="text-center sm:text-left">
                   <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                    <span className="text-2xl">{countryFlag(roundData.player.country, roundData.player.countryFlag)}</span>
+                    <span className="text-2xl"><CountryFlag countryCode={roundData.player.country} preferredFlag={roundData.player.countryFlag} /></span>
                     <h2 className="text-2xl font-black">{roundData.player.nickname}</h2>
                   </div>
                   <p className="text-text-secondary text-sm">{roundData.player.realName}</p>

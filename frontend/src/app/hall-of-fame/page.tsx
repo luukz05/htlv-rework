@@ -7,7 +7,7 @@ import {
   hltvHallOfFameClasses,
   legacyProfiles,
 } from "@/data/hall-of-fame";
-import { countryFlag } from "@/lib/country-flags";
+import CountryFlag from "@/components/CountryFlag";
 
 export default function HallOfFamePage() {
   const featuredProfile = legacyProfiles[0];
@@ -32,7 +32,7 @@ export default function HallOfFamePage() {
             </>
           )}
 
-          <div className="relative mx-auto max-w-[1440px] px-6 py-8 md:py-10">
+          <div className="relative mx-auto max-w-[1460px] px-4 sm:px-5 py-8 md:py-10">
             <div className="mb-5 text-sm text-text-muted">
               <Link href="/" className="hover:text-text-secondary">
                 Home
@@ -59,7 +59,7 @@ export default function HallOfFamePage() {
               <article className="rounded-2xl border border-yellow/15 bg-black/20 p-5 backdrop-blur-sm md:p-6">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-2xl">
-                    {countryFlag(featuredProfile.country, featuredProfile.countryFlag)}
+                    <CountryFlag countryCode={featuredProfile.country} preferredFlag={featuredProfile.countryFlag} />
                   </span>
                   <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-yellow/80">
                     {featuredProfile.epithet}
@@ -126,7 +126,7 @@ export default function HallOfFamePage() {
         </section>
 
         <section className="border-b border-border bg-bg-surface/30">
-          <div className="mx-auto grid max-w-[1440px] gap-6 px-6 py-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="mx-auto grid max-w-[1460px] gap-6 px-6 py-8 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div>
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
@@ -185,7 +185,7 @@ export default function HallOfFamePage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-[1440px] px-6 py-10">
+        <section className="mx-auto max-w-[1460px] px-4 sm:px-5 py-10">
           <div className="mb-6 max-w-2xl">
             <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-text-muted">
               Retired Greats
@@ -202,7 +202,7 @@ export default function HallOfFamePage() {
               <article key={profile.slug} className="rounded-2xl border border-border bg-bg-card p-5 md:p-6">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-xl">
-                    {countryFlag(profile.country, profile.countryFlag)}
+                    <CountryFlag countryCode={profile.country} preferredFlag={profile.countryFlag} />
                   </span>
                   <h3 className="text-xl font-black md:text-2xl">{profile.nickname}</h3>
                   <span className="text-sm text-text-secondary">{profile.realName}</span>
@@ -278,7 +278,7 @@ export default function HallOfFamePage() {
         </section>
 
         <section id="hltv-hall" className="border-t border-border bg-bg-surface/25">
-          <div className="mx-auto max-w-[1440px] px-6 py-10">
+          <div className="mx-auto max-w-[1460px] px-4 sm:px-5 py-10">
             <div className="max-w-3xl">
               <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-text-muted">
                 Official HLTV Hall

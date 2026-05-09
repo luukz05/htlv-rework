@@ -4,28 +4,44 @@ import NewsSection from "@/components/NewsSection";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
-import { events, topPlayers, forumThreads, streams, playerOfTheWeek, roundHighlight } from "@/data/mock";
-import { countryFlag, languageFlag } from "@/lib/country-flags";
+import CountryFlag, { LanguageFlag } from "@/components/CountryFlag";
+import { events, topPlayers, forumThreads, streams, playerProfiles, playerOfTheWeek, roundHighlight } from "@/data/mock";
 import { api } from "@/services/api";
 
-/* ── Ad placeholder ── */
-function AdBanner({ height, label }: { height: string; label: string }) {
-  return (
-    <div
-      className="w-full rounded-xl border border-dashed border-border bg-bg-surface/30 flex items-center justify-center"
-      style={{ height }}
-    >
-      <div className="text-center">
-        <p className="text-[10px] uppercase tracking-widest text-text-muted/50 mb-1">Advertisement</p>
-        <p className="text-xs text-text-muted/30">{label}</p>
-      </div>
-    </div>
-  );
-}
 
 /* ── Player of the Week ── */
 function PlayerOfTheWeek() {
-  const { player, event, maps, kills, deaths, title } = playerOfTheWeek;
+  const { player: fallbackPlayer, event, maps } = playerOfTheWeek;
+  const player = topPlayers.find((p) => p.name === "ZywOo") ?? fallbackPlayer;
+  const profile = playerProfiles.find((p) => p.nickname === player.name);
+  const achievements = profile?.achievements.slice(0, 4) ?? [
+    "IEM Katowice 2026 MVP",
+    "HLTV #1 Player 2025",
+    "BLAST Premier Champion 2025",
+  ];
+  const recentForm = profile?.recentMatches.slice(0, 3) ?? [];
+  const ratingForAchievement = (achievement: string) => {
+    const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const normalizedAchievement = normalize(achievement);
+    return recentForm.find((match) => normalizedAchievement.includes(normalize(match.event)))?.rating;
+  };
+  const statForAchievement = (achievement: string) => {
+    const rating = ratingForAchievement(achievement);
+    if (rating) return `Rating: ${rating.toFixed(2)}`;
+    if (achievement.includes("#1")) return `Peak: ${profile?.peakRating ?? player.rating}`;
+    if (achievement.toLowerCase().includes("grand slam")) return `Rating: ${player.rating.toFixed(2)}`;
+    return `ADR: ${player.adr}`;
+  };
+  const hltvMvpAwards = achievements.filter((achievement) => achievement.toLowerCase().includes("mvp")).length;
+  const headlineStats = [
+    { label: "Rating", value: player.rating.toFixed(2), color: "text-green" },
+    { label: "K/D", value: player.kd, color: "text-blue-light" },
+    { label: "ADR", value: player.adr.toString(), color: "text-orange" },
+    { label: "Swing", value: "+0.18", color: "text-yellow" },
+    { label: "KAST", value: player.kast, color: "text-purple-400" },
+    { label: "Maps", value: maps.toString(), color: "text-text-primary" },
+  ];
+
   return (
     <section className="animate-fade-in-up">
       <div className="mb-4 flex items-center justify-between">
@@ -33,59 +49,77 @@ function PlayerOfTheWeek() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
-          {title}
+          Latest HLTV MVP
         </h2>
-        <span className="text-[11px] font-bold uppercase tracking-wider text-yellow bg-yellow/15 px-2.5 py-1 rounded-full">{event}</span>
+        <span className="text-[11px] font-bold uppercase tracking-wider text-yellow bg-yellow/15 px-2.5 py-1 rounded-full">HLTV MVP · {event}</span>
       </div>
       <div className="rounded-xl border border-border bg-bg-card overflow-hidden card-glow">
         <div className="relative grid grid-cols-1 md:grid-cols-[240px_1fr]">
           {/* Player image */}
           <div className="player-photo-frame relative h-64 md:h-auto overflow-hidden">
+            <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-20">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={player.teamLogo}
+                alt=""
+                className="h-[112%] w-[112%] object-contain grayscale brightness-150 contrast-125 blur-[0.3px]"
+                aria-hidden="true"
+              />
+            </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={player.image} alt={player.name} className="player-photo player-photo--hero" />
-            <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-bg-card" />
-            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-yellow/20 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-yellow/30">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="#eab308">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-              </svg>
-              <span className="text-[10px] font-black uppercase tracking-wider text-yellow">MVP</span>
+            <img src={player.image} alt={player.name} className="player-photo player-photo--hero relative z-10 translate-y-4" />
+            <div className="absolute inset-0 z-20 bg-gradient-to-t from-bg-card via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-bg-card" />
+            <div className="absolute top-3 left-3 z-30 flex items-center gap-0.5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="https://www.hltv.org/img/static/event/mvpGold.png" alt="" className="h-9 w-9 object-contain" aria-hidden="true" />
+              <span className="text-base font-black uppercase tracking-wider text-yellow">3x</span>
             </div>
           </div>
 
           {/* Player info */}
           <div className="p-5 md:p-6 flex flex-col justify-center">
-            <div className="flex items-center gap-3 mb-1">
-              <TeamLogo src={player.teamLogo} name={player.team} size={28} />
-              <span className="text-xs font-medium text-text-muted uppercase tracking-wider">{player.team}</span>
-            </div>
-            <div className="flex items-center gap-3 mb-1">
-              <span className="text-lg">{countryFlag(player.country, player.countryFlag)}</span>
-              <h3 className="text-2xl font-black">{player.name}</h3>
-            </div>
-            <p className="text-sm text-text-muted mb-4">{player.realName}</p>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <TeamLogo src={player.teamLogo} name={player.team} size={28} />
+                <span className="text-xs font-medium text-text-muted uppercase tracking-wider">{player.team}</span>
+              </div>
 
-            {/* Stats grid */}
-            <div className="grid grid-cols-5 gap-3">
-              {[
-                { label: "Rating", value: player.rating.toFixed(2), color: "text-green" },
-                { label: "K/D", value: player.kd, color: "text-blue-light" },
-                { label: "ADR", value: player.adr.toString(), color: "text-orange" },
-                { label: "KAST", value: player.kast, color: "text-purple-400" },
-                { label: "Maps", value: maps.toString(), color: "text-text-primary" },
-              ].map((stat) => (
-                <div key={stat.label} className="text-center rounded-lg bg-bg-body/50 border border-border px-2 py-2.5">
-                  <p className={`text-lg font-bold tabular-nums ${stat.color}`}>{stat.value}</p>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted mt-0.5">{stat.label}</p>
+              <div className="grid w-full items-end gap-2 md:grid-cols-[minmax(145px,190px)_repeat(6,minmax(44px,1fr))]">
+                <div className="flex min-w-0 items-center gap-3">
+                  <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-lg" />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-3xl font-black leading-none">{player.name}</h3>
+                    </div>
+                    <p className="mt-1 text-sm text-text-muted">{player.realName}</p>
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            <div className="flex items-center gap-4 mt-4 text-xs text-text-muted">
-              <span>{kills} kills</span>
-              <span className="text-text-muted/30">|</span>
-              <span>{deaths} deaths</span>
-              <span className="text-text-muted/30">|</span>
-              <span>{maps} maps played</span>
+                {headlineStats.map((stat) => (
+                  <div key={stat.label} className="min-w-0 border-l border-border pl-2">
+                    <p className={`text-sm font-black leading-none tabular-nums ${stat.color}`}>{stat.value}</p>
+                    <p className="mt-1 truncate text-[8px] font-bold uppercase tracking-wider text-text-muted">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-text-muted">HLTV awards and trophies</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {achievements.map((achievement, i) => {
+                    const trophyRating = ratingForAchievement(achievement);
+                    return (
+                      <div key={achievement} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-border bg-bg-body/45 px-3 py-2 text-xs font-semibold text-text-secondary">
+                        <span className={i === 0 ? "text-yellow" : "text-text-muted"}>
+                          {i === 0 ? "★" : "•"}
+                        </span>
+                        <span className="truncate">{achievement}</span>
+                        <span className="font-bold tabular-nums text-green">{trophyRating ? `Rating: ${trophyRating.toFixed(2)}` : statForAchievement(achievement)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -133,18 +167,7 @@ function RoundHighlightSection() {
         {/* Info */}
         <div className="p-4">
           <h3 className="text-lg font-bold mb-1">{hl.title}</h3>
-          <p className="text-sm text-text-secondary leading-relaxed mb-3">{hl.description}</p>
-          <a
-            href={`https://www.youtube.com/watch?v=${hl.youtubeId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg bg-red/15 border border-red/30 px-4 py-2 text-sm font-semibold text-red hover:bg-red/25 transition-colors"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="5 3 19 12 5 21 5 3"/>
-            </svg>
-            Watch Replay
-          </a>
+          <p className="text-sm text-text-secondary leading-relaxed mb-3">{hl.description}</p>     
         </div>
       </div>
     </section>
@@ -183,7 +206,7 @@ function LiveEventsBar() {
 
   return (
     <section className="border-b border-border bg-bg-surface/50">
-      <div className="mx-auto max-w-[1440px] px-6 py-4">
+      <div className="mx-auto max-w-[1460px] px-4 sm:px-5 py-4">
         <div className="flex items-center gap-3 mb-3">
           <h2 className="text-xs font-bold uppercase tracking-wider text-text-muted">Events</h2>
           <div className="flex-1 h-px bg-border" />
@@ -324,7 +347,7 @@ function TopPlayerRatings() {
                 {player.rank}.
               </span>
               <div className="flex items-center gap-2 min-w-0">
-                <span className="text-sm">{countryFlag(player.country, player.countryFlag)}</span>
+                <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-sm" />
                 <span className="text-sm font-semibold truncate">{player.name}</span>
               </div>
               <span className="text-sm font-bold text-green text-right tabular-nums">{player.rating.toFixed(2)}</span>
@@ -370,7 +393,7 @@ function PopularStreams() {
           <div className="flex items-center gap-2 mt-1">
             <span className="text-[11px] font-medium text-purple-400">{stream.channel}</span>
             <span className="text-[10px] text-text-muted">&middot;</span>
-            <span className="text-[10px] text-text-muted">{languageFlag(stream.language)} {stream.language}</span>
+            <span className="inline-flex items-center gap-1 text-[10px] text-text-muted"><LanguageFlag languageCode={stream.language} /> {stream.language}</span>
           </div>
         </div>
       </a>
@@ -419,7 +442,7 @@ function UpcomingEvents() {
         <a href="#" className="text-sm font-medium text-blue-light hover:text-blue transition-colors">All events</a>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {upcoming.map((event, i) => (
+        {upcoming.slice(0,3).map((event, i) => (
           <a
             key={event.id}
             href="#"
@@ -458,7 +481,7 @@ function MoreNews({ news }: { news: Awaited<ReturnType<typeof api.news>> }) {
   if (moreArticles.length === 0) return null;
   return (
     <section className="border-t border-border bg-bg-surface/30">
-      <div className="mx-auto max-w-[1440px] px-6 py-10">
+      <div className="mx-auto max-w-[1460px] px-4 sm:px-5 py-10">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-base font-bold">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
@@ -513,11 +536,6 @@ export default async function Home() {
       {/* Breaking News Ticker — full bleed */}
       <BreakingNewsTicker news={news} />
 
-      {/* Leaderboard Ad */}
-      <div className="mx-auto max-w-[1440px] px-6 pt-6">
-        <AdBanner height="90px" label="728 × 90 — Leaderboard" />
-      </div>
-
       {/* Hero Match — full bleed bg */}
       <HeroMatch />
 
@@ -525,7 +543,7 @@ export default async function Home() {
       <LiveEventsBar />
 
       {/* Two-column grid */}
-      <main className="mx-auto max-w-[1440px] px-6 py-8">
+      <main className="mx-auto max-w-[1460px] px-4 sm:px-5 py-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
           {/* Left column */}
           <div className="space-y-8">
@@ -533,42 +551,19 @@ export default async function Home() {
 
             <PlayerOfTheWeek />
 
-            <AdBanner height="250px" label="728 × 250 — Mid-content" />
-
             <ForumDiscussions />
 
             <RoundHighlightSection />
-
-            <TopPlayerRatings />
-
-            <AdBanner height="90px" label="728 × 90 — Mid-content" />
-
-            <PopularStreams />
 
             <UpcomingEvents />
           </div>
 
           {/* Right sidebar */}
           <div className="space-y-4">
-            <AdBanner height="250px" label="300 × 250 — Sidebar Rectangle" />
-
             <Sidebar />
-
-            <AdBanner height="250px" label="300 × 250 — Sidebar Rectangle" />
-
-            <div className="sticky top-4">
-              <AdBanner height="600px" label="300 × 600 — Sidebar Skyscraper" />
-            </div>
           </div>
         </div>
       </main>
-
-      {/* Bottom leaderboard ad — full bleed bg */}
-      <div className="border-t border-b border-border bg-bg-surface/20">
-        <div className="mx-auto max-w-[1440px] px-6 py-6">
-          <AdBanner height="90px" label="728 × 90 — Bottom Leaderboard" />
-        </div>
-      </div>
 
       {/* More News — full bleed bg */}
       <MoreNews news={news} />

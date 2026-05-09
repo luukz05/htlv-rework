@@ -13,7 +13,7 @@ export default async function BettingPage() {
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-[1200px] px-5 py-8">
+      <main className="mx-auto max-w-[1380px] px-4 py-8">
         {/* Breadcrumb */}
         <div className="mb-6 text-sm text-text-muted">
           <Link href="/" className="hover:text-text-secondary">Home</Link>

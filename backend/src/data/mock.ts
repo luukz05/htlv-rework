@@ -343,7 +343,7 @@ export const ranking: RankedTeam[] = [
 
 // -- Events --
 export const events: Event[] = [
-  { id: 1, name: "IEM Katowice 2026", tier: "S", dates: "Mar 10 – 23, 2026", prize: "$1,000,000", teams: 16, progress: 75, status: "Playoffs", location: "Katowice, Poland", image: esportsArena },
+  { id: 1, name: "PGL ASTANA 2026", tier: "S", dates: "May 9 - 17, 2026", prize: "$1,600,000", teams: 16, progress: 30, status: "Main Event of the Month", location: "Astana, Kazakhstan", image: "https://files.bo3.gg/uploads/image/118495/image/webp-4f430eb3fc3a03b2beea7542deefb97b.webp" },
   { id: 2, name: "BLAST Premier Spring", tier: "S", dates: "Mar 25 – Apr 6, 2026", prize: "$425,000", teams: 12, progress: 20, status: "Group Stage", location: "Copenhagen, Denmark", image: crowdArena },
   { id: 3, name: "ESL Pro League Season 21", tier: "A", dates: "Apr 14 – 27, 2026", prize: "$850,000", teams: 24, progress: 0, status: "Upcoming", location: "Malta", image: conferenceHall },
   { id: 4, name: "PGL Major Copenhagen", tier: "S", dates: "May 5 – 18, 2026", prize: "$1,250,000", teams: 24, progress: 0, status: "Upcoming", location: "Copenhagen, Denmark", image: stadium },

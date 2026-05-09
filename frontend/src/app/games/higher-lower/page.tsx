@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { topPlayers } from "@/data/mock";
 import type { Player } from "@/data/mock";
-import { countryFlag } from "@/lib/country-flags";
+import CountryFlag from "@/components/CountryFlag";
 import { loadProfile, saveProfile, addXP, updateDailyStreak } from "@/lib/gamification";
 import type { UserProfile } from "@/lib/gamification";
 
@@ -195,7 +195,7 @@ export default function HigherLowerPage() {
             </div>
             <div className="p-5 text-center -mt-12 relative z-10">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <span>{countryFlag(leftPlayer.country, leftPlayer.countryFlag)}</span>
+                <span><CountryFlag countryCode={leftPlayer.country} preferredFlag={leftPlayer.countryFlag} /></span>
                 <h2 className="text-xl font-black">{leftPlayer.name}</h2>
               </div>
               <p className="text-xs text-text-muted mb-3">{leftPlayer.team}</p>
@@ -230,7 +230,7 @@ export default function HigherLowerPage() {
             </div>
             <div className="p-5 text-center -mt-12 relative z-10">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <span>{countryFlag(rightPlayer.country, rightPlayer.countryFlag)}</span>
+                <span><CountryFlag countryCode={rightPlayer.country} preferredFlag={rightPlayer.countryFlag} /></span>
                 <h2 className="text-xl font-black">{rightPlayer.name}</h2>
               </div>
               <p className="text-xs text-text-muted mb-3">{rightPlayer.team}</p>

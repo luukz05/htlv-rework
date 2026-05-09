@@ -55,7 +55,7 @@ export default async function HeroMatch() {
       {/* Subtle blue radial glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center_top,rgba(37,99,235,0.1),transparent_60%)]" />
 
-      <div className="relative mx-auto max-w-[1440px] px-6 py-10 md:py-14">
+      <div className="relative mx-auto max-w-[1460px] px-4 sm:px-5 py-10 md:py-14">
         {/* Badge */}
         <div className="mb-6 flex items-center gap-3 animate-fade-in-up">
           <span className="flex items-center gap-2 rounded-full bg-red/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-red animate-glow">
@@ -67,7 +67,7 @@ export default async function HeroMatch() {
           </span>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-0 md:justify-between">
+        <div className="flex flex-col items-center justify-center gap-8 md:flex-row md:gap-35">
           <div className="flex items-center gap-6 md:gap-10 animate-scale-in">
             {/* Team 1 */}
             <div className="flex flex-col items-center gap-3 group">
@@ -119,7 +119,7 @@ export default async function HeroMatch() {
           </div>
 
           {/* Actions */}
-          <div className="w-full max-w-md space-y-4 animate-slide-in md:w-[360px]">
+          <div className="w-full max-w-md space-y-4 animate-slide-in md:w-[340px] md:shrink-0">
             <div className="flex flex-col gap-2.5">
               <a href={match.broadcastUrl || "#"} target={match.broadcastUrl ? "_blank" : undefined} rel={match.broadcastUrl ? "noreferrer" : undefined} className="flex items-center justify-center gap-2 rounded-lg bg-blue px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-blue-light hover:shadow-lg hover:shadow-blue/20 hover:-translate-y-0.5 active:scale-95">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>

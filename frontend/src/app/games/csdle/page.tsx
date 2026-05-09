@@ -1,20 +1,21 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CountryFlag, { CountryLabel } from "@/components/CountryFlag";
 import { playerProfiles } from "@/data/mock";
 import type { PlayerProfile } from "@/data/mock";
 import { getDailySeed, getTimeUntilMidnight } from "@/lib/daily-seed";
-import { countryFlag, countryLabel } from "@/lib/country-flags";
 import { loadProfile, saveProfile, addXP, updateDailyStreak } from "@/lib/gamification";
 import type { UserProfile } from "@/lib/gamification";
 
 /* ---------- types ---------- */
 interface ClueCell {
   label: string;
-  value: string;
+  value: ReactNode;
   status: "green" | "yellow" | "red";
   arrow?: "up" | "down";
 }
@@ -72,7 +73,7 @@ function buildClues(guess: PlayerProfile, answer: PlayerProfile): ClueCell[] {
 
   return [
     { label: "Player", value: guess.nickname, status: nameMatch ? "green" : "red" },
-    { label: "Country", value: countryLabel(guess.country, guess.countryFlag), status: countryMatch ? "green" : "red" },
+    { label: "Country", value: <CountryLabel countryCode={guess.country} preferredFlag={guess.countryFlag} />, status: countryMatch ? "green" : "red" },
     { label: "Team", value: guess.team, status: teamMatch ? "green" : "red" },
     { label: "Role", value: guess.role.split(" / ")[0], status: roleMatch ? "green" : "red" },
     { label: "Age", value: String(guess.age), status: ageStatus, arrow: ageArrow },
@@ -294,7 +295,7 @@ export default function CsdlePage() {
                     <span className="font-semibold">{p.nickname}</span>
                     <span className="text-text-muted ml-2 text-xs">{p.team}</span>
                   </div>
-                  <span className="text-xs">{countryFlag(p.country, p.countryFlag)}</span>
+                  <CountryFlag countryCode={p.country} preferredFlag={p.countryFlag} className="text-xs" />
                 </button>
               ))}
             </div>

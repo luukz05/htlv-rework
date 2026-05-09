@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
-import { countryFlag } from "@/lib/country-flags";
+import CountryFlag from "@/components/CountryFlag";
 import { api } from "@/services/api";
 
 export default async function PlayersPage() {
@@ -13,7 +13,7 @@ export default async function PlayersPage() {
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-[1200px] px-5 py-8">
+      <main className="mx-auto max-w-[1380px] px-4 py-8">
         <div className="mb-6 text-sm text-text-muted">
           <Link href="/" className="hover:text-text-secondary">Home</Link>
           <span className="mx-2">&rsaquo;</span>
@@ -46,7 +46,7 @@ export default async function PlayersPage() {
               </div>
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-lg">{countryFlag(p.country, p.countryFlag)}</span>
+                  <span className="text-lg"><CountryFlag countryCode={p.country} preferredFlag={p.countryFlag} /></span>
                   <h3 className="text-xl font-black group-hover:text-blue-light transition-colors">{p.nickname}</h3>
                 </div>
                 <p className="text-xs text-text-muted mb-3">{p.realName} &middot; {p.role}</p>
@@ -98,7 +98,7 @@ export default async function PlayersPage() {
                   </span>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-sm">{countryFlag(p.country, p.countryFlag)}</span>
+                      <span className="text-sm"><CountryFlag countryCode={p.country} preferredFlag={p.countryFlag} /></span>
                       <span className="text-sm font-semibold truncate">{p.nickname}</span>
                     </div>
                     <span className="text-[10px] text-text-muted">{p.realName}</span>
