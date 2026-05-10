@@ -275,7 +275,26 @@ export const liveMatches: Match[] = [
     broadcastUrl: "https://www.twitch.tv/eslcs",
     status: "live",
   },
-  { id: 2, team1: t(1), team2: t(4), score1: 16, score2: 9, event: "IEM Katowice 2026", format: "BO3", map: "Inferno", status: "live" },
+  {
+    id: 2,
+    team1: t(1),
+    team2: t(4),
+    score1: 8,
+    score2: 6,
+    event: "IEM Katowice 2026",
+    format: "BO3",
+    map: "Nuke",
+    mapVeto: [
+      { team: "VIT", action: "banned", map: "Ancient" },
+      { team: "Spirit", action: "banned", map: "Anubis" },
+      { team: "VIT", action: "picked", map: "Inferno", score1: 13, score2: 9 },
+      { team: "Spirit", action: "picked", map: "Overpass", score1: 11, score2: 13 },
+      { team: "VIT", action: "banned", map: "Mirage" },
+      { team: "Spirit", action: "banned", map: "Dust II" },
+      { team: "Decider", action: "decider", map: "Nuke" },
+    ],
+    status: "live",
+  },
   { id: 3, team1: t(3), team2: t(5), score1: 7, score2: 10, event: "BLAST Premier", format: "BO1", map: "Anubis", status: "live" },
 ];
 
