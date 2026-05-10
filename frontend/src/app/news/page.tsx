@@ -37,7 +37,7 @@ export default async function NewsPage() {
                   <span key={tag} className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${tag === "Hot" ? "bg-red/20 text-red" : "bg-blue/15 text-blue-light"}`}>{tag}</span>
                 ))}
               </div>
-              <h2 className="text-xl font-bold leading-snug mb-3">{featured.title}</h2>
+              <h2 className="text-2xl md:text-3xl font-bold leading-tight mb-3">{featured.title}</h2>
               <p className="text-sm text-text-secondary leading-relaxed mb-4">{featured.description}</p>
               <div className="flex items-center gap-3 text-xs text-text-muted">
                 <span className="font-medium">by {featured.author}</span>
@@ -64,7 +64,7 @@ export default async function NewsPage() {
                     <span key={tag} className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${tag === "Hot" ? "bg-red/20 text-red" : "bg-blue/15 text-blue-light"}`}>{tag}</span>
                   ))}
                 </div>
-                <h3 className="text-sm font-semibold leading-tight mb-2 line-clamp-2">{article.title}</h3>
+                <h3 className="text-base font-semibold leading-snug mb-2 line-clamp-2">{article.title}</h3>
                 {article.description && <p className="text-xs text-text-secondary line-clamp-2 mb-2">{article.description}</p>}
                 <div className="flex items-center gap-2 text-[11px] text-text-muted">
                   <span>{article.time}</span>

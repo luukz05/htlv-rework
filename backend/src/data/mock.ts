@@ -9,6 +9,8 @@ export interface MapVeto {
   team: string;
   action: "picked" | "banned" | "decider";
   map: string;
+  score1?: number;
+  score2?: number;
 }
 
 export interface Match {
@@ -256,16 +258,16 @@ export const liveMatches: Match[] = [
     id: 1,
     team1: t(0),
     team2: t(2),
-    score1: 13,
-    score2: 11,
+    score1: 3,
+    score2: 2,
     event: "IEM Katowice 2026",
     format: "BO3",
-    map: "Mirage",
+    map: "Overpass",
     mapVeto: [
       { team: "NAVI", action: "banned", map: "Nuke" },
       { team: "FaZe", action: "banned", map: "Ancient" },
-      { team: "NAVI", action: "picked", map: "Mirage" },
-      { team: "FaZe", action: "picked", map: "Inferno" },
+      { team: "NAVI", action: "picked", map: "Mirage", score1: 13, score2: 11 },
+      { team: "FaZe", action: "picked", map: "Inferno", score1: 8, score2: 13 },
       { team: "NAVI", action: "banned", map: "Anubis" },
       { team: "FaZe", action: "banned", map: "Dust II" },
       { team: "Decider", action: "decider", map: "Overpass" },

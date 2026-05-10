@@ -16,7 +16,7 @@
 
   --color-blue: #2563eb;
   --color-blue-light: #3b82f6;
-  --color-blue-glow: rgba(37, 99, 235, 0.15);
+  --color-blue-glow: transparent;
   --color-green: #22c55e;
   --color-red: #ef4444;
   --color-yellow: #eab308;
@@ -147,8 +147,8 @@ body::after {
   100% { transform: scale(1) }
 }
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 8px rgba(37, 99, 235, 0.2) }
-  50% { box-shadow: 0 0 20px rgba(37, 99, 235, 0.4) }
+  0%, 100% { box-shadow: none }
+  50% { box-shadow: none }
 }
 
 .animate-pulse-dot { animation: pulse-dot 1.5s ease-in-out infinite }
@@ -161,7 +161,7 @@ body::after {
   animation: shimmer 2s infinite;
 }
 .animate-score-pop { animation: score-pop 0.3s ease }
-.animate-glow { animation: glow 2s ease-in-out infinite }
+.animate-glow { animation: none }
 
 /* Stagger delays */
 .delay-1 { animation-delay: 0.05s }
@@ -170,12 +170,11 @@ body::after {
 .delay-4 { animation-delay: 0.2s }
 .delay-5 { animation-delay: 0.25s }
 
-/* Card hover glow effect */
 .card-glow {
   transition: all 0.25s ease;
 }
 .card-glow:hover {
-  box-shadow: 0 4px 24px rgba(37, 99, 235, 0.08), 0 0 0 1px rgba(37, 99, 235, 0.12);
+  box-shadow: none;
 }
 
 .player-photo-frame {
@@ -217,9 +216,9 @@ body::after {
 }
 
 /* Rank badge colors */
-.rank-gold { color: #eab308; text-shadow: 0 0 12px rgba(234, 179, 8, 0.3) }
-.rank-silver { color: #94a3b8; text-shadow: 0 0 12px rgba(148, 163, 184, 0.3) }
-.rank-bronze { color: #d97706; text-shadow: 0 0 12px rgba(217, 119, 6, 0.3) }
+.rank-gold { color: #eab308; text-shadow: none }
+.rank-silver { color: #94a3b8; text-shadow: none }
+.rank-bronze { color: #d97706; text-shadow: none }
 
 /* Breaking news ticker marquee */
 @keyframes marquee {
@@ -257,8 +256,8 @@ body::after {
   100% { transform: translateY(-40px); opacity: 0 }
 }
 @keyframes streak-glow {
-  0%, 100% { text-shadow: 0 0 8px rgba(249, 115, 22, 0.3) }
-  50% { text-shadow: 0 0 20px rgba(249, 115, 22, 0.6) }
+  0%, 100% { text-shadow: none }
+  50% { text-shadow: none }
 }
 @keyframes countdown-bar {
   from { width: 100% }
@@ -270,4 +269,4 @@ body::after {
 .animate-target-spawn { animation: target-spawn 0.15s ease-out both }
 .animate-target-hit { animation: target-hit 0.2s ease-out both }
 .animate-xp-float { animation: xp-float 1s ease-out both }
-.animate-streak-glow { animation: streak-glow 1.5s ease-in-out infinite }
+.animate-streak-glow { animation: none }
