@@ -5,6 +5,10 @@ import Link from "next/link";
 import { api } from "@/services/api";
 import type { Match } from "@/services/types";
 
+export const metadata = {
+  title: "Matches - Live and Upcoming",
+};
+
 const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CT_ICON = "https://static.wikia.nocookie.net/cswikia/images/2/2a/Ct_logo.svg/revision/latest/scale-to-width-down/250?cb=20250307112005";
 const TR_ICON = "https://static.wikia.nocookie.net/cswikia/images/e/e0/Icon-t-patch-small.png/revision/latest?cb=20220130164538";

@@ -2,6 +2,18 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { api } from "@/services/api";
+import { compactTitle } from "@/lib/page-title";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const academyGuides = await api.academy();
+  const guide = academyGuides.find((g) => g.id.toString() === id);
+
+  return {
+    title: guide ? compactTitle(`${guide.title} - ${guide.readTime}`, 74) : "Guide not found",
+    description: guide?.description,
+  };
+}
 
 const categoryColors: Record<string, { color: string; bg: string }> = {
   economy: { color: "#22c55e", bg: "bg-green/15" },

@@ -4,6 +4,10 @@ import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
 import { api } from "@/services/api";
 
+export const metadata = {
+  title: "Maps - Pool Stats and Callouts",
+};
+
 export default async function MapsPage() {
   const { gameMaps } = await resolvePageData({
     gameMaps: api.maps(),

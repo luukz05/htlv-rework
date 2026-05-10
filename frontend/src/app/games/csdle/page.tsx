@@ -11,6 +11,7 @@ import type { PlayerProfile } from "@/services/types";
 import { getDailySeed, getTimeUntilMidnight } from "@/lib/daily-seed";
 import { loadProfile, saveProfile, addXP, updateDailyStreak } from "@/lib/gamification";
 import type { UserProfile } from "@/lib/gamification";
+import { usePageTitle } from "@/lib/use-page-title";
 
 /* ---------- types ---------- */
 interface ClueCell {
@@ -96,6 +97,8 @@ function emojiFor(s: "green" | "yellow" | "red"): string {
 
 /* ---------- component ---------- */
 export default function CsdlePage() {
+  usePageTitle("CS-dle - Daily Player Guess");
+
   const [playerProfiles, setPlayerProfiles] = useState<PlayerProfile[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [guesses, setGuesses] = useState<GuessRow[]>([]);

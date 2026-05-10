@@ -3,6 +3,10 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { api } from "@/services/api";
 
+export const metadata = {
+  title: "Academy - CS2 Guides",
+};
+
 const categoryIcons: Record<string, { icon: string; color: string; bg: string }> = {
   economy: { icon: "M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", color: "#22c55e", bg: "bg-green/15" },
   aim: { icon: "M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM12 8v8M8 12h8", color: "#ef4444", bg: "bg-red/15" },

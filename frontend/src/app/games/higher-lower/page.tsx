@@ -9,6 +9,7 @@ import type { Player } from "@/services/types";
 import CountryFlag from "@/components/CountryFlag";
 import { loadProfile, saveProfile, addXP, updateDailyStreak } from "@/lib/gamification";
 import type { UserProfile } from "@/lib/gamification";
+import { usePageTitle } from "@/lib/use-page-title";
 
 /* ---------- helpers ---------- */
 const HL_STREAK_KEY = "hltv-hl-best-streak";
@@ -29,6 +30,8 @@ type Phase = "playing" | "revealing" | "gameover";
 
 /* ---------- component ---------- */
 export default function HigherLowerPage() {
+  usePageTitle("Higher or Lower - Player Ratings");
+
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [topPlayers, setTopPlayers] = useState<Player[]>([]);
   const [leftPlayer, setLeftPlayer] = useState<Player | null>(null);

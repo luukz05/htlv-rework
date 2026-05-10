@@ -3,6 +3,10 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { api } from "@/services/api";
 
+export const metadata = {
+  title: "News - Latest Counter-Strike Headlines",
+};
+
 export default async function NewsPage() {
   const { news } = await resolvePageData({
     news: api.news(),

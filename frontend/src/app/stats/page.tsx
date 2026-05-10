@@ -6,6 +6,10 @@ import Link from "next/link";
 import CountryFlag from "@/components/CountryFlag";
 import { api } from "@/services/api";
 
+export const metadata = {
+  title: "Stats - Player Ratings",
+};
+
 export default async function StatsPage() {
   const { topPlayers } = await resolvePageData({
     topPlayers: api.topPlayers(),

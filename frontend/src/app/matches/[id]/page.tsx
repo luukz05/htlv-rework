@@ -5,7 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import CountryFlag from "@/components/CountryFlag";
 import { api } from "@/services/api";
-import type { Match, Player, Team, TeamProfile, TeamRoster } from "@/services/types";
+import type { Event, Match, Player, Team, TeamProfile, TeamRoster } from "@/services/types";
+import { compactTitle, matchTitle } from "@/lib/page-title";
 import MatchHeadToHeadClient from "./MatchHeadToHeadClient";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -34,18 +35,37 @@ const mapIcons: Record<string, string> = {
   overpass: `${B}/mapIcons/CS2_overpass_logo.webp`,
 };
 
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const [liveMatches, upcomingMatches, recentResults] = await Promise.all([
+    api.liveMatches(),
+    api.upcomingMatches(),
+    api.results(),
+  ]);
+  const [events, teams] = await Promise.all([api.events(), api.teamCards()]);
+  const generatedEventMatches = buildListedEventMatches(events, teams, [...liveMatches, ...upcomingMatches, ...recentResults]);
+  const match = [...liveMatches, ...upcomingMatches, ...recentResults, ...generatedEventMatches].find((m) => m.id.toString() === id);
+
+  return {
+    title: match ? compactTitle(matchTitle(match), 74) : "Match not found",
+  };
+}
+
 export default async function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { liveMatches, upcomingMatches, recentResults, topPlayers, teamProfiles, teamRosters } = await resolvePageData({
+  const { liveMatches, upcomingMatches, recentResults, topPlayers, teamProfiles, teamRosters, events, teams } = await resolvePageData({
     liveMatches: api.liveMatches(),
     upcomingMatches: api.upcomingMatches(),
     recentResults: api.results(),
     topPlayers: api.topPlayers(),
     teamProfiles: api.teams(),
     teamRosters: api.teamRosters(),
+    events: api.events(),
+    teams: api.teamCards(),
   });
 
   const { id } = await params;
-  const allMatches = [...liveMatches, ...upcomingMatches, ...recentResults];
+  const generatedEventMatches = buildListedEventMatches(events, teams, [...liveMatches, ...upcomingMatches, ...recentResults]);
+  const allMatches = [...liveMatches, ...upcomingMatches, ...recentResults, ...generatedEventMatches];
   const match = allMatches.find((m) => m.id.toString() === id);
   if (!match) {
     return (<><Header /><main className="mx-auto max-w-[800px] px-5 py-16 text-center"><h1 className="text-2xl font-bold mb-4">Match not found</h1><Link href="/matches" className="text-blue-light">Back to Matches</Link></main><Footer /></>);
@@ -160,28 +180,6 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
 
         <MatchHeadToHeadClient team1={match.team1} team2={match.team2} team1Rank={team1Rank} team2Rank={team2Rank} team1Lineup={team1Lineup} team2Lineup={team2Lineup} />
         <ConsolidatedMatchView match={match} />
-
-        {/* Map veto (simulated) */}
-        <section className="hidden rounded-xl border border-border bg-bg-card p-5 card-glow animate-fade-in-up delay-2">
-          <h2 className="text-base font-bold mb-4">Map Veto</h2>
-          <div className="space-y-2 text-sm">
-            {[
-              { team: match.team1.abbr, action: "removed", map: "Nuke" },
-              { team: match.team2.abbr, action: "removed", map: "Ancient" },
-              { team: match.team1.abbr, action: "picked", map: match.map || "Mirage" },
-              { team: match.team2.abbr, action: "picked", map: "Inferno" },
-              { team: match.team1.abbr, action: "removed", map: "Anubis" },
-              { team: match.team2.abbr, action: "removed", map: "Tuscan" },
-              { team: "Decider", action: "left over", map: "Dust II" },
-            ].map((v, i) => (
-              <div key={i} className={`flex items-center gap-3 px-3 py-2 rounded-lg ${v.action === "picked" ? "bg-green/5 border border-green/20" : v.action === "left over" ? "bg-yellow/5 border border-yellow/20" : "bg-red/5 border border-red/10"}`}>
-                <span className="text-xs font-bold w-16">{v.team}</span>
-                <span className={`text-[10px] font-bold uppercase ${v.action === "picked" ? "text-green" : v.action === "left over" ? "text-yellow" : "text-red"}`}>{v.action}</span>
-                <span className="font-semibold">{v.map}</span>
-              </div>
-            ))}
-          </div>
-        </section>
       </main>
       <Footer />
     </>
@@ -290,7 +288,7 @@ function ConsolidatedMatchView({ match }: { match: Match }) {
         <div className="border-b border-border p-5 lg:border-b-0 lg:border-r">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-black uppercase tracking-wider text-text-secondary">Betting</h3>
-            <span className="rounded bg-green/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-green">live odds</span>
+            <span className="rounded bg-green/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-green">{match.status === "live" ? "live odds" : "odds"}</span>
           </div>
           <div className="mb-4 rounded-lg border border-border bg-bg-surface p-3">
             <div className="mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-text-muted">
@@ -686,18 +684,15 @@ function getMatchMaps(match: Match): MatchMapSummary[] {
 
 function getHeaderMaps(match: Match): MatchMapSummary[] {
   if (match.mapVeto && match.mapVeto.length > 0) {
-    return getMatchMaps(match);
+    return getPlayedHeaderMapSteps(match).map((item) => ({ map: item.map, score1: item.score1, score2: item.score2 }));
   }
 
-  return getHeaderVetoSteps(match)
-    .filter((item) => item.kind === "pick" || item.kind === "decider")
+  return getPlayedHeaderMapSteps(match)
     .map((item) => ({ map: item.map, score1: item.score1, score2: item.score2 }));
 }
 
 function getPrimaryHeaderMap(match: Match) {
-  const steps = getHeaderVetoSteps(match);
-  return steps.find((item) => item.kind === "decider")?.map
-    ?? steps.find((item) => item.kind === "pick")?.map
+  return [...getPlayedHeaderMapSteps(match)].reverse().find((item) => item.kind === "pick" || item.kind === "decider")?.map
     ?? match.map;
 }
 
@@ -705,7 +700,22 @@ function getVisibleHeaderVetoSteps(match: Match) {
   const steps = getHeaderVetoSteps(match);
   const isBestOfOne = match.format === "BO1";
 
-  return (isBestOfOne ? steps.filter((item) => item.kind === "decider") : steps).slice(0, 7);
+  if (isBestOfOne) {
+    return steps.filter((item) => item.kind === "decider").slice(0, 1);
+  }
+
+  return steps.slice(0, 7);
+}
+
+function getPlayedHeaderMapSteps(match: Match) {
+  const mapSteps = getHeaderVetoSteps(match).filter((item) => item.kind === "pick" || item.kind === "decider");
+  const playedMapCount = getPlayedMapCount(match);
+
+  if (playedMapCount > 0) {
+    return mapSteps.slice(0, playedMapCount);
+  }
+
+  return mapSteps.slice(0, 1);
 }
 
 function getHeaderVetoSteps(match: Match): HeaderVetoStep[] {
@@ -756,12 +766,46 @@ function buildFallbackVetoSteps(match: Match): HeaderVetoStep[] {
     { team: match.team2.abbr, kind: "pick", map: maps[3], ...getFallbackCompletedMapScore(match, 1) },
     { team: match.team1.abbr, kind: "ban", map: maps[4] },
     { team: match.team2.abbr, kind: "ban", map: maps[5] },
-    { team: "Decider", kind: "decider", map: maps[6] },
+    { team: "Decider", kind: "decider", map: maps[6], ...getFallbackCompletedMapScore(match, 2) },
   ];
 }
 
-function getFallbackCompletedMapScore(_match: Match, _pickIndex: number) {
-  return { score1: 0, score2: 0 };
+function getFallbackCompletedMapScore(match: Match, pickIndex: number) {
+  if (match.status === "upcoming" || typeof match.score1 !== "number" || typeof match.score2 !== "number") {
+    return {};
+  }
+
+  const team1WonSeries = match.score1 > match.score2;
+  const team1MapWins = match.score1;
+  const team2MapWins = match.score2;
+  const playedMaps = Math.min(pickIndex + 1, team1MapWins + team2MapWins);
+
+  if (pickIndex >= playedMaps) {
+    return {};
+  }
+
+  const team1WinsThisMap = pickIndex < team1MapWins
+    ? team1WonSeries
+    : !team1WonSeries;
+  const closeLoss = 9 + ((match.id + pickIndex) % 4);
+
+  return team1WinsThisMap
+    ? { score1: 13, score2: closeLoss }
+    : { score1: closeLoss, score2: 13 };
+}
+
+function getPlayedMapCount(match: Match) {
+  if (match.status === "upcoming" || typeof match.score1 !== "number" || typeof match.score2 !== "number") {
+    return 0;
+  }
+
+  return Math.min(match.score1 + match.score2, getRequiredMapWins(match) * 2 - 1);
+}
+
+function getRequiredMapWins(match: Match) {
+  if (match.format === "BO1") return 1;
+  if (match.format === "BO5") return 3;
+  return 2;
 }
 
 function rotateMapPool(match: Match) {
@@ -769,4 +813,64 @@ function rotateMapPool(match: Match) {
   const offset = seed % activeMapPool.length;
 
   return [...activeMapPool.slice(offset), ...activeMapPool.slice(0, offset)];
+}
+
+function buildListedEventMatches(events: Event[], teams: Team[], existingMatches: Match[]) {
+  return events.flatMap((event) => {
+    const eventTeams = teams.slice(0, event.teams);
+    const directMatches = existingMatches.filter((match) => sameEvent(match.event, event.name));
+
+    return buildSyntheticEventMatches(event, eventTeams, directMatches);
+  });
+}
+
+function buildSyntheticEventMatches(event: Event, teams: Team[], directMatches: Match[]): Match[] {
+  const generated: Match[] = [];
+  const teamCount = Math.max(teams.length, 2);
+  const total = teamCount >= 16 ? 31 : teamCount >= 12 ? 23 : 15;
+
+  for (let index = 0; index < total; index += 1) {
+    const id = 10000 + event.id * 100 + index;
+    if (directMatches.some((match) => match.id === id)) continue;
+
+    const team1 = teams[index % teamCount];
+    const opponentIndex = (index * 5 + 3) % teamCount;
+    const team2 = teams[opponentIndex] === team1 ? teams[(index + 1) % teamCount] : teams[opponentIndex];
+    const team1Wins = (index + event.id) % 3 !== 0;
+    const score1 = team1Wins ? 2 : 1;
+    const score2 = team1Wins ? 0 : 2;
+    const finishedCutoff = Math.floor(total * (event.progress / 100));
+    const initialStatus = index < finishedCutoff ? "finished" : index === finishedCutoff && event.progress > 0 ? "live" : "upcoming";
+    const status = initialStatus === "live" && Math.max(score1, score2) >= 2 ? "finished" : initialStatus;
+
+    generated.push({
+      id,
+      team1,
+      team2,
+      score1: status === "upcoming" ? undefined : score1,
+      score2: status === "upcoming" ? undefined : score2,
+      event: event.name,
+      format: index > total - 2 ? "BO5" : "BO3",
+      map: activeMapPool[(index + event.id) % activeMapPool.length],
+      status,
+      time: getListedMatchTime(index),
+      date: getListedEventDay(event, index),
+    });
+  }
+
+  return generated;
+}
+
+function getListedMatchTime(index: number) {
+  return ["12:00", "14:30", "17:00", "19:30"][index % 4];
+}
+
+function getListedEventDay(event: Event, index: number) {
+  const firstDate = event.dates.split(/-|–/)[0]?.trim() || "Event day";
+  return `${firstDate} · Day ${Math.floor(index / 4) + 1}`;
+}
+
+function sameEvent(matchEvent: string, eventName: string) {
+  const normalize = (value: string) => value.toLowerCase().replace(/\b20\d{2}\b/g, "").replace(/[^a-z0-9]/g, "");
+  return normalize(matchEvent) === normalize(eventName);
 }

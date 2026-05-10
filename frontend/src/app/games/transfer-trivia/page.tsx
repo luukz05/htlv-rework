@@ -17,6 +17,7 @@ import {
   ACHIEVEMENTS,
   type UserProfile,
 } from "@/lib/gamification";
+import { usePageTitle } from "@/lib/use-page-title";
 
 const TOTAL_ROUNDS = 5;
 const TEAM_POOL_SIZE = 8;
@@ -70,6 +71,8 @@ function buildRound(playerProfiles: PlayerProfile[], teams: Team[], usedPlayerId
 }
 
 export default function TransferTriviaPage() {
+  usePageTitle("Transfer Trivia - Career Paths");
+
   const [playerProfiles, setPlayerProfiles] = useState<PlayerProfile[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);

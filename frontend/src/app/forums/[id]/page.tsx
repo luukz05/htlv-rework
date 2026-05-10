@@ -2,6 +2,17 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { api } from "@/services/api";
+import { compactTitle } from "@/lib/page-title";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const forumThreads = await api.forums();
+  const thread = forumThreads.find((t) => t.id.toString() === id);
+
+  return {
+    title: thread ? compactTitle(`${thread.title} - ${thread.replies} replies`, 74) : "Thread not found",
+  };
+}
 
 const mockReplies = [
   { user: "ProAnalyst", rank: "Global Elite", time: "5 min ago", text: "Great discussion topic! I think the current meta really favors aggressive play styles. Teams that can execute fast site takes with coordinated utility will dominate.", likes: 67 },

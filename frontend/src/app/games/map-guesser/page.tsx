@@ -15,6 +15,7 @@ import {
   ACHIEVEMENTS,
   type UserProfile,
 } from "@/lib/gamification";
+import { usePageTitle } from "@/lib/use-page-title";
 
 /* ── helpers ───────────────────────────────────────────── */
 
@@ -77,6 +78,8 @@ function buildQuestions(mapCalloutQuizzes: MapCalloutQuiz[], gameMaps: GameMap[]
 /* ── component ─────────────────────────────────────────── */
 
 export default function MapGuesserPage() {
+  usePageTitle("Map Guesser - Daily Callouts");
+
   const [mapCalloutQuizzes, setMapCalloutQuizzes] = useState<MapCalloutQuiz[]>([]);
   const [gameMaps, setGameMaps] = useState<GameMap[]>([]);
   const [phase, setPhase] = useState<Phase>("idle");

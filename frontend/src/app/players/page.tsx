@@ -5,6 +5,10 @@ import Link from "next/link";
 import CountryFlag from "@/components/CountryFlag";
 import { api } from "@/services/api";
 
+export const metadata = {
+  title: "Players - Stats and Profiles",
+};
+
 export default async function PlayersPage() {
   const { playerProfiles } = await resolvePageData({
     playerProfiles: api.players(),

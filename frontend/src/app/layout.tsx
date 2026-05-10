@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
+import { DEFAULT_TITLE, SITE_NAME } from "@/lib/page-title";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -11,7 +12,10 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "HLTV Redesign - Counter-Strike Coverage",
+  title: {
+    default: `${SITE_NAME} | ${DEFAULT_TITLE}`,
+    template: `%s | ${SITE_NAME}`,
+  },
   description:
     "Modern redesign of HLTV.org - the home of competitive Counter-Strike. News, matches, stats, rankings.",
 };

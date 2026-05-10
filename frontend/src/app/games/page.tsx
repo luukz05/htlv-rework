@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { loadProfile, getLevelName, getXpForNextLevel, ACHIEVEMENTS } from "@/lib/gamification";
 import type { UserProfile } from "@/lib/gamification";
+import { usePageTitle } from "@/lib/use-page-title";
 
 const games = [
   {
@@ -112,6 +113,8 @@ const dailyChallenges = [
 ];
 
 export default function GamesHubPage() {
+  usePageTitle("Games - Daily CS Challenges");
+
   const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {

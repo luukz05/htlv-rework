@@ -9,6 +9,10 @@ import {
 } from "@/data/hall-of-fame";
 import CountryFlag from "@/components/CountryFlag";
 
+export const metadata = {
+  title: "Hall of Fame - Counter-Strike Legends",
+};
+
 export default function HallOfFamePage() {
   const featuredProfile = legacyProfiles[0];
   const archiveProfiles = legacyProfiles.slice(1);

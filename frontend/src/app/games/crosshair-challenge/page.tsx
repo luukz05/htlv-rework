@@ -12,6 +12,7 @@ import {
   checkNewAchievements,
   ACHIEVEMENTS,
 } from "@/lib/gamification";
+import { usePageTitle } from "@/lib/use-page-title";
 
 /* ── types ─────────────────────────────────────────────── */
 
@@ -38,6 +39,8 @@ const ROUND_DURATION = 30; // seconds
 /* ── component ─────────────────────────────────────────── */
 
 export default function CrosshairChallengePage() {
+  usePageTitle("Crosshair Challenge - Aim Speed");
+
   const [phase, setPhase] = useState<Phase>("idle");
   const [timeLeft, setTimeLeft] = useState(ROUND_DURATION);
   const [stats, setStats] = useState<Stats>({

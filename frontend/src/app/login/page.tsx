@@ -3,8 +3,11 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import { usePageTitle } from "@/lib/use-page-title";
 
 export default function LoginPage() {
+  usePageTitle("Login");
+
   return (
     <>
       <Header />

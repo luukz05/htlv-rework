@@ -8,6 +8,10 @@ import CountryFlag, { LanguageFlag } from "@/components/CountryFlag";
 import { api } from "@/services/api";
 import type { Event, ForumThread, Player, PlayerHighlight, PlayerProfile, RoundHighlight, Stream } from "@/services/types";
 
+export const metadata = {
+  title: "Live CS News, Matches and Rankings",
+};
+
 
 /* ── Player of the Week ── */
 function PlayerOfTheWeek({

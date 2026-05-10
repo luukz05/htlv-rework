@@ -3,6 +3,10 @@ import Footer from "@/components/Footer";
 import { api } from "@/services/api";
 import ResultsClient from "./ResultsClient";
 
+export const metadata = {
+  title: "Results - Latest Scores",
+};
+
 export default async function ResultsPage() {
   const { recentResults } = await resolvePageData({
     recentResults: api.results(),

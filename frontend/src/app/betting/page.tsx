@@ -4,6 +4,10 @@ import Link from "next/link";
 import TeamLogo from "@/components/TeamLogo";
 import { api } from "@/services/api";
 
+export const metadata = {
+  title: "Betting - Match Odds",
+};
+
 export default async function BettingPage() {
   const { bookmakers, bettingMatches } = await resolvePageData({
     bookmakers: api.bookmakers(),

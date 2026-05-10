@@ -5,6 +5,10 @@ import TeamLogo from "@/components/TeamLogo";
 import CountryFlag from "@/components/CountryFlag";
 import { api } from "@/services/api";
 
+export const metadata = {
+  title: "Fantasy - Leaderboard and Player Prices",
+};
+
 export default async function FantasyPage() {
   const { leaderboard, fantasyPlayers } = await resolvePageData({
     leaderboard: api.fantasyLeaderboard(),

@@ -15,6 +15,7 @@ import {
   ACHIEVEMENTS,
   type UserProfile,
 } from "@/lib/gamification";
+import { usePageTitle } from "@/lib/use-page-title";
 
 /* ── helpers ───────────────────────────────────────────── */
 
@@ -43,6 +44,8 @@ const ROUND_SECONDS = 60;
 /* ── component ─────────────────────────────────────────── */
 
 export default function GuessLineupPage() {
+  usePageTitle("Guess the Lineup - Daily Roster");
+
   const [teamRosters, setTeamRosters] = useState<TeamRoster[]>([]);
   const [game, setGame] = useState<GameState | null>(null);
   const [input, setInput] = useState("");

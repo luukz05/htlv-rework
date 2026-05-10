@@ -3,6 +3,10 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { api } from "@/services/api";
 
+export const metadata = {
+  title: "Forums - Active Discussions",
+};
+
 const rankColors: Record<string, string> = {
   "Global Elite": "text-red",
   "Supreme": "text-orange",

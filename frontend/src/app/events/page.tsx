@@ -3,6 +3,10 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { api } from "@/services/api";
 
+export const metadata = {
+  title: "Events - Schedule and Prize Pools",
+};
+
 export default async function EventsPage() {
   const { events } = await resolvePageData({
     events: api.events(),

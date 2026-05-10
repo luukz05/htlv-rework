@@ -6,6 +6,16 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { api } from "@/services/api";
 
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const teamProfiles = await api.teams();
+  const team = teamProfiles.find((t) => t.id === id);
+
+  return {
+    title: team ? `${team.name} - World #${team.worldRanking} - ${team.overallWinRate}% win rate` : "Team not found",
+  };
+}
+
 export default async function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { teamProfiles } = await resolvePageData({
     teamProfiles: api.teams(),

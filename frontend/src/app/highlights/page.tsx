@@ -4,6 +4,10 @@ import Link from "next/link";
 import TeamLogo from "@/components/TeamLogo";
 import { api } from "@/services/api";
 
+export const metadata = {
+  title: "Highlights - Top Plays",
+};
+
 const typeLabels: Record<string, { label: string; color: string }> = {
   clutch: { label: "Clutch", color: "bg-purple-500/20 text-purple-400" },
   ace: { label: "Ace", color: "bg-red/20 text-red" },

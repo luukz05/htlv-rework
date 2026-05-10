@@ -7,8 +7,11 @@ import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
 import { api } from "@/services/api";
 import type { RankedTeam, TeamProfile } from "@/services/types";
+import { usePageTitle } from "@/lib/use-page-title";
 
 export default function RankingsPage() {
+  usePageTitle("Rankings - World Top Teams");
+
   const [expanded, setExpanded] = useState<number | null>(null);
   const [ranking, setRanking] = useState<RankedTeam[]>([]);
   const [teamProfiles, setTeamProfiles] = useState<TeamProfile[]>([]);

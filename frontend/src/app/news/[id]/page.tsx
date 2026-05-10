@@ -2,6 +2,18 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { api } from "@/services/api";
+import { compactTitle } from "@/lib/page-title";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const news = await api.news();
+  const article = news.find((n) => n.id.toString() === id);
+
+  return {
+    title: article ? compactTitle(`${article.title} - ${article.comments} comments`, 74) : "Article not found",
+    description: article?.description,
+  };
+}
 
 export default async function NewsDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { news } = await resolvePageData({

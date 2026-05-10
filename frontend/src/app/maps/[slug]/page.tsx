@@ -4,6 +4,17 @@ import TeamLogo from "@/components/TeamLogo";
 import Link from "next/link";
 import { api } from "@/services/api";
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const gameMaps = await api.maps();
+  const map = gameMaps.find((m) => m.slug === slug);
+
+  return {
+    title: map ? `${map.name} - ${map.pool === "active" ? "Active Duty" : "Map"} - CT ${map.ctWinRate}%` : "Map not found",
+    description: map?.description,
+  };
+}
+
 const utilityColors: Record<string, { bg: string; text: string; label: string }> = {
   smoke: { bg: "bg-blue/15", text: "text-blue-light", label: "Smoke" },
   flash: { bg: "bg-yellow/15", text: "text-yellow", label: "Flash" },

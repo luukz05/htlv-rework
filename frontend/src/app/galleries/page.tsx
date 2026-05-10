@@ -3,6 +3,10 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { api } from "@/services/api";
 
+export const metadata = {
+  title: "Galleries - Event Photos",
+};
+
 const categories = ["All", "Events", "Teams", "Behind the Scenes"];
 
 export default async function GalleriesPage() {
