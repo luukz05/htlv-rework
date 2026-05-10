@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import TeamLogo from "@/components/TeamLogo";
 import CountryFlag, { CountryLabel } from "@/components/CountryFlag";
-import type { PlayerProfile } from "@/data/mock";
+import type { PlayerProfile } from "@/services/types";
 
 const tabs = ["Overview", "Statistics", "Matches", "Achievements"] as const;
 type Tab = (typeof tabs)[number];

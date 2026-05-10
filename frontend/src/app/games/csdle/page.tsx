@@ -6,8 +6,8 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CountryFlag, { CountryLabel } from "@/components/CountryFlag";
-import { playerProfiles } from "@/data/mock";
-import type { PlayerProfile } from "@/data/mock";
+import { api } from "@/services/api";
+import type { PlayerProfile } from "@/services/types";
 import { getDailySeed, getTimeUntilMidnight } from "@/lib/daily-seed";
 import { loadProfile, saveProfile, addXP, updateDailyStreak } from "@/lib/gamification";
 import type { UserProfile } from "@/lib/gamification";
@@ -96,6 +96,7 @@ function emojiFor(s: "green" | "yellow" | "red"): string {
 
 /* ---------- component ---------- */
 export default function CsdlePage() {
+  const [playerProfiles, setPlayerProfiles] = useState<PlayerProfile[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [guesses, setGuesses] = useState<GuessRow[]>([]);
   const [solved, setSolved] = useState(false);
@@ -110,13 +111,30 @@ export default function CsdlePage() {
 
   // Determine daily answer
   const answer = useMemo(() => {
+    if (playerProfiles.length === 0) return null;
     const seed = getDailySeed();
     const idx = seed % playerProfiles.length;
     return playerProfiles[idx];
+  }, [playerProfiles]);
+
+  useEffect(() => {
+    let ignore = false;
+    api.players()
+      .then((players) => {
+        if (!ignore) setPlayerProfiles(players);
+      })
+      .catch(() => {
+        if (!ignore) setPlayerProfiles([]);
+      });
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   // Load saved state
   useEffect(() => {
+    if (!answer) return;
     const p = loadProfile();
     setProfile(p);
 
@@ -138,7 +156,7 @@ export default function CsdlePage() {
         }
       }
     } catch { /* ignore */ }
-  }, [answer]);
+  }, [answer, playerProfiles]);
 
   // Midnight timer
   useEffect(() => {
@@ -165,10 +183,11 @@ export default function CsdlePage() {
     return playerProfiles
       .filter((p) => !guessedIds.has(p.id) && (p.nickname.toLowerCase().includes(q) || p.realName.toLowerCase().includes(q)))
       .slice(0, 6);
-  }, [input, guessedIds]);
+  }, [input, guessedIds, playerProfiles]);
 
   const submitGuess = useCallback(
     (player: PlayerProfile) => {
+      if (!answer) return;
       if (solved || failed) return;
       if (guessedIds.has(player.id)) return;
 
@@ -232,6 +251,18 @@ export default function CsdlePage() {
   }, [guesses, solved]);
 
   const gameOver = solved || failed;
+
+  if (!answer) {
+    return (
+      <>
+        <Header />
+        <main className="mx-auto max-w-[900px] px-5 py-16 text-center">
+          <div className="animate-pulse text-text-muted">Loading...</div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

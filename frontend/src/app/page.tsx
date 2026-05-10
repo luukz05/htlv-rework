@@ -5,12 +5,20 @@ import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import CountryFlag, { LanguageFlag } from "@/components/CountryFlag";
-import { events, topPlayers, forumThreads, streams, playerProfiles, playerOfTheWeek, roundHighlight } from "@/data/mock";
 import { api } from "@/services/api";
+import type { Event, ForumThread, Player, PlayerHighlight, PlayerProfile, RoundHighlight, Stream } from "@/services/types";
 
 
 /* ── Player of the Week ── */
-function PlayerOfTheWeek() {
+function PlayerOfTheWeek({
+  playerOfTheWeek,
+  topPlayers,
+  playerProfiles,
+}: {
+  playerOfTheWeek: PlayerHighlight;
+  topPlayers: Player[];
+  playerProfiles: PlayerProfile[];
+}) {
   const { player: fallbackPlayer, event, maps } = playerOfTheWeek;
   const player = topPlayers.find((p) => p.name === "ZywOo") ?? fallbackPlayer;
   const profile = playerProfiles.find((p) => p.nickname === player.name);
@@ -129,7 +137,7 @@ function PlayerOfTheWeek() {
 }
 
 /* ── Round Highlight of the Week ── */
-function RoundHighlightSection() {
+function RoundHighlightSection({ roundHighlight }: { roundHighlight: RoundHighlight }) {
   const hl = roundHighlight;
   return (
     <section className="animate-fade-in-up">
@@ -199,7 +207,7 @@ function BreakingNewsTicker({ news }: { news: Awaited<ReturnType<typeof api.news
 }
 
 /* ── Live Events Bar ── */
-function LiveEventsBar() {
+function LiveEventsBar({ events }: { events: Event[] }) {
   const liveEvents = events.filter(e => e.progress > 0);
   const upcomingEvents = events.filter(e => e.progress === 0).slice(0, 3);
   const allEvents = [...liveEvents, ...upcomingEvents];
@@ -259,7 +267,7 @@ function LiveEventsBar() {
 }
 
 /* ── Hot Forum Discussions ── */
-function ForumDiscussions() {
+function ForumDiscussions({ forumThreads }: { forumThreads: ForumThread[] }) {
   const threads = forumThreads.slice(0, 6);
   return (
     <section>
@@ -314,7 +322,7 @@ function ForumDiscussions() {
 }
 
 /* ── Top Player Ratings ── */
-function TopPlayerRatings() {
+function TopPlayerRatings({ topPlayers }: { topPlayers: Player[] }) {
   const players = topPlayers.slice(0, 5);
   return (
     <section>
@@ -365,11 +373,11 @@ function TopPlayerRatings() {
 }
 
 /* ── Popular Streams ── */
-function PopularStreams() {
+function PopularStreams({ streams }: { streams: Stream[] }) {
   const featured = streams.slice(0, 2);
   const rest = streams.slice(2);
 
-  function StreamCard({ stream, featured: isFeatured, idx }: { stream: typeof streams[0]; featured?: boolean; idx: number }) {
+  function StreamCard({ stream, featured: isFeatured, idx }: { stream: Stream; featured?: boolean; idx: number }) {
     return (
       <a
         href="#"
@@ -428,7 +436,7 @@ function PopularStreams() {
 }
 
 /* ── Upcoming Events (full-width) ── */
-function UpcomingEvents() {
+function UpcomingEvents({ events }: { events: Event[] }) {
   const upcoming = events.filter(e => e.progress === 0).slice(0, 6);
   return (
     <section>
@@ -525,8 +533,22 @@ function MoreNews({ news }: { news: Awaited<ReturnType<typeof api.news>> }) {
 
 /* ── Main Page ── */
 export default async function Home() {
-  const { news } = await resolvePageData({
+  const {
+    news,
+    events,
+    topPlayers,
+    forumThreads,
+    playerProfiles,
+    playerOfTheWeek,
+    roundHighlight,
+  } = await resolvePageData({
     news: api.news(),
+    events: api.events(),
+    topPlayers: api.topPlayers(),
+    forumThreads: api.forums(),
+    playerProfiles: api.players(),
+    playerOfTheWeek: api.playerOfTheWeek(),
+    roundHighlight: api.roundHighlight(),
   });
 
   return (
@@ -540,7 +562,7 @@ export default async function Home() {
       <HeroMatch />
 
       {/* Live Events Bar — full bleed bg */}
-      <LiveEventsBar />
+      <LiveEventsBar events={events} />
 
       {/* Two-column grid */}
       <main className="mx-auto max-w-[1460px] px-4 sm:px-5 py-8">
@@ -549,13 +571,13 @@ export default async function Home() {
           <div className="space-y-8">
             <NewsSection news={news} />
 
-            <PlayerOfTheWeek />
+            <PlayerOfTheWeek playerOfTheWeek={playerOfTheWeek} topPlayers={topPlayers} playerProfiles={playerProfiles} />
 
-            <ForumDiscussions />
+            <ForumDiscussions forumThreads={forumThreads} />
 
-            <RoundHighlightSection />
+            <RoundHighlightSection roundHighlight={roundHighlight} />
 
-            <UpcomingEvents />
+            <UpcomingEvents events={events} />
           </div>
 
           {/* Right sidebar */}

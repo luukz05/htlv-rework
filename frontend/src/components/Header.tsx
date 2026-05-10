@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import TeamLogo from "./TeamLogo";
-import { events, liveMatches, ranking, topPlayers } from "@/data/mock";
+import { api } from "@/services/api";
+import type { Event, Match, Player, RankedTeam } from "@/services/types";
 
 const navLinks = [
   { label: "News", href: "/news" },
@@ -22,12 +23,6 @@ const navLinks = [
 ];
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
-
-const featuredMatch = liveMatches[0];
-const featuredPlayer = topPlayers[0];
-const featuredPlayers = topPlayers.slice(0, 5);
-const featuredTeams = ranking.slice(0, 5);
-const mainEvent = events[0];
 
 function RibbonGroup({
   label,
@@ -61,8 +56,42 @@ function RibbonGroup({
 }
 
 function DataRibbon() {
+  const [liveMatches, setLiveMatches] = useState<Match[]>([]);
+  const [topPlayers, setTopPlayers] = useState<Player[]>([]);
+  const [ranking, setRanking] = useState<RankedTeam[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [liveIndex, setLiveIndex] = useState(0);
   const [isCycling, setIsCycling] = useState(false);
+
+  useEffect(() => {
+    let ignore = false;
+
+    Promise.all([api.liveMatches(), api.topPlayers(), api.rankings(), api.events()])
+      .then(([liveData, playerData, rankingData, eventData]) => {
+        if (ignore) return;
+        setLiveMatches(liveData);
+        setTopPlayers(playerData);
+        setRanking(rankingData);
+        setEvents(eventData);
+      })
+      .catch(() => {
+        if (ignore) return;
+        setLiveMatches([]);
+        setTopPlayers([]);
+        setRanking([]);
+        setEvents([]);
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const featuredMatch = liveMatches[0];
+  const featuredPlayer = topPlayers[0];
+  const featuredPlayers = topPlayers.slice(0, 5);
+  const featuredTeams = ranking.slice(0, 5);
+  const mainEvent = events[0];
   const currentLiveMatch = liveMatches[liveIndex % liveMatches.length] ?? featuredMatch;
 
   useEffect(() => {
@@ -79,9 +108,9 @@ function DataRibbon() {
     }, 3500);
 
     return () => window.clearInterval(interval);
-  }, []);
+  }, [liveMatches.length]);
 
-  if (!featuredMatch || !featuredPlayer) {
+  if (!featuredMatch || !featuredPlayer || !mainEvent || featuredTeams.length === 0) {
     return null;
   }
 

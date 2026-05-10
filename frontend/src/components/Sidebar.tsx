@@ -1,8 +1,7 @@
 import TeamLogo from "./TeamLogo";
 import CountryFlag, { LanguageFlag } from "./CountryFlag";
-import { streams, topPlayers } from "@/data/mock";
 import { api } from "@/services/api";
-import type { Match, RankedTeam } from "@/services/types";
+import type { Match, Player, RankedTeam, Stream } from "@/services/types";
 
 function LiveMatches({ liveMatches, upcomingMatches }: { liveMatches: Match[]; upcomingMatches: Match[] }) {
   const upcoming3 = upcomingMatches.slice(0, 3);
@@ -157,7 +156,7 @@ function TopRanking({ ranking }: { ranking: RankedTeam[] }) {
   );
 }
 
-function TopPlayerRatings() {
+function TopPlayerRatings({ topPlayers }: { topPlayers: Player[] }) {
   const players = topPlayers.slice(0, 5);
 
   return (
@@ -198,7 +197,7 @@ function TopPlayerRatings() {
   );
 }
 
-function StreamList() {
+function StreamList({ streams }: { streams: Stream[] }) {
   const sortedStreams = [...streams].sort((a, b) => b.viewers - a.viewers);
 
   return (
@@ -248,11 +247,13 @@ function StreamList() {
 }
 
 export default async function Sidebar() {
-  const { liveMatches, upcomingMatches, recentResults, ranking } = await resolvePageData({
+  const { liveMatches, upcomingMatches, recentResults, ranking, topPlayers, streams } = await resolvePageData({
     liveMatches: api.liveMatches(),
     upcomingMatches: api.upcomingMatches(),
     recentResults: api.results(),
     ranking: api.rankings(),
+    topPlayers: api.topPlayers(),
+    streams: api.streams(),
   });
 
   return (
@@ -260,8 +261,8 @@ export default async function Sidebar() {
       <LiveMatches liveMatches={liveMatches} upcomingMatches={upcomingMatches} />
       <RecentResults recentResults={recentResults} />
       <TopRanking ranking={ranking} />
-      <TopPlayerRatings />
-      <StreamList />
+      <TopPlayerRatings topPlayers={topPlayers} />
+      <StreamList streams={streams} />
     </aside>
   );
 }

@@ -5,7 +5,8 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
-import { playerProfiles, teams } from "@/data/mock";
+import { api } from "@/services/api";
+import type { PlayerProfile, Team } from "@/services/types";
 import CountryFlag from "@/components/CountryFlag";
 import {
   loadProfile,
@@ -23,9 +24,6 @@ const POINTS_CORRECT = 10;
 const POINTS_WRONG = -5;
 const POINTS_PERFECT_BONUS = 25;
 
-/* Only players who actually have team history entries */
-const eligiblePlayers = playerProfiles.filter((p) => p.teamHistory.length > 0);
-
 function shuffleArray<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -36,12 +34,15 @@ function shuffleArray<T>(arr: T[]): T[] {
 }
 
 interface RoundData {
-  player: (typeof playerProfiles)[number];
+  player: PlayerProfile;
   correctTeams: { name: string; logo: string; period: string }[];
   pool: { name: string; logo: string }[];
 }
 
-function buildRound(usedPlayerIds: Set<number>): RoundData {
+function buildRound(playerProfiles: PlayerProfile[], teams: Team[], usedPlayerIds: Set<number>): RoundData | null {
+  const eligiblePlayers = playerProfiles.filter((p) => p.teamHistory.length > 0);
+  if (eligiblePlayers.length === 0) return null;
+
   const available = eligiblePlayers.filter((p) => !usedPlayerIds.has(p.id));
   const player = available.length > 0
     ? available[Math.floor(Math.random() * available.length)]
@@ -69,6 +70,8 @@ function buildRound(usedPlayerIds: Set<number>): RoundData {
 }
 
 export default function TransferTriviaPage() {
+  const [playerProfiles, setPlayerProfiles] = useState<PlayerProfile[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [round, setRound] = useState(0);
   const [roundData, setRoundData] = useState<RoundData | null>(null);
@@ -82,18 +85,39 @@ export default function TransferTriviaPage() {
 
   /* Load profile on mount */
   useEffect(() => {
+    let ignore = false;
+    Promise.all([api.players(), api.teamCards()])
+      .then(([players, teamCards]) => {
+        if (ignore) return;
+        setPlayerProfiles(players);
+        setTeams(teamCards);
+      })
+      .catch(() => {
+        if (ignore) return;
+        setPlayerProfiles([]);
+        setTeams([]);
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  /* Load game data on mount */
+  useEffect(() => {
     setMounted(true);
     setProfile(loadProfile());
   }, []);
 
   /* Start first round */
   useEffect(() => {
-    if (mounted && !roundData && !gameFinished) {
-      const rd = buildRound(usedPlayerIds);
+    if (mounted && !roundData && !gameFinished && playerProfiles.length > 0 && teams.length > 0) {
+      const rd = buildRound(playerProfiles, teams, usedPlayerIds);
+      if (!rd) return;
       setRoundData(rd);
       setUsedPlayerIds((prev) => new Set(prev).add(rd.player.id));
     }
-  }, [mounted, roundData, gameFinished, usedPlayerIds]);
+  }, [mounted, roundData, gameFinished, usedPlayerIds, playerProfiles, teams]);
 
   const correctNames = useMemo(() => {
     if (!roundData) return new Set<string>();
@@ -181,11 +205,12 @@ export default function TransferTriviaPage() {
       setRound(nextRound);
       setSelected(new Set());
       setSubmitted(false);
-      const rd = buildRound(usedPlayerIds);
+      const rd = buildRound(playerProfiles, teams, usedPlayerIds);
+      if (!rd) return;
       setRoundData(rd);
       setUsedPlayerIds((prev) => new Set(prev).add(rd.player.id));
     }
-  }, [round, scores, profile, usedPlayerIds]);
+  }, [round, scores, profile, usedPlayerIds, playerProfiles, teams]);
 
   const handlePlayAgain = useCallback(() => {
     setRound(0);
@@ -195,10 +220,11 @@ export default function TransferTriviaPage() {
     setGameFinished(false);
     setNewAchievements([]);
     const newUsed = new Set<number>();
-    const rd = buildRound(newUsed);
+    const rd = buildRound(playerProfiles, teams, newUsed);
+    if (!rd) return;
     setRoundData(rd);
     setUsedPlayerIds(new Set<number>().add(rd.player.id));
-  }, []);
+  }, [playerProfiles, teams]);
 
   const totalScore = scores.reduce((s, v) => s + v, 0);
 

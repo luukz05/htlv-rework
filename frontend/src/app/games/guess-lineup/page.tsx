@@ -4,7 +4,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { teamRosters } from "@/data/mock";
+import { api } from "@/services/api";
+import type { TeamRoster } from "@/services/types";
 import {
   loadProfile,
   saveProfile,
@@ -17,9 +18,9 @@ import {
 
 /* ── helpers ───────────────────────────────────────────── */
 
-const ALL_PLAYER_NAMES = Array.from(
-  new Set(teamRosters.flatMap((t) => t.players)),
-);
+function getAllPlayerNames(teamRosters: TeamRoster[]) {
+  return Array.from(new Set(teamRosters.flatMap((t) => t.players)));
+}
 
 function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -42,6 +43,7 @@ const ROUND_SECONDS = 60;
 /* ── component ─────────────────────────────────────────── */
 
 export default function GuessLineupPage() {
+  const [teamRosters, setTeamRosters] = useState<TeamRoster[]>([]);
   const [game, setGame] = useState<GameState | null>(null);
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -53,9 +55,25 @@ export default function GuessLineupPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const startTimeRef = useRef(0);
 
+  useEffect(() => {
+    let ignore = false;
+    api.teamRosters()
+      .then((data) => {
+        if (!ignore) setTeamRosters(data);
+      })
+      .catch(() => {
+        if (!ignore) setTeamRosters([]);
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   /* ── start new round ─────────────────────────────────── */
 
   const startGame = useCallback(() => {
+    if (teamRosters.length === 0) return;
     const idx = Math.floor(Math.random() * teamRosters.length);
     setGame({
       teamIndex: idx,
@@ -70,7 +88,7 @@ export default function GuessLineupPage() {
     setXpEarned(0);
     setNewAchievements([]);
     startTimeRef.current = Date.now();
-  }, []);
+  }, [teamRosters]);
 
   /* ── timer ───────────────────────────────────────────── */
 
@@ -131,7 +149,8 @@ export default function GuessLineupPage() {
       return;
     }
     const lower = value.toLowerCase();
-    const matches = ALL_PLAYER_NAMES.filter(
+    const allPlayerNames = getAllPlayerNames(teamRosters);
+    const matches = allPlayerNames.filter(
       (n) =>
         n.toLowerCase().includes(lower) &&
         !(game && teamRosters[game.teamIndex].players.includes(n) && game.found[teamRosters[game.teamIndex].players.indexOf(n)]),

@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import CountryFlag from "@/components/CountryFlag";
 import { api } from "@/services/api";
-import type { Match, Player, Team, TeamProfile } from "@/services/types";
+import type { Match, Player, Team, TeamProfile, TeamRoster } from "@/services/types";
 import MatchHeadToHeadClient from "./MatchHeadToHeadClient";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -35,12 +35,13 @@ const mapIcons: Record<string, string> = {
 };
 
 export default async function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { liveMatches, upcomingMatches, recentResults, topPlayers, teamProfiles } = await resolvePageData({
+  const { liveMatches, upcomingMatches, recentResults, topPlayers, teamProfiles, teamRosters } = await resolvePageData({
     liveMatches: api.liveMatches(),
     upcomingMatches: api.upcomingMatches(),
     recentResults: api.results(),
     topPlayers: api.topPlayers(),
     teamProfiles: api.teams(),
+    teamRosters: api.teamRosters(),
   });
 
   const { id } = await params;
@@ -53,12 +54,13 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
   const isLive = match.status === "live";
   const isFinished = match.status === "finished";
   const fakePlayers = topPlayers.slice(0, 5);
-  const team1Lineup = getTeamLineup(match.team1, teamProfiles, topPlayers);
-  const team2Lineup = getTeamLineup(match.team2, teamProfiles, topPlayers);
+  const team1Lineup = getTeamLineup(match.team1, teamProfiles, teamRosters, topPlayers);
+  const team2Lineup = getTeamLineup(match.team2, teamProfiles, teamRosters, topPlayers);
   const team1Rank = getTeamWorldRank(match.team1, teamProfiles);
   const team2Rank = getTeamWorldRank(match.team2, teamProfiles);
-  const mapBackground = getMapBackground(match.map);
   const headerMaps = getHeaderMaps(match);
+  const primaryHeaderMap = getPrimaryHeaderMap(match);
+  const mapBackground = getMapBackground(primaryHeaderMap);
 
   return (
     <>
@@ -83,7 +85,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
             <div className="mx-auto max-w-[1060px]">
               <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
                 <HeaderPill label={match.format} />
-                <HeaderPill label={match.map || headerMaps[0]?.map || "TBA"} tone="blue" />
+                <HeaderPill label={primaryHeaderMap || "TBA"} tone="blue" />
                 <HeaderPill label={isFinished ? "Finished" : match.date || "Upcoming"} />
               </div>
 
@@ -210,7 +212,11 @@ type HeaderVetoStep = {
   team: string;
   kind: "pick" | "ban" | "decider";
   map: string;
+  score1?: number;
+  score2?: number;
 };
+
+const activeMapPool = ["Mirage", "Inferno", "Nuke", "Ancient", "Anubis", "Dust II", "Overpass"];
 
 function HeaderPill({ label, tone = "default" }: { label: string; tone?: "default" | "blue" | "red" }) {
   const toneClass = tone === "blue"
@@ -450,7 +456,7 @@ function MapWinBar({ team, value }: { team: string; value: number }) {
 }
 
 function HeaderVetoStrip({ match }: { match: Match }) {
-  const steps = getHeaderVetoSteps(match).slice(0, 7);
+  const steps = getVisibleHeaderVetoSteps(match);
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-2">
@@ -462,6 +468,11 @@ function HeaderVetoStrip({ match }: { match: Match }) {
           <span className="font-bold text-text-secondary">{step.team}</span>
           <span className="text-text-muted">·</span>
           <span className="font-black text-text-primary">{step.map}</span>
+          {step.score1 !== undefined && step.score2 !== undefined && (
+            <span className="rounded bg-blue/20 px-1.5 py-0.5 text-[10px] font-black text-blue-light tabular-nums">
+              {step.score1}-{step.score2}
+            </span>
+          )}
         </div>
       ))}
     </div>
@@ -531,7 +542,7 @@ function MatchLineup({ team, players, align }: { team: Team; players: LineupPlay
   );
 }
 
-function getTeamLineup(team: Team, teamProfiles: TeamProfile[], topPlayers: Player[]): LineupPlayer[] {
+function getTeamLineup(team: Team, teamProfiles: TeamProfile[], teamRosters: TeamRoster[], topPlayers: Player[]): LineupPlayer[] {
   const profile = teamProfiles.find((item) => teamMatchesProfile(team, item));
   const rosterPlayers = profile?.roster.map((player) => ({
     nickname: player.nickname,
@@ -541,6 +552,14 @@ function getTeamLineup(team: Team, teamProfiles: TeamProfile[], topPlayers: Play
     countryFlag: player.countryFlag,
     rating: player.rating,
   })) ?? [];
+
+  const namedRosterPlayers = teamRosters
+    .find((item) => teamMatchesRoster(team, item))
+    ?.players.map((nickname) => ({
+      nickname,
+      image: getPlayerImageByNickname(nickname),
+      role: "Player",
+    })) ?? [];
 
   const rankedPlayers = topPlayers
     .filter((player) => normalizeTeamName(player.team) === normalizeTeamName(team.abbr) || normalizeTeamName(player.team) === normalizeTeamName(team.name))
@@ -553,13 +572,13 @@ function getTeamLineup(team: Team, teamProfiles: TeamProfile[], topPlayers: Play
       rating: player.rating,
     }));
 
-  const uniquePlayers = [...rosterPlayers, ...rankedPlayers].filter((player, index, list) => (
+  const uniquePlayers = [...rosterPlayers, ...namedRosterPlayers, ...rankedPlayers].filter((player, index, list) => (
     list.findIndex((item) => normalizeTeamName(item.nickname) === normalizeTeamName(player.nickname)) === index
   ));
 
   return [...uniquePlayers, ...Array.from({ length: 5 }, (_, index) => ({
     nickname: `${team.abbr} ${index + 1}`,
-    image: "/players/default.png",
+    image: getPlayerImageByNickname(),
     role: "Player",
   }))].slice(0, 5);
 }
@@ -573,6 +592,64 @@ function teamMatchesProfile(team: Team, profile: TeamProfile) {
   const profileKeys = [profile.name, profile.abbr, profile.id].map(normalizeTeamName);
 
   return teamKeys.some((key) => profileKeys.includes(key));
+}
+
+function teamMatchesRoster(team: Team, roster: TeamRoster) {
+  const teamKeys = [team.name, team.abbr].map(normalizeTeamName);
+  const rosterKeys = [roster.teamName, roster.teamAbbr].map(normalizeTeamName);
+
+  return teamKeys.some((key) => rosterKeys.includes(key));
+}
+
+function getPlayerImageByNickname(nickname?: string) {
+  if (!nickname) {
+    return `${B}/players/default.png`;
+  }
+
+  const knownImages: Record<string, string> = {
+    aleksib: "aleksib",
+    apex: "apex",
+    b1t: "b1t",
+    broky: "broky",
+    fallen: "fallen",
+    flamez: "flamez",
+    frozen: "frozen",
+    heavygod: "heavygod",
+    hunter: "hunter",
+    im: "im",
+    jcobbb: "jcobbb",
+    jimpphat: "jimpphat",
+    jl: "jl",
+    karrigan: "karrigan",
+    kscerato: "kscerato",
+    magixx: "magixx",
+    makazze: "makazze",
+    malbsmd: "malbsmd",
+    matys: "matys",
+    mezii: "mezii",
+    molodoy: "molodoy",
+    naf: "naf",
+    nertz: "nertz",
+    ropz: "ropz",
+    sh1ro: "sh1ro",
+    siuhy: "siuhy",
+    spinx: "spinx",
+    sunpayus: "sunpayus",
+    tn1r: "tn1r",
+    torzsi: "torzsi",
+    twistzz: "twistzz",
+    ultimate: "ultimate",
+    w0nderful: "w0nderful",
+    xelex: "xelex",
+    xertion: "xertion",
+    yekindar: "yekindar",
+    yuurih: "yuurih",
+    zont1x: "zont1x",
+    zywoo: "zywoo",
+  };
+  const imageName = knownImages[normalizeTeamName(nickname)];
+
+  return imageName ? `${B}/players/${imageName}.png` : `${B}/players/default.png`;
 }
 
 function normalizeTeamName(value: string) {
@@ -608,14 +685,27 @@ function getMatchMaps(match: Match): MatchMapSummary[] {
 }
 
 function getHeaderMaps(match: Match): MatchMapSummary[] {
-  const maps = getMatchMaps(match);
-  if (maps.length > 0) {
-    return maps;
+  if (match.mapVeto && match.mapVeto.length > 0) {
+    return getMatchMaps(match);
   }
 
   return getHeaderVetoSteps(match)
     .filter((item) => item.kind === "pick" || item.kind === "decider")
-    .map((item) => ({ map: item.map }));
+    .map((item) => ({ map: item.map, score1: item.score1, score2: item.score2 }));
+}
+
+function getPrimaryHeaderMap(match: Match) {
+  const steps = getHeaderVetoSteps(match);
+  return steps.find((item) => item.kind === "decider")?.map
+    ?? steps.find((item) => item.kind === "pick")?.map
+    ?? match.map;
+}
+
+function getVisibleHeaderVetoSteps(match: Match) {
+  const steps = getHeaderVetoSteps(match);
+  const isBestOfOne = match.format === "BO1";
+
+  return (isBestOfOne ? steps.filter((item) => item.kind === "decider") : steps).slice(0, 7);
 }
 
 function getHeaderVetoSteps(match: Match): HeaderVetoStep[] {
@@ -624,16 +714,59 @@ function getHeaderVetoSteps(match: Match): HeaderVetoStep[] {
       team: item.team,
       kind: item.action === "picked" ? "pick" : item.action === "decider" ? "decider" : "ban",
       map: item.map,
+      score1: item.score1,
+      score2: item.score2,
     }));
   }
 
+  return buildFallbackVetoSteps(match);
+}
+
+function buildFallbackVetoSteps(match: Match): HeaderVetoStep[] {
+  const maps = rotateMapPool(match);
+
+  if (match.format === "BO1") {
+    return [
+      { team: match.team1.abbr, kind: "ban", map: maps[0] },
+      { team: match.team2.abbr, kind: "ban", map: maps[1] },
+      { team: match.team1.abbr, kind: "ban", map: maps[2] },
+      { team: match.team2.abbr, kind: "ban", map: maps[3] },
+      { team: match.team1.abbr, kind: "ban", map: maps[4] },
+      { team: match.team2.abbr, kind: "ban", map: maps[5] },
+      { team: "Decider", kind: "decider", map: match.map || maps[6] },
+    ];
+  }
+
+  if (match.format === "BO5") {
+    return [
+      { team: match.team1.abbr, kind: "ban", map: maps[0] },
+      { team: match.team2.abbr, kind: "ban", map: maps[1] },
+      { team: match.team1.abbr, kind: "pick", map: match.map || maps[2] },
+      { team: match.team2.abbr, kind: "pick", map: maps[3] },
+      { team: match.team1.abbr, kind: "pick", map: maps[4] },
+      { team: match.team2.abbr, kind: "pick", map: maps[5] },
+      { team: "Decider", kind: "decider", map: maps[6] },
+    ];
+  }
+
   return [
-    { team: match.team1.abbr, kind: "ban", map: "Nuke" },
-    { team: match.team2.abbr, kind: "ban", map: "Ancient" },
-    { team: match.team1.abbr, kind: "pick", map: match.map || "Mirage" },
-    { team: match.team2.abbr, kind: "pick", map: "Inferno" },
-    { team: match.team1.abbr, kind: "ban", map: "Anubis" },
-    { team: match.team2.abbr, kind: "ban", map: "Dust II" },
-    { team: "Decider", kind: "decider", map: "Overpass" },
+    { team: match.team1.abbr, kind: "ban", map: maps[0] },
+    { team: match.team2.abbr, kind: "ban", map: maps[1] },
+    { team: match.team1.abbr, kind: "pick", map: match.map || maps[2], ...getFallbackCompletedMapScore(match, 0) },
+    { team: match.team2.abbr, kind: "pick", map: maps[3], ...getFallbackCompletedMapScore(match, 1) },
+    { team: match.team1.abbr, kind: "ban", map: maps[4] },
+    { team: match.team2.abbr, kind: "ban", map: maps[5] },
+    { team: "Decider", kind: "decider", map: maps[6] },
   ];
+}
+
+function getFallbackCompletedMapScore(_match: Match, _pickIndex: number) {
+  return { score1: 0, score2: 0 };
+}
+
+function rotateMapPool(match: Match) {
+  const seed = `${match.id}-${match.team1.abbr}-${match.team2.abbr}`.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const offset = seed % activeMapPool.length;
+
+  return [...activeMapPool.slice(offset), ...activeMapPool.slice(0, offset)];
 }

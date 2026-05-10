@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { topPlayers } from "@/data/mock";
-import type { Player } from "@/data/mock";
+import { api } from "@/services/api";
+import type { Player } from "@/services/types";
 import CountryFlag from "@/components/CountryFlag";
 import { loadProfile, saveProfile, addXP, updateDailyStreak } from "@/lib/gamification";
 import type { UserProfile } from "@/lib/gamification";
@@ -13,8 +13,8 @@ import type { UserProfile } from "@/lib/gamification";
 /* ---------- helpers ---------- */
 const HL_STREAK_KEY = "hltv-hl-best-streak";
 
-function pickTwo(exclude?: number): [Player, Player] {
-  const pool = [...topPlayers];
+function pickTwo(players: Player[], exclude?: number): [Player, Player] {
+  const pool = [...players];
   let a: Player, b: Player;
   do {
     a = pool[Math.floor(Math.random() * pool.length)];
@@ -30,8 +30,9 @@ type Phase = "playing" | "revealing" | "gameover";
 /* ---------- component ---------- */
 export default function HigherLowerPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [leftPlayer, setLeftPlayer] = useState<Player>(topPlayers[0]);
-  const [rightPlayer, setRightPlayer] = useState<Player>(topPlayers[1]);
+  const [topPlayers, setTopPlayers] = useState<Player[]>([]);
+  const [leftPlayer, setLeftPlayer] = useState<Player | null>(null);
+  const [rightPlayer, setRightPlayer] = useState<Player | null>(null);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [phase, setPhase] = useState<Phase>("playing");
@@ -41,6 +42,7 @@ export default function HigherLowerPage() {
 
   // Init
   useEffect(() => {
+    let ignore = false;
     const p = loadProfile();
     setProfile(p);
 
@@ -49,14 +51,30 @@ export default function HigherLowerPage() {
       if (stored) setBestStreak(Number(stored));
     } catch { /* ignore */ }
 
-    const [a, b] = pickTwo();
-    setLeftPlayer(a);
-    setRightPlayer(b);
+    api.topPlayers()
+      .then((players) => {
+        if (ignore) return;
+        setTopPlayers(players);
+        if (players.length >= 2) {
+          const [a, b] = pickTwo(players);
+          setLeftPlayer(a);
+          setRightPlayer(b);
+        }
+      })
+      .catch(() => {
+        if (ignore) return;
+        setTopPlayers([]);
+      });
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const handleGuess = useCallback(
     (choice: "higher" | "lower") => {
       if (phase !== "playing") return;
+      if (!leftPlayer || !rightPlayer || topPlayers.length < 2) return;
 
       const leftR = leftPlayer.rating;
       const rightR = rightPlayer.rating;
@@ -123,11 +141,12 @@ export default function HigherLowerPage() {
         }, 1200);
       }
     },
-    [phase, leftPlayer, rightPlayer, streak, bestStreak, profile],
+    [phase, leftPlayer, rightPlayer, topPlayers, streak, bestStreak, profile],
   );
 
   const playAgain = useCallback(() => {
-    const [a, b] = pickTwo();
+    if (topPlayers.length < 2) return;
+    const [a, b] = pickTwo(topPlayers);
     setLeftPlayer(a);
     setRightPlayer(b);
     setStreak(0);
@@ -135,9 +154,21 @@ export default function HigherLowerPage() {
     setLastAnswer(null);
     setSlideClass("");
     setXpEarned(0);
-  }, []);
+  }, [topPlayers]);
 
   const isRevealing = phase === "revealing" || phase === "gameover";
+
+  if (!leftPlayer || !rightPlayer) {
+    return (
+      <>
+        <Header />
+        <main className="mx-auto max-w-[1100px] px-5 py-16 text-center">
+          <div className="animate-pulse text-text-muted">Loading...</div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

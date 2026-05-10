@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { mapCalloutQuizzes, gameMaps } from "@/data/mock";
+import { api } from "@/services/api";
+import type { GameMap, MapCalloutQuiz } from "@/services/types";
 import {
   loadProfile,
   saveProfile,
@@ -26,10 +27,7 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-const MAP_NAMES = gameMaps.map((m) => m.name);
-const MAP_SLUGS = gameMaps.map((m) => m.slug);
-
-function slugToName(slug: string): string {
+function slugToName(slug: string, gameMaps: GameMap[]): string {
   const found = gameMaps.find((m) => m.slug === slug);
   return found ? found.name : slug;
 }
@@ -56,13 +54,14 @@ const TOTAL_QUESTIONS = 10;
 
 /* ── build questions ───────────────────────────────────── */
 
-function buildQuestions(): Question[] {
+function buildQuestions(mapCalloutQuizzes: MapCalloutQuiz[], gameMaps: GameMap[]): Question[] {
+  const mapNames = gameMaps.map((m) => m.name);
   const pool = shuffle(mapCalloutQuizzes).slice(0, TOTAL_QUESTIONS);
 
   return pool.map((q) => {
-    const correctName = slugToName(q.correctMap);
+    const correctName = slugToName(q.correctMap, gameMaps);
     const wrongOptions = shuffle(
-      MAP_NAMES.filter((n) => n !== correctName),
+      mapNames.filter((n) => n !== correctName),
     ).slice(0, 3);
     const options = shuffle([correctName, ...wrongOptions]);
 
@@ -78,17 +77,39 @@ function buildQuestions(): Question[] {
 /* ── component ─────────────────────────────────────────── */
 
 export default function MapGuesserPage() {
+  const [mapCalloutQuizzes, setMapCalloutQuizzes] = useState<MapCalloutQuiz[]>([]);
+  const [gameMaps, setGameMaps] = useState<GameMap[]>([]);
   const [phase, setPhase] = useState<Phase>("idle");
   const [game, setGame] = useState<GameState | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [xpEarned, setXpEarned] = useState(0);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
 
+  useEffect(() => {
+    let ignore = false;
+    Promise.all([api.mapCalloutQuizzes(), api.maps()])
+      .then(([quizData, mapData]) => {
+        if (ignore) return;
+        setMapCalloutQuizzes(quizData);
+        setGameMaps(mapData);
+      })
+      .catch(() => {
+        if (ignore) return;
+        setMapCalloutQuizzes([]);
+        setGameMaps([]);
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   /* ── start ───────────────────────────────────────────── */
 
   const startGame = useCallback(() => {
+    if (mapCalloutQuizzes.length === 0 || gameMaps.length === 0) return;
     setGame({
-      questions: buildQuestions(),
+      questions: buildQuestions(mapCalloutQuizzes, gameMaps),
       current: 0,
       answers: [],
       score: 0,
@@ -97,7 +118,7 @@ export default function MapGuesserPage() {
     setSelected(null);
     setXpEarned(0);
     setNewAchievements([]);
-  }, []);
+  }, [mapCalloutQuizzes, gameMaps]);
 
   /* ── answer ──────────────────────────────────────────── */
 
