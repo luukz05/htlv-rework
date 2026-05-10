@@ -7,7 +7,7 @@ Projeto reorganizado em um monorepo simples, com frontend e backend em pastas se
 - `frontend/`: aplicacao Next.js com o visual atual, assets, logo e favicon.
 - `backend/`: dados centralizados dos jogadores e API inicial para evoluir depois.
 
-Os dados ficam centralizados no backend em `backend/src/data/mock.ts`. O backend ja tem uma API Node basica com `routes`, `controllers` e helpers HTTP. O frontend ainda mantem a ponte `frontend/src/data/mock.ts` para preservar as telas atuais, e tambem ganhou `frontend/src/services/api.ts` para migrarmos as paginas aos poucos para chamadas HTTP.
+Os dados ficam centralizados no backend em `backend/src/data/mock.ts`. O backend ja tem uma API Node basica com `routes`, `controllers` e helpers HTTP. O frontend consome esses dados via HTTP por `frontend/src/services/api.ts`; em producao, configure `NEXT_PUBLIC_API_URL` com a URL do backend publicado.
 
 ## Instalar dependencias
 
@@ -84,7 +84,7 @@ npm run backend:build
 npm run backend:start
 ```
 
-Observacao: o frontend usa `output: "export"` no Next, entao `next start` nao deve ser usado. O start correto serve a pasta `frontend/out` com `serve`.
+Observacao: o frontend roda como aplicacao Next server. Configure `NEXT_PUBLIC_API_URL` no ambiente do frontend para apontar para o backend publicado; sem essa variavel, ele usa `http://localhost:4000`.
 
 ## API inicial
 
