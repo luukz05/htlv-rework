@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { DEFAULT_TITLE, SITE_NAME } from "@/lib/page-title";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -28,7 +30,11 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={roboto.variable}>
-        <div className="site-page-frame">{children}</div>
+        <div className="site-page-frame">
+          <Header />
+          {children}
+          <Footer />
+        </div>
       </body>
     </html>
   );

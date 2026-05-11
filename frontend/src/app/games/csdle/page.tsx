@@ -3,8 +3,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import CountryFlag, { CountryLabel } from "@/components/CountryFlag";
 import { api } from "@/services/api";
 import type { PlayerProfile } from "@/services/types";
@@ -257,243 +255,235 @@ export default function CsdlePage() {
 
   if (!answer) {
     return (
-      <>
-        <Header />
-        <main className="mx-auto max-w-[900px] px-5 py-16 text-center">
-          <div className="animate-pulse text-text-muted">Loading...</div>
-        </main>
-        <Footer />
-      </>
+      <main className="mx-auto max-w-[900px] px-5 py-16 text-center">
+        <div className="animate-pulse text-text-muted">Loading...</div>
+      </main>
     );
   }
 
   return (
-    <>
-      <Header />
-      <main className="mx-auto max-w-[900px] px-5 py-8">
-        {/* Breadcrumb */}
-        <div className="mb-6 text-sm text-text-muted">
-          <Link href="/" className="hover:text-text-secondary">Home</Link>
-          <span className="mx-2">&rsaquo;</span>
-          <Link href="/games" className="hover:text-text-secondary">Games</Link>
-          <span className="mx-2">&rsaquo;</span>
-          <span className="text-text-primary">CS-dle</span>
-        </div>
+    <main className="mx-auto max-w-[900px] px-5 py-8">
+      {/* Breadcrumb */}
+      <div className="mb-6 text-sm text-text-muted">
+        <Link href="/" className="hover:text-text-secondary">Home</Link>
+        <span className="mx-2">&rsaquo;</span>
+        <Link href="/games" className="hover:text-text-secondary">Games</Link>
+        <span className="mx-2">&rsaquo;</span>
+        <span className="text-text-primary">CS-dle</span>
+      </div>
 
-        {/* Header row */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-black flex items-center gap-3">
-              <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="2" x2="12" y2="22" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                </svg>
-              </span>
-              CS-dle
-            </h1>
-            <p className="text-sm text-text-muted mt-1">Guess the mystery CS2 pro player in {MAX_GUESSES} tries</p>
-          </div>
-          <div className="flex items-center gap-4 text-xs text-text-muted">
-            <span className="tabular-nums">Next reset: {String(timer.hours).padStart(2, "0")}:{String(timer.minutes).padStart(2, "0")}:{String(timer.seconds).padStart(2, "0")}</span>
-            <span className="tabular-nums">{guesses.length}/{MAX_GUESSES} guesses</span>
-          </div>
+      {/* Header row */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-black flex items-center gap-3">
+            <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="2" x2="12" y2="22" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+              </svg>
+            </span>
+            CS-dle
+          </h1>
+          <p className="text-sm text-text-muted mt-1">Guess the mystery CS2 pro player in {MAX_GUESSES} tries</p>
         </div>
-
-        {/* Input */}
-        <div className="relative mb-6">
-          <input
-            ref={inputRef}
-            type="text"
-            value={input}
-            disabled={gameOver}
-            onChange={(e) => { setInput(e.target.value); setShowSuggestions(true); }}
-            onFocus={() => setShowSuggestions(true)}
-            placeholder={gameOver ? (solved ? "You got it!" : `It was ${answer.nickname}`) : "Type a player name..."}
-            className="w-full rounded-xl border border-border bg-bg-card px-4 py-3 text-sm outline-none transition-all focus:border-blue placeholder:text-text-muted disabled:opacity-50"
-          />
-          {showSuggestions && suggestions.length > 0 && !gameOver && (
-            <div className="absolute z-20 top-full mt-1 left-0 right-0 rounded-xl border border-border bg-bg-surface shadow-lg overflow-hidden">
-              {suggestions.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => submitGuess(p)}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-bg-card-hover transition-colors"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <span className="player-photo-frame h-8 w-8 overflow-hidden rounded-lg">
-                    <img src={p.image} alt={p.nickname} className="player-photo player-photo--avatar" />
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <span className="font-semibold">{p.nickname}</span>
-                    <span className="text-text-muted ml-2 text-xs">{p.team}</span>
-                  </div>
-                  <CountryFlag countryCode={p.country} preferredFlag={p.countryFlag} className="text-xs" />
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="flex items-center gap-4 text-xs text-text-muted">
+          <span className="tabular-nums">Next reset: {String(timer.hours).padStart(2, "0")}:{String(timer.minutes).padStart(2, "0")}:{String(timer.seconds).padStart(2, "0")}</span>
+          <span className="tabular-nums">{guesses.length}/{MAX_GUESSES} guesses</span>
         </div>
+      </div>
 
-        {/* Column headers */}
-        {guesses.length > 0 && (
-          <div className="grid grid-cols-7 gap-1.5 mb-2 px-1">
-            {["Player", "Country", "Team", "Role", "Age", "Rating", "Region"].map((h) => (
-              <div key={h} className="text-[10px] font-bold uppercase tracking-wider text-text-muted text-center">
-                {h}
-              </div>
+      {/* Input */}
+      <div className="relative mb-6">
+        <input
+          ref={inputRef}
+          type="text"
+          value={input}
+          disabled={gameOver}
+          onChange={(e) => { setInput(e.target.value); setShowSuggestions(true); }}
+          onFocus={() => setShowSuggestions(true)}
+          placeholder={gameOver ? (solved ? "You got it!" : `It was ${answer.nickname}`) : "Type a player name..."}
+          className="w-full rounded-xl border border-border bg-bg-card px-4 py-3 text-sm outline-none transition-all focus:border-blue placeholder:text-text-muted disabled:opacity-50"
+        />
+        {showSuggestions && suggestions.length > 0 && !gameOver && (
+          <div className="absolute z-20 top-full mt-1 left-0 right-0 rounded-xl border border-border bg-bg-surface shadow-lg overflow-hidden">
+            {suggestions.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => submitGuess(p)}
+                className="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-bg-card-hover transition-colors"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <span className="player-photo-frame h-8 w-8 overflow-hidden rounded-lg">
+                  <img src={p.image} alt={p.nickname} className="player-photo player-photo--avatar" />
+                </span>
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold">{p.nickname}</span>
+                  <span className="text-text-muted ml-2 text-xs">{p.team}</span>
+                </div>
+                <CountryFlag countryCode={p.country} preferredFlag={p.countryFlag} className="text-xs" />
+              </button>
             ))}
           </div>
         )}
+      </div>
 
-        {/* Guess rows */}
+      {/* Column headers */}
+      {guesses.length > 0 && (
+        <div className="grid grid-cols-7 gap-1.5 mb-2 px-1">
+          {["Player", "Country", "Team", "Role", "Age", "Rating", "Region"].map((h) => (
+            <div key={h} className="text-[10px] font-bold uppercase tracking-wider text-text-muted text-center">
+              {h}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Guess rows */}
+      <div className="space-y-2 mb-6">
+        {guesses.map((row, ri) => (
+          <div key={ri} className="grid grid-cols-7 gap-1.5">
+            {row.clues.map((cell, ci) => (
+              <div
+                key={ci}
+                className={`rounded-lg border p-2 text-center text-xs font-semibold transition-all ${cellColor(cell.status)}`}
+                style={{
+                  animationDelay: `${ci * 120}ms`,
+                  animation: "fadeInUp 0.4s ease forwards",
+                  opacity: 0,
+                }}
+              >
+                <span>{cell.value}</span>
+                {cell.arrow && (
+                  <span className="ml-0.5">
+                    {cell.arrow === "up" ? "\u2191" : "\u2193"}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Empty guess slots */}
+      {!gameOver && (
         <div className="space-y-2 mb-6">
-          {guesses.map((row, ri) => (
-            <div key={ri} className="grid grid-cols-7 gap-1.5">
-              {row.clues.map((cell, ci) => (
-                <div
-                  key={ci}
-                  className={`rounded-lg border p-2 text-center text-xs font-semibold transition-all ${cellColor(cell.status)}`}
-                  style={{
-                    animationDelay: `${ci * 120}ms`,
-                    animation: "fadeInUp 0.4s ease forwards",
-                    opacity: 0,
-                  }}
-                >
-                  <span>{cell.value}</span>
-                  {cell.arrow && (
-                    <span className="ml-0.5">
-                      {cell.arrow === "up" ? "\u2191" : "\u2193"}
-                    </span>
-                  )}
-                </div>
+          {Array.from({ length: MAX_GUESSES - guesses.length }).map((_, i) => (
+            <div key={i} className="grid grid-cols-7 gap-1.5">
+              {Array.from({ length: 7 }).map((_, j) => (
+                <div key={j} className="rounded-lg border border-border/50 bg-bg-card/30 p-2 h-[38px]" />
               ))}
             </div>
           ))}
         </div>
+      )}
 
-        {/* Empty guess slots */}
-        {!gameOver && (
-          <div className="space-y-2 mb-6">
-            {Array.from({ length: MAX_GUESSES - guesses.length }).map((_, i) => (
-              <div key={i} className="grid grid-cols-7 gap-1.5">
-                {Array.from({ length: 7 }).map((_, j) => (
-                  <div key={j} className="rounded-lg border border-border/50 bg-bg-card/30 p-2 h-[38px]" />
-                ))}
+      {/* Inline animation style */}
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
+      {/* Game Over Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowModal(false)}>
+          <div
+            className="w-full max-w-md rounded-2xl border border-border bg-bg-surface p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center mb-6">
+              {solved ? (
+                <>
+                  <div className="text-5xl mb-3">{guesses.length === 1 ? "\u{1F4A5}" : "\u{1F389}"}</div>
+                  <h2 className="text-xl font-black mb-1">
+                    {guesses.length === 1 ? "One Tap!" : "Well Played!"}
+                  </h2>
+                  <p className="text-sm text-text-muted">
+                    You guessed <span className="font-bold text-green">{answer.nickname}</span> in {guesses.length} {guesses.length === 1 ? "try" : "tries"}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="text-5xl mb-3">{"\u{1F614}"}</div>
+                  <h2 className="text-xl font-black mb-1">Game Over</h2>
+                  <p className="text-sm text-text-muted">
+                    The answer was <span className="font-bold text-red">{answer.nickname}</span>
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="rounded-xl border border-border bg-bg-card p-3 text-center">
+                <p className="text-lg font-black text-blue-light tabular-nums">{profile?.gameStats.csdle.played ?? 0}</p>
+                <p className="text-[10px] text-text-muted font-bold uppercase">Played</p>
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Inline animation style */}
-        <style jsx>{`
-          @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-        `}</style>
-
-        {/* Game Over Modal */}
-        {showModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowModal(false)}>
-            <div
-              className="w-full max-w-md rounded-2xl border border-border bg-bg-surface p-6 shadow-xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="text-center mb-6">
-                {solved ? (
-                  <>
-                    <div className="text-5xl mb-3">{guesses.length === 1 ? "\u{1F4A5}" : "\u{1F389}"}</div>
-                    <h2 className="text-xl font-black mb-1">
-                      {guesses.length === 1 ? "One Tap!" : "Well Played!"}
-                    </h2>
-                    <p className="text-sm text-text-muted">
-                      You guessed <span className="font-bold text-green">{answer.nickname}</span> in {guesses.length} {guesses.length === 1 ? "try" : "tries"}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-5xl mb-3">{"\u{1F614}"}</div>
-                    <h2 className="text-xl font-black mb-1">Game Over</h2>
-                    <p className="text-sm text-text-muted">
-                      The answer was <span className="font-bold text-red">{answer.nickname}</span>
-                    </p>
-                  </>
-                )}
+              <div className="rounded-xl border border-border bg-bg-card p-3 text-center">
+                <p className="text-lg font-black text-green tabular-nums">{profile?.gameStats.csdle.won ?? 0}</p>
+                <p className="text-[10px] text-text-muted font-bold uppercase">Won</p>
               </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                <div className="rounded-xl border border-border bg-bg-card p-3 text-center">
-                  <p className="text-lg font-black text-blue-light tabular-nums">{profile?.gameStats.csdle.played ?? 0}</p>
-                  <p className="text-[10px] text-text-muted font-bold uppercase">Played</p>
-                </div>
-                <div className="rounded-xl border border-border bg-bg-card p-3 text-center">
-                  <p className="text-lg font-black text-green tabular-nums">{profile?.gameStats.csdle.won ?? 0}</p>
-                  <p className="text-[10px] text-text-muted font-bold uppercase">Won</p>
-                </div>
-                <div className="rounded-xl border border-border bg-bg-card p-3 text-center">
-                  <p className="text-lg font-black text-orange-400 tabular-nums">{profile?.gameStats.csdle.streak ?? 0}</p>
-                  <p className="text-[10px] text-text-muted font-bold uppercase">Streak</p>
-                </div>
-              </div>
-
-              {/* Distribution */}
-              <div className="mb-6">
-                <p className="text-xs font-bold uppercase text-text-muted mb-2">Guess Distribution</p>
-                <div className="space-y-1">
-                  {(profile?.gameStats.csdle.distribution ?? [0, 0, 0, 0, 0, 0, 0, 0]).map((count, i) => {
-                    const maxDist = Math.max(...(profile?.gameStats.csdle.distribution ?? [1]));
-                    const width = maxDist > 0 ? Math.max((count / maxDist) * 100, 8) : 8;
-                    const isActive = solved && guesses.length === i + 1;
-                    return (
-                      <div key={i} className="flex items-center gap-2">
-                        <span className="text-[11px] font-bold text-text-muted w-3 text-right tabular-nums">{i + 1}</span>
-                        <div
-                          className={`h-5 rounded px-2 flex items-center justify-end text-[10px] font-bold transition-all ${
-                            isActive ? "bg-green/30 text-green" : "bg-bg-card text-text-muted"
-                          }`}
-                          style={{ width: `${width}%`, minWidth: "24px" }}
-                        >
-                          {count}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* XP Earned */}
-              <div className="rounded-xl border border-blue/30 bg-blue/10 p-3 text-center mb-4">
-                <p className="text-sm font-bold text-blue-light">+{xpEarned} XP earned</p>
-              </div>
-
-              {/* Timer */}
-              <p className="text-xs text-text-muted text-center mb-4 tabular-nums">
-                Next CS-dle in {String(timer.hours).padStart(2, "0")}:{String(timer.minutes).padStart(2, "0")}:{String(timer.seconds).padStart(2, "0")}
-              </p>
-
-              {/* Actions */}
-              <div className="flex gap-3">
-                <button
-                  onClick={shareResult}
-                  className="flex-1 rounded-xl bg-green/15 border border-green/30 px-4 py-2.5 text-sm font-bold text-green hover:bg-green/25 transition-colors"
-                >
-                  {copied ? "Copied!" : "Share Result"}
-                </button>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 rounded-xl bg-bg-card border border-border px-4 py-2.5 text-sm font-bold text-text-secondary hover:bg-bg-card-hover transition-colors"
-                >
-                  Close
-                </button>
+              <div className="rounded-xl border border-border bg-bg-card p-3 text-center">
+                <p className="text-lg font-black text-orange-400 tabular-nums">{profile?.gameStats.csdle.streak ?? 0}</p>
+                <p className="text-[10px] text-text-muted font-bold uppercase">Streak</p>
               </div>
             </div>
+
+            {/* Distribution */}
+            <div className="mb-6">
+              <p className="text-xs font-bold uppercase text-text-muted mb-2">Guess Distribution</p>
+              <div className="space-y-1">
+                {(profile?.gameStats.csdle.distribution ?? [0, 0, 0, 0, 0, 0, 0, 0]).map((count, i) => {
+                  const maxDist = Math.max(...(profile?.gameStats.csdle.distribution ?? [1]));
+                  const width = maxDist > 0 ? Math.max((count / maxDist) * 100, 8) : 8;
+                  const isActive = solved && guesses.length === i + 1;
+                  return (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold text-text-muted w-3 text-right tabular-nums">{i + 1}</span>
+                      <div
+                        className={`h-5 rounded px-2 flex items-center justify-end text-[10px] font-bold transition-all ${
+                          isActive ? "bg-green/30 text-green" : "bg-bg-card text-text-muted"
+                        }`}
+                        style={{ width: `${width}%`, minWidth: "24px" }}
+                      >
+                        {count}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* XP Earned */}
+            <div className="rounded-xl border border-blue/30 bg-blue/10 p-3 text-center mb-4">
+              <p className="text-sm font-bold text-blue-light">+{xpEarned} XP earned</p>
+            </div>
+
+            {/* Timer */}
+            <p className="text-xs text-text-muted text-center mb-4 tabular-nums">
+              Next CS-dle in {String(timer.hours).padStart(2, "0")}:{String(timer.minutes).padStart(2, "0")}:{String(timer.seconds).padStart(2, "0")}
+            </p>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={shareResult}
+                className="flex-1 rounded-xl bg-green/15 border border-green/30 px-4 py-2.5 text-sm font-bold text-green hover:bg-green/25 transition-colors"
+              >
+                {copied ? "Copied!" : "Share Result"}
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="flex-1 rounded-xl bg-bg-card border border-border px-4 py-2.5 text-sm font-bold text-text-secondary hover:bg-bg-card-hover transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
-        )}
-      </main>
-      <Footer />
-    </>
+        </div>
+      )}
+    </main>
   );
 }

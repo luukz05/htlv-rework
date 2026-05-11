@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import TeamLogo from "./TeamLogo";
+import StatusPill from "./StatusPill";
+import SearchBar from "./SearchBar";
 import { api } from "@/services/api";
 import type { Event, Match, Player, RankedTeam } from "@/services/types";
 
@@ -12,17 +14,94 @@ const navLinks = [
   { label: "Matches", href: "/matches" },
   { label: "Results", href: "/results" },
   { label: "Events", href: "/events" },
-  { label: "Stats", href: "/stats" },
-  { label: "Maps", href: "/maps" },
-  { label: "Hall of Fame", shortLabel: "HOF", href: "/hall-of-fame" },
-  { label: "Galleries", href: "/galleries" },
-  { label: "Rankings", href: "/rankings" },
-  { label: "Forums", href: "/forums" },
-  { label: "Academy", href: "/academy" },
-  { label: "Games", href: "/games" },
+  {
+    label: "Rankings",
+    href: "/rankings",
+    children: [
+      { label: "Teams", href: "/rankings/teams" },
+      { label: "Players", href: "/rankings/players" },
+    ],
+  },
+  { label: "Hall of Fame", href: "/hall-of-fame" },
+  {
+    label: "Media",
+    href: "/galleries",
+    children: [
+      { label: "Galleries", href: "/galleries" },
+      { label: "Highlights", href: "/highlights" },
+    ],
+  },
+  {
+    label: "Community",
+    href: "/forums",
+    children: [
+      { label: "Forums", href: "/forums" },
+      { label: "Fantasy", href: "/fantasy" },
+      { label: "Betting", href: "/betting" },
+      { label: "Academy", href: "/academy" },
+    ],
+  },
+  { label: "Games", href: "/games", isNew: true },
 ];
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
+function NavDropdown({ link, isActive }: { link: any; isActive: (href: string) => boolean }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div
+      className="relative h-full"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <Link
+        href={link.href}
+        className={`flex h-full items-center gap-1.5 px-3 text-[13px] font-medium transition-colors ${
+          isActive(link.href) || link.children?.some((c: any) => isActive(c.href))
+            ? "text-blue-light"
+            : "text-text-secondary hover:text-text-primary"
+        }`}
+      >
+        {link.label}
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+        {(isActive(link.href) || link.children?.some((c: any) => isActive(c.href))) && (
+          <span className="absolute bottom-0 left-0 h-0.5 w-full bg-blue-light rounded-full" />
+        )}
+      </Link>
+
+      {open && (
+        <div className="absolute left-0 top-full z-[100] min-w-[180px] animate-in fade-in slide-in-from-top-1 duration-200">
+          <div className="mt-1 overflow-hidden rounded-xl border border-border bg-bg-surface p-1.5 shadow-xl shadow-black/40 backdrop-blur-md">
+            {link.children.map((child: any) => (
+              <Link
+                key={child.href}
+                href={child.href}
+                className={`block rounded-lg px-3 py-2 text-xs font-medium transition-all ${
+                  isActive(child.href)
+                    ? "bg-blue/10 text-blue-light"
+                    : "text-text-secondary hover:bg-bg-card hover:text-text-primary"
+                }`}
+              >
+                {child.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function RibbonGroup({
   label,
@@ -117,19 +196,20 @@ function DataRibbon() {
   return (
     <div className="border-t border-border/70 bg-bg-body/80 backdrop-blur-md">
       <div className="data-ribbon-scroll mx-auto flex h-[60px] max-w-[1460px] items-center gap-3 overflow-x-auto px-4 py-2 sm:px-5">
-        <Link href="/rankings" className="flex h-11 min-w-max shrink-0 items-center gap-2 transition-colors hover:text-text-primary">
+        <div className="flex h-11 min-w-max shrink-0 items-center gap-2">
           <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Top 5 global</span>
           {featuredTeams.map((team) => (
-            <span
+            <Link
               key={team.name}
+              href={team.id ? `/teams/${team.id}` : "/rankings"}
               title={`${team.rank}. ${team.name}`}
-              className="group flex items-center gap-1"
+              className="group flex items-center gap-1 transition-colors"
             >
               <span className="text-[10px] font-black tabular-nums text-text-muted">{team.rank}</span>
               <TeamLogo src={team.logo} name={team.name} size={22} className="transition-transform group-hover:scale-110" />
-            </span>
+            </Link>
           ))}
-        </Link>
+        </div>
 
         <RibbonGroup
           label=""
@@ -138,10 +218,7 @@ function DataRibbon() {
             isCycling ? "opacity-45" : "opacity-100"
           }`}
         >
-          <span className="flex w-11 shrink-0 items-center gap-1 text-[10px] font-black uppercase tracking-wider text-red">
-            <span className="h-1.5 w-1.5 rounded-full bg-red animate-pulse-dot" />
-            Live
-          </span>
+          <StatusPill status="live" />
           <TeamLogo src={currentLiveMatch.team1.logo} name={currentLiveMatch.team1.name} size={20} />
           <span className="w-5 text-center text-xs font-bold tabular-nums text-text-primary">{currentLiveMatch.score1}</span>
           <span className="w-2 text-center text-[10px] text-text-muted">:</span>
@@ -150,15 +227,15 @@ function DataRibbon() {
           <span className="min-w-0 flex-1 truncate text-[10px] font-bold uppercase tracking-wider text-text-muted">{currentLiveMatch.event}</span>
         </RibbonGroup>
 
-        <Link href="/stats" className="grid h-11 min-w-[360px] shrink-0 grid-cols-[auto_repeat(5,minmax(44px,1fr))] items-center gap-2 transition-colors hover:text-text-primary">
+        <div className="grid h-11 min-w-[360px] shrink-0 grid-cols-[auto_repeat(5,minmax(44px,1fr))] items-center gap-2">
           <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Top 5 players</span>
           {featuredPlayers.map((player) => (
-            <span key={player.rank} title={`${player.rank}. ${player.name}`} className="group flex min-w-0 items-center justify-center gap-1">
+            <Link key={player.rank} href="/rankings/players" title={`${player.rank}. ${player.name}`} className="group flex min-w-0 items-center justify-center gap-1">
               <span className="text-[10px] font-black tabular-nums text-text-muted">{player.rank}</span>
-              <span className="truncate text-xs font-bold text-text-primary group-hover:text-blue-light">{player.name}</span>
-            </span>
+              <span className="truncate text-xs font-bold text-text-primary group-hover:text-blue-light transition-colors">{player.name}</span>
+            </Link>
           ))}
-        </Link>
+        </div>
 
         <Link href={`/events/${mainEvent.id}`} className="flex h-11 min-w-max flex-1 items-center justify-end gap-2 transition-colors hover:text-text-primary">
           <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Evento do mes</span>
@@ -176,49 +253,66 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (href: string) => {
-    if (href === "/" && pathname === "/") return true;
-    return href !== "/" && pathname.startsWith(href);
+    if (href === "/") return pathname === "/";
+    if (href === "/rankings") return pathname === "/rankings" || pathname === "/rankings/";
+    return pathname.startsWith(href);
   };
 
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-border bg-bg-surface/95 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-[1460px] items-center gap-4 px-4 sm:px-5">
-          <Link href="/" className="flex items-center gap-2 shrink-0">
+        <div className="mx-auto flex h-14 max-w-[1460px] items-center gap-1 px-4 sm:px-5">
+          <Link href="/" className="mr-3 flex items-center gap-2 shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`${B}/hltv-logo.png`} alt="HLTV" className="h-8 w-8 rounded-md" />
             <span className="text-lg font-bold text-text-primary">HLTV</span>
           </Link>
 
-          <nav className="hidden items-center gap-0 lg:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`relative px-2 py-4 text-[13px] font-medium transition-colors ${
-                  isActive(link.href) ? "text-blue-light" : "text-text-secondary hover:text-text-primary"
-                }`}
-              >
-                {link.shortLabel || link.label}
-                {link.label === "Games" && <span className="ml-1 text-[8px] font-black uppercase bg-red text-white px-1 py-0.5 rounded-full leading-none">NEW</span>}
-                {isActive(link.href) && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-full bg-blue-light rounded-full" />
-                )}
-              </Link>
-            ))}
+          <nav className="hidden h-14 items-center lg:flex">
+            {navLinks.map((link) => {
+              if (link.children) {
+                return <NavDropdown key={link.label} link={link} isActive={isActive} />;
+              }
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative flex h-full items-center px-2.5 text-[13px] font-medium transition-colors ${
+                    isActive(link.href) ? "text-blue-light" : "text-text-secondary hover:text-text-primary"
+                  }`}
+                >
+                  {link.label}
+                  {link.isNew && (
+                    <span className="ml-1 text-[8px] font-black uppercase bg-red text-white px-1 py-0.5 rounded-full leading-none">
+                      NEW
+                    </span>
+                  )}
+                  {isActive(link.href) && (
+                    <span className="absolute bottom-0 left-0 h-0.5 w-full bg-blue-light rounded-full" />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-3 ml-auto">
-            <div className="hidden sm:flex items-center gap-2 rounded-lg border border-border bg-bg-input px-3 py-1.5 w-52 xl:w-60">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-              </svg>
-              <input type="text" placeholder="Search teams, players..." className="bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted w-full" />
-            </div>
-            <Link href="/login" className="rounded-lg bg-blue px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-light">Login</Link>
-            <Link href="/register" className="hidden sm:block rounded-lg border border-border px-4 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary hover:border-border-hover">Sign Up</Link>
+            <SearchBar />
+            <Link
+              href="/login"
+              className="rounded-lg bg-blue px-3.5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-light"
+            >
+              Login
+            </Link>
+            <Link
+              href="/register"
+              className="hidden sm:block rounded-lg border border-border px-3.5 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary hover:border-border-hover"
+            >
+              Sign Up
+            </Link>
             <button onClick={() => setMobileOpen(!mobileOpen)} className="text-text-secondary lg:hidden">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 12h18M3 6h18M3 18h18" />
+              </svg>
             </button>
           </div>
         </div>
@@ -227,16 +321,63 @@ export default function Header() {
 
       {mobileOpen && (
         <div className="fixed inset-0 z-[200] bg-black/50" onClick={() => setMobileOpen(false)}>
-          <div className="absolute right-0 top-0 bottom-0 w-64 bg-bg-surface border-l border-border p-5" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="absolute right-0 top-0 bottom-0 w-64 bg-bg-surface border-l border-border p-5 overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button onClick={() => setMobileOpen(false)} className="mb-4 ml-auto flex text-text-muted">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
             </button>
-            <nav className="flex flex-col gap-1">
-              {navLinks.map((link) => (
-                <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}
-                  className={`rounded-lg px-3 py-2.5 text-sm font-medium ${isActive(link.href) ? "text-blue-light bg-blue-glow" : "text-text-secondary hover:text-text-primary"}`}
-                >{link.label}</Link>
-              ))}
+            <nav className="flex flex-col gap-3">
+              {navLinks.map((link) => {
+                if (link.children) {
+                  return (
+                    <div key={link.label} className="space-y-1 mt-2">
+                      <div className="text-[10px] font-black uppercase tracking-widest text-text-muted px-3 mb-2">
+                        {link.label}
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        {link.children.map((child: any) => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            onClick={() => setMobileOpen(false)}
+                            className={`rounded-lg px-3 py-2 text-sm font-medium ${
+                              isActive(child.href)
+                                ? "text-blue-light bg-blue-glow"
+                                : "text-text-secondary hover:text-text-primary"
+                            }`}
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`rounded-lg px-3 py-2 text-sm font-medium flex items-center gap-2 ${
+                      isActive(link.href)
+                        ? "text-blue-light bg-blue-glow"
+                        : "text-text-primary hover:bg-bg-card"
+                    }`}
+                  >
+                    {link.label}
+                    {link.isNew && (
+                      <span className="text-[8px] font-black uppercase bg-red text-white px-1.5 py-0.5 rounded-full leading-none">
+                        NEW
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
         </div>

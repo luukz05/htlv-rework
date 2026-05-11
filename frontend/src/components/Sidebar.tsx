@@ -1,5 +1,7 @@
+import Link from "next/link";
 import TeamLogo from "./TeamLogo";
 import CountryFlag, { LanguageFlag } from "./CountryFlag";
+import StatusPill from "./StatusPill";
 import { api } from "@/services/api";
 import type { Match, Player, RankedTeam, Stream } from "@/services/types";
 
@@ -21,19 +23,19 @@ function LiveMatches({ liveMatches, upcomingMatches }: { liveMatches: Match[]; u
           const t1Won = (match.score1 ?? 0) > (match.score2 ?? 0);
           const t2Won = (match.score2 ?? 0) > (match.score1 ?? 0);
           return (
-            <div
+            <Link
               key={match.id}
-              className={`relative overflow-hidden px-4 py-3 hover:bg-bg-card-hover transition-all cursor-pointer animate-fade-in-up delay-${i + 1}`}
+              href={`/matches/${match.id}`}
+              className={`block relative overflow-hidden px-4 py-3 hover:bg-bg-card-hover transition-all cursor-pointer animate-fade-in-up delay-${i + 1} ${
+                match.status === "live" ? "animate-live-glow border-l-2 border-l-red bg-red/5" : ""
+              }`}
               style={{
-                background: `linear-gradient(90deg, ${match.team1.color}10 0%, transparent 40%, transparent 60%, ${match.team2.color}10 100%)`,
+                background: match.status === "live" ? undefined : `linear-gradient(90deg, ${match.team1.color}10 0%, transparent 40%, transparent 60%, ${match.team2.color}10 100%)`,
               }}
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-text-muted">{match.event}</span>
-                <span className="flex items-center gap-1.5 text-[10px] font-bold text-red">
-                  <span className="h-1.5 w-1.5 rounded-full bg-red animate-pulse-dot" />
-                  LIVE
-                </span>
+                <StatusPill status={match.status} />
               </div>
               <div className="flex items-center gap-2">
                 <TeamLogo src={match.team1.logo} name={match.team1.name} size={18} />
@@ -44,7 +46,7 @@ function LiveMatches({ liveMatches, upcomingMatches }: { liveMatches: Match[]; u
                 <span className={`flex-1 text-sm font-semibold truncate text-right ${t2Won ? "text-text-primary" : "text-text-secondary"}`}>{match.team2.name}</span>
                 <TeamLogo src={match.team2.logo} name={match.team2.name} size={18} />
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
@@ -56,26 +58,27 @@ function LiveMatches({ liveMatches, upcomingMatches }: { liveMatches: Match[]; u
         </div>
         <div className="divide-y divide-border">
           {upcoming3.map((match, i) => (
-            <div
+            <Link
               key={match.id}
+              href={`/matches/${match.id}`}
               className={`flex items-center gap-2 px-4 py-2.5 hover:bg-bg-card-hover transition-all cursor-pointer animate-fade-in-up delay-${i + 1}`}
             >
               <TeamLogo src={match.team1.logo} name={match.team1.name} size={16} />
-              <span className="text-xs font-medium truncate flex-1">{match.team1.abbr}</span>
+              <span className="text-xs font-medium truncate flex-1">{match.team1.shortname}</span>
               <div className="flex flex-col items-center shrink-0">
+                <StatusPill status="upcoming" />
                 <span className="text-[10px] font-bold text-blue-light">{match.time}</span>
-                <span className="text-[9px] text-text-muted">{match.date}</span>
               </div>
-              <span className="text-xs font-medium truncate flex-1 text-right">{match.team2.abbr}</span>
+              <span className="text-xs font-medium truncate flex-1 text-right">{match.team2.shortname}</span>
               <TeamLogo src={match.team2.logo} name={match.team2.name} size={16} />
-            </div>
+            </Link>
           ))}
         </div>
       </div>
 
-      <a href="#" className="block border-t border-border px-4 py-2.5 text-center text-xs font-medium text-blue-light hover:text-blue hover:bg-blue-glow transition-all">
+      <Link href="/matches" className="block border-t border-border px-4 py-2.5 text-center text-xs font-medium text-blue-light hover:text-blue hover:bg-blue-glow transition-all">
         All matches ({liveMatches.length + upcomingMatches.length})
-      </a>
+      </Link>
     </div>
   );
 }
@@ -94,24 +97,24 @@ function RecentResults({ recentResults }: { recentResults: Match[] }) {
           const t1Won = (match.score1 ?? 0) > (match.score2 ?? 0);
           const t2Won = (match.score2 ?? 0) > (match.score1 ?? 0);
           return (
-            <a
+            <Link
               key={match.id}
-              href="#"
+              href={`/matches/${match.id}`}
               className={`relative grid h-[41px] grid-cols-[16px_minmax(0,1fr)_52px_minmax(0,1fr)_16px] items-center gap-2 overflow-hidden px-4 hover:bg-bg-card-hover transition-all group animate-fade-in-up delay-${i + 1}`}
               style={{
                 background: `linear-gradient(90deg, ${match.team1.color}08 0%, transparent 40%, transparent 60%, ${match.team2.color}08 100%)`,
               }}
             >
               <TeamLogo src={match.team1.logo} name={match.team1.name} size={16} />
-              <span className={`min-w-0 truncate text-xs ${t1Won ? "font-bold" : "font-medium text-text-secondary"}`}>{match.team1.abbr}</span>
+              <span className={`min-w-0 truncate text-xs ${t1Won ? "font-bold" : "font-medium text-text-secondary"}`}>{match.team1.shortname}</span>
               <span className="flex items-center justify-center gap-1.5 text-sm tabular-nums">
                 <span className={t1Won ? "font-bold text-green" : "text-text-muted"}>{match.score1}</span>
                 <span className="text-text-muted/40 text-[10px]">:</span>
                 <span className={t2Won ? "font-bold text-green" : "text-text-muted"}>{match.score2}</span>
               </span>
-              <span className={`min-w-0 truncate text-right text-xs ${t2Won ? "font-bold" : "font-medium text-text-secondary"}`}>{match.team2.abbr}</span>
+              <span className={`min-w-0 truncate text-right text-xs ${t2Won ? "font-bold" : "font-medium text-text-secondary"}`}>{match.team2.shortname}</span>
               <TeamLogo src={match.team2.logo} name={match.team2.name} size={16} />
-            </a>
+            </Link>
           );
         })}
       </div>
@@ -129,29 +132,40 @@ function TopRanking({ ranking }: { ranking: RankedTeam[] }) {
         </h3>
       </div>
       <div className="divide-y divide-border">
-        {ranking.slice(0, 10).map((team, i) => (
-          <div
-            key={team.rank}
-            className={`flex items-center gap-3 px-4 py-2.5 hover:bg-bg-card-hover transition-all cursor-pointer animate-fade-in-up delay-${Math.min(i + 1, 5)}`}
-            style={{ borderLeft: `3px solid ${team.color}` }}
-          >
-            <span className={`text-xs font-bold w-5 tabular-nums ${i === 0 ? "rank-gold" : i === 1 ? "rank-silver" : i === 2 ? "rank-bronze" : "text-text-muted"}`}>{team.rank}.</span>
-            <TeamLogo src={team.logo} name={team.name} size={22} />
-            <span className="flex-1 text-sm font-semibold">{team.name}</span>
-            <div className="flex items-center gap-2">
-              {team.change !== "same" && (
-                <span className={`text-[10px] font-bold ${team.change === "up" ? "text-green" : "text-red"}`}>
-                  {team.change === "up" ? "▲" : "▼"}{team.changeVal}
-                </span>
-              )}
-              <span className="text-xs font-medium text-blue-light tabular-nums">{team.points} pts</span>
+        {ranking.slice(0, 10).map((team, i) => {
+          const content = (
+            <>
+              <span className={`text-xs font-bold w-5 tabular-nums ${i === 0 ? "rank-gold" : i === 1 ? "rank-silver" : i === 2 ? "rank-bronze" : "text-text-muted"}`}>{team.rank}.</span>
+              <TeamLogo src={team.logo} name={team.name} size={22} />
+              <span className="flex-1 text-sm font-semibold truncate">{team.name}</span>
+              <div className="flex items-center gap-2">
+                {team.change !== "same" && (
+                  <span className={`text-[10px] font-bold ${team.change === "up" ? "text-green" : "text-red"}`}>
+                    {team.change === "up" ? "▲" : "▼"}{team.changeVal}
+                  </span>
+                )}
+                <span className="text-xs font-medium text-blue-light tabular-nums">{team.points} pts</span>
+              </div>
+            </>
+          );
+
+          const className = `flex items-center gap-3 px-4 py-2.5 hover:bg-bg-card-hover transition-all cursor-pointer animate-fade-in-up delay-${Math.min(i + 1, 5)}`;
+          const style = { borderLeft: `3px solid ${team.color}` };
+
+          return team.id ? (
+            <Link key={team.rank} href={`/teams/${team.id}`} className={className} style={style}>
+              {content}
+            </Link>
+          ) : (
+            <div key={team.rank} className={className} style={style}>
+              {content}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-      <a href="#" className="block border-t border-border px-4 py-2.5 text-center text-xs font-semibold text-blue-light hover:text-blue hover:bg-blue-glow transition-all">
+      <Link href="/rankings" className="block border-t border-border px-4 py-2.5 text-center text-xs font-semibold text-blue-light hover:text-blue hover:bg-blue-glow transition-all">
         Full Ranking
-      </a>
+      </Link>
     </div>
   );
 }
@@ -171,27 +185,34 @@ function TopPlayerRatings({ topPlayers }: { topPlayers: Player[] }) {
           </svg>
           Top Player Ratings
         </h3>
-        <a href="#" className="text-xs font-semibold text-blue-light hover:text-blue transition-colors">Stats</a>
+        <Link href="/rankings/players" className="text-xs font-semibold text-blue-light hover:text-blue transition-colors">Stats</Link>
       </div>
       <div className="divide-y divide-border">
-        {players.map((player, i) => (
-          <div
-            key={player.rank}
-            className={`grid grid-cols-[24px_1fr_46px_34px] items-center gap-2 px-4 py-2.5 hover:bg-bg-card-hover transition-all cursor-pointer animate-fade-in-up delay-${Math.min(i + 1, 5)}`}
-          >
-            <span className={`text-xs font-bold tabular-nums ${i === 0 ? "rank-gold" : i === 1 ? "rank-silver" : i === 2 ? "rank-bronze" : "text-text-muted"}`}>
-              {player.rank}.
-            </span>
-            <div className="flex min-w-0 items-center gap-2">
-              <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-xs" />
-              <span className="truncate text-xs font-semibold">{player.name}</span>
-            </div>
-            <span className="text-right text-xs font-bold tabular-nums text-green">{player.rating.toFixed(2)}</span>
-            <div className="flex justify-end">
-              <TeamLogo src={player.teamLogo} name={player.team} size={16} />
-            </div>
-          </div>
-        ))}
+        {players.map((player, i) => {
+          const content = (
+            <>
+              <span className={`text-xs font-bold tabular-nums ${i === 0 ? "rank-gold" : i === 1 ? "rank-silver" : i === 2 ? "rank-bronze" : "text-text-muted"}`}>
+                {player.rank}.
+              </span>
+              <div className="flex min-w-0 items-center gap-2">
+                <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-xs" />
+                <span className="truncate text-xs font-semibold">{player.name}</span>
+              </div>
+              <span className="text-right text-xs font-bold tabular-nums text-green">{player.rating.toFixed(2)}</span>
+              <div className="flex justify-end">
+                <TeamLogo src={player.teamLogo} name={player.team} size={16} />
+              </div>
+            </>
+          );
+
+          const className = `grid grid-cols-[24px_1fr_46px_34px] items-center gap-2 px-4 py-2.5 hover:bg-bg-card-hover transition-all animate-fade-in-up delay-${Math.min(i + 1, 5)}`;
+
+          return (
+            <Link key={player.rank} href="/rankings/players" className={className}>
+              {content}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
@@ -210,9 +231,7 @@ function StreamList({ streams }: { streams: Stream[] }) {
           </svg>
           Popular Streams
         </h3>
-        <span className="rounded-full bg-red/15 px-2.5 py-0.5 text-[10px] font-bold text-red uppercase tracking-wider">
-          Live
-        </span>
+        <StatusPill status="live" />
       </div>
       <div className="divide-y divide-border">
         {sortedStreams.map((stream, i) => (
@@ -239,9 +258,9 @@ function StreamList({ streams }: { streams: Stream[] }) {
           </a>
         ))}
       </div>
-      <a href="#" className="block border-t border-border px-4 py-2.5 text-center text-xs font-semibold text-blue-light hover:text-blue hover:bg-blue-glow transition-all">
+      <Link href="/forums" className="block border-t border-border px-4 py-2.5 text-center text-xs font-semibold text-blue-light hover:text-blue hover:bg-blue-glow transition-all">
         All streams
-      </a>
+      </Link>
     </div>
   );
 }

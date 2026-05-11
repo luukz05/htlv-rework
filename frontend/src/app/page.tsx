@@ -1,10 +1,10 @@
-import Header from "@/components/Header";
+import Link from "next/link";
 import HeroMatch from "@/components/HeroMatch";
 import NewsSection from "@/components/NewsSection";
 import Sidebar from "@/components/Sidebar";
-import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import CountryFlag, { LanguageFlag } from "@/components/CountryFlag";
+import StatusPill from "@/components/StatusPill";
 import { api } from "@/services/api";
 import type { Event, ForumThread, Player, PlayerHighlight, PlayerProfile, RoundHighlight, Stream } from "@/services/types";
 
@@ -44,7 +44,6 @@ function PlayerOfTheWeek({
     if (achievement.toLowerCase().includes("grand slam")) return `Rating: ${player.rating.toFixed(2)}`;
     return `ADR: ${player.adr}`;
   };
-  const hltvMvpAwards = achievements.filter((achievement) => achievement.toLowerCase().includes("mvp")).length;
   const headlineStats = [
     { label: "Rating", value: player.rating.toFixed(2), color: "text-green" },
     { label: "K/D", value: player.kd, color: "text-blue-light" },
@@ -65,7 +64,7 @@ function PlayerOfTheWeek({
         </h2>
         <span className="text-[11px] font-bold uppercase tracking-wider text-yellow bg-yellow/15 px-2.5 py-1 rounded-full">HLTV MVP · {event}</span>
       </div>
-      <div className="rounded-xl border border-border bg-bg-card overflow-hidden card-glow">
+      <Link href="/rankings/players" className="block rounded-xl border border-border bg-bg-card overflow-hidden card-glow group">
         <div className="relative grid grid-cols-1 md:grid-cols-[240px_1fr]">
           {/* Player image */}
           <div className="player-photo-frame relative h-64 md:h-auto overflow-hidden">
@@ -79,7 +78,7 @@ function PlayerOfTheWeek({
               />
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={player.image} alt={player.name} className="player-photo player-photo--hero relative z-10 translate-y-4" />
+            <img src={player.image} alt={player.name} className="player-photo player-photo--hero relative z-10 translate-y-4 transition-transform duration-500 group-hover:scale-105" />
             <div className="absolute inset-0 z-20 bg-gradient-to-t from-bg-card via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-bg-card" />
             <div className="absolute top-3 left-3 z-30 flex items-center gap-0.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -101,7 +100,7 @@ function PlayerOfTheWeek({
                   <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-lg" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-3xl font-black leading-none">{player.name}</h3>
+                      <h3 className="text-3xl font-black leading-none group-hover:text-blue-light transition-colors">{player.name}</h3>
                     </div>
                     <p className="mt-1 text-sm text-text-muted">{player.realName}</p>
                   </div>
@@ -135,7 +134,7 @@ function PlayerOfTheWeek({
             </div>
           </div>
         </div>
-      </div>
+      </Link>
     </section>
   );
 }
@@ -233,12 +232,9 @@ function LiveEventsBar({ events }: { events: Event[] }) {
               <div className="flex flex-col min-w-0 flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   {event.progress > 0 ? (
-                    <span className="flex items-center gap-1 text-[10px] font-bold text-red">
-                      <span className="h-1.5 w-1.5 rounded-full bg-red animate-pulse-dot" />
-                      LIVE
-                    </span>
+                    <StatusPill status="live" />
                   ) : (
-                    <span className="text-[10px] font-bold text-text-muted uppercase">Upcoming</span>
+                    <StatusPill status="upcoming" />
                   )}
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
                     event.tier === "S" ? "bg-yellow/15 text-yellow" : event.tier === "A" ? "bg-blue/15 text-blue-light" : "bg-text-muted/15 text-text-muted"
@@ -391,9 +387,8 @@ function PopularStreams({ streams }: { streams: Stream[] }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={stream.thumbnail} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-transparent to-transparent" />
-          <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-red px-2 py-0.5 rounded text-[10px] font-bold text-white">
-            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse-dot" />
-            LIVE
+          <div className="absolute top-2 left-2">
+            <StatusPill status="live" />
           </div>
           <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded text-[10px] font-bold text-white">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5z"/><circle cx="12" cy="12" r="3.5" fill="white"/></svg>
@@ -557,8 +552,6 @@ export default async function Home() {
 
   return (
     <>
-      <Header />
-
       {/* Breaking News Ticker — full bleed */}
       <BreakingNewsTicker news={news} />
 
@@ -593,8 +586,6 @@ export default async function Home() {
 
       {/* More News — full bleed bg */}
       <MoreNews news={news} />
-
-      <Footer />
     </>
   );
 }

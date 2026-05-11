@@ -3,33 +3,13 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import TeamLogo from "@/components/TeamLogo";
+import StatusPill from "@/components/StatusPill";
 import type { Match } from "@/services/types";
+import { mapBackgrounds, mapIcons, getMapAsset, getMapIcon } from "@/lib/maps";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CT_ICON = "https://static.wikia.nocookie.net/cswikia/images/2/2a/Ct_logo.svg/revision/latest/scale-to-width-down/250?cb=20250307112005";
 const TR_ICON = "https://static.wikia.nocookie.net/cswikia/images/e/e0/Icon-t-patch-small.png/revision/latest?cb=20220130164538";
-
-const mapBackgrounds: Record<string, string> = {
-  ancient: `${B}/maps/Bomb-B-Ancient-CS-2.jpg`,
-  anubis: `${B}/maps/Anubis-CS2.jpg`,
-  "dust ii": `${B}/maps/dust2_ct_ramp_Cs2.jpg`,
-  dust2: `${B}/maps/dust2_ct_ramp_Cs2.jpg`,
-  inferno: `${B}/maps/Banana-Inferno-CS2-31.03.2025.jpg`,
-  mirage: `${B}/maps/Bomb-A-Mirage-CS-2.jpg`,
-  nuke: `${B}/maps/Bomb-B-Nuke-CS-2.jpg`,
-  overpass: `${B}/maps/Overpass-CS2_Counter-Strike-anti-cheat-VAC-Live.jpg`,
-};
-
-const mapIcons: Record<string, string> = {
-  ancient: `${B}/mapIcons/Map_icon_de_ancient.webp`,
-  anubis: `${B}/mapIcons/Map_icon_de_anubis.webp`,
-  "dust ii": `${B}/mapIcons/Map_icon_de_dust2.webp`,
-  dust2: `${B}/mapIcons/Map_icon_de_dust2.webp`,
-  inferno: `${B}/mapIcons/CS2_inferno_logo.webp`,
-  mirage: `${B}/mapIcons/Set_mirage.webp`,
-  nuke: `${B}/mapIcons/Set_nuke_2.webp`,
-  overpass: `${B}/mapIcons/CS2_overpass_logo.webp`,
-};
 
 const activeMapPool = ["Mirage", "Inferno", "Nuke", "Ancient", "Anubis", "Dust II", "Overpass"];
 const periodFilters = [
@@ -64,7 +44,7 @@ export default function ResultsClient({ results }: { results: Match[] }) {
 
   return (
     <>
-      <div className="mb-8 grid gap-3 rounded-xl border border-border bg-bg-card/70 p-4 sm:grid-cols-3">
+      <div className={`mb-8 grid gap-3 rounded-xl border border-border bg-bg-card/70 p-4 sm:grid-cols-3 relative ${openFilter ? "z-50" : "z-10"}`}>
         <FilterDropdown
           id="championship"
           label="Championship"
@@ -97,12 +77,12 @@ export default function ResultsClient({ results }: { results: Match[] }) {
       </div>
 
       {filteredResults.length === 0 ? (
-        <div className="rounded-xl border border-border bg-bg-card p-10 text-center">
+        <div className="rounded-xl border border-border bg-bg-card p-10 text-center animate-fade-in">
           <p className="text-sm font-bold text-text-secondary">No finished matches found for these filters.</p>
         </div>
       ) : (
         Object.entries(grouped).map(([date, matches]) => (
-          <section key={date} className="mb-8">
+          <section key={date} className="mb-8 relative z-0">
             <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-text-secondary">{date}</h2>
             <div className="space-y-4">
               {matches.map((match, index) => (
@@ -141,29 +121,43 @@ function FilterDropdown({
   const selected = options.find((option) => option.value === value) ?? options[0];
 
   return (
-    <div className={`relative flex flex-col gap-2 ${isOpen ? "z-50" : ""}`}>
+    <div className={`relative flex flex-col gap-2 ${isOpen ? "z-[110]" : ""}`}>
       <span className="text-[10px] font-black uppercase tracking-wider text-text-muted">{label}</span>
       <button
         type="button"
         aria-expanded={isOpen}
         aria-controls={`${id}-menu`}
         onClick={() => onOpenChange(!isOpen)}
-        className="flex h-10 w-full items-center justify-between gap-3 rounded-lg border border-[#1e3a5f66] bg-[#0d1117] px-3 text-left text-sm font-bold text-[#e2e8f0] shadow-inner outline-none transition-colors hover:border-[#3b82f6] focus:border-[#3b82f6] focus:ring-2 focus:ring-[#2563eb55]"
+        className={`flex h-10 w-full items-center justify-between gap-3 rounded-xl border px-3 text-left text-[13px] font-medium transition-all outline-none ${
+          isOpen 
+            ? "border-blue-light bg-bg-surface ring-1 ring-blue-light/30 shadow-lg shadow-blue/5" 
+            : "border-border bg-bg-surface/70 hover:border-border-hover hover:bg-bg-surface shadow-sm"
+        } text-text-primary`}
       >
         <span className="truncate">{selected.label}</span>
-        <span className={`text-xs text-[#94a3b8] transition-transform ${isOpen ? "rotate-180" : ""}`}>v</span>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          className={`shrink-0 text-text-muted transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
       </button>
       {isOpen && (
         <>
           <button
             type="button"
             aria-label="Close filters"
-            className="fixed inset-0 z-40 cursor-default bg-transparent"
+            className="fixed inset-0 z-[100] cursor-default bg-transparent"
             onClick={() => onOpenChange(false)}
           />
           <div
             id={`${id}-menu`}
-            className="absolute left-0 right-0 top-[62px] z-50 max-h-64 overflow-auto rounded-lg border border-[#2b4f7d] bg-[#080d14] p-1 shadow-[0_18px_50px_rgba(0,0,0,0.75)] ring-1 ring-black"
+            className="absolute left-0 right-0 top-[calc(100%+8px)] z-[120] max-h-64 overflow-auto rounded-xl border border-border bg-bg-surface p-1.5 shadow-xl shadow-black/40 backdrop-blur-md animate-in fade-in slide-in-from-top-1 duration-200"
           >
             {options.map((option) => {
               const active = option.value === value;
@@ -176,10 +170,11 @@ function FilterDropdown({
                     onChange(option.value);
                     onOpenChange(false);
                   }}
-                  className={[
-                    "block w-full rounded-md px-3 py-2 text-left text-sm font-bold outline-none transition-colors focus:ring-2 focus:ring-[#3b82f6]",
-                    active ? "bg-[#2563eb] text-white" : "bg-[#080d14] text-[#cbd5e1] hover:bg-[#1a2332] hover:text-white",
-                  ].join(" ")}
+                  className={`block w-full rounded-lg px-3 py-2 text-left text-xs font-medium transition-all ${
+                    active 
+                      ? "bg-blue/10 text-blue-light" 
+                      : "text-text-secondary hover:bg-bg-card hover:text-text-primary"
+                  }`}
                 >
                   {option.label}
                 </button>
@@ -224,7 +219,7 @@ function ResultRow({ match, index }: { match: Match; index: number }) {
           <div className="min-w-0">
             <p className={`truncate text-xl font-black sm:text-2xl ${t1Won ? "text-white" : "text-white/55"}`}>{match.team1.name}</p>
             <div className="mt-1 flex items-center gap-2">
-              <span className={`text-[11px] font-black uppercase tracking-widest ${t1Won ? "text-white" : "text-white/55"}`}>{match.team1.abbr}</span>
+              <span className={`text-[11px] font-black uppercase tracking-widest ${t1Won ? "text-white" : "text-white/55"}`}>{match.team1.shortname}</span>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={CT_ICON} alt="CT" title="CT side" className="h-5 w-5 object-contain opacity-85" />
             </div>
@@ -271,9 +266,7 @@ function ResultRow({ match, index }: { match: Match; index: number }) {
               })}
             </div>
           )}
-          <span className="inline-flex items-center rounded-full bg-green/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green">
-            Finished
-          </span>
+          <StatusPill status="finished" />
         </div>
 
         <div className="flex min-h-24 min-w-0 items-center justify-end gap-4 sm:min-h-[112px] sm:gap-5">
@@ -282,7 +275,7 @@ function ResultRow({ match, index }: { match: Match; index: number }) {
             <div className="mt-1 flex items-center justify-end gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={TR_ICON} alt="TR" title="TR side" className="h-5 w-5 object-contain opacity-85" />
-              <span className={`text-[11px] font-black uppercase tracking-widest ${t2Won ? "text-white" : "text-white/55"}`}>{match.team2.abbr}</span>
+              <span className={`text-[11px] font-black uppercase tracking-widest ${t2Won ? "text-white" : "text-white/55"}`}>{match.team2.shortname}</span>
             </div>
           </div>
           <div className="relative flex h-20 w-20 shrink-0 items-center justify-center sm:h-24 sm:w-24">
@@ -385,12 +378,12 @@ function buildFallbackVetoSteps(match: Match): HeaderVetoStep[] {
 
   if (match.format === "BO1") {
     return [
-      { team: match.team1.abbr, kind: "ban", map: maps[0] },
-      { team: match.team2.abbr, kind: "ban", map: maps[1] },
-      { team: match.team1.abbr, kind: "ban", map: maps[2] },
-      { team: match.team2.abbr, kind: "ban", map: maps[3] },
-      { team: match.team1.abbr, kind: "ban", map: maps[4] },
-      { team: match.team2.abbr, kind: "ban", map: maps[5] },
+      { team: match.team1.shortname, kind: "ban", map: maps[0] },
+      { team: match.team2.shortname, kind: "ban", map: maps[1] },
+      { team: match.team1.shortname, kind: "ban", map: maps[2] },
+      { team: match.team2.shortname, kind: "ban", map: maps[3] },
+      { team: match.team1.shortname, kind: "ban", map: maps[4] },
+      { team: match.team2.shortname, kind: "ban", map: maps[5] },
       { team: "Decider", kind: "decider", map: match.map || maps[6], ...getFallbackCompletedMapScore(match, 0) },
     ];
   }
@@ -398,13 +391,13 @@ function buildFallbackVetoSteps(match: Match): HeaderVetoStep[] {
   if (match.format === "BO5") {
     const playedMaps = getPlayedMapCount(match);
     return [
-      { team: match.team1.abbr, kind: "ban", map: maps[0] },
-      { team: match.team2.abbr, kind: "ban", map: maps[1] },
+      { team: match.team1.shortname, kind: "ban", map: maps[0] },
+      { team: match.team2.shortname, kind: "ban", map: maps[1] },
       ...[
-        { team: match.team1.abbr, kind: "pick" as const, map: match.map || maps[2] },
-        { team: match.team2.abbr, kind: "pick" as const, map: maps[3] },
-        { team: match.team1.abbr, kind: "pick" as const, map: maps[4] },
-        { team: match.team2.abbr, kind: "pick" as const, map: maps[5] },
+        { team: match.team1.shortname, kind: "pick" as const, map: match.map || maps[2] },
+        { team: match.team2.shortname, kind: "pick" as const, map: maps[3] },
+        { team: match.team1.shortname, kind: "pick" as const, map: maps[4] },
+        { team: match.team2.shortname, kind: "pick" as const, map: maps[5] },
         { team: "Decider", kind: "decider" as const, map: maps[6] },
       ].slice(0, playedMaps).map((step, index) => ({
         ...step,
@@ -415,18 +408,18 @@ function buildFallbackVetoSteps(match: Match): HeaderVetoStep[] {
 
   const playedMaps = getPlayedMapCount(match);
   return [
-    { team: match.team1.abbr, kind: "ban", map: maps[0] },
-    { team: match.team2.abbr, kind: "ban", map: maps[1] },
+    { team: match.team1.shortname, kind: "ban", map: maps[0] },
+    { team: match.team2.shortname, kind: "ban", map: maps[1] },
     ...[
-      { team: match.team1.abbr, kind: "pick" as const, map: match.map || maps[2] },
-      { team: match.team2.abbr, kind: "pick" as const, map: maps[3] },
+      { team: match.team1.shortname, kind: "pick" as const, map: match.map || maps[2] },
+      { team: match.team2.shortname, kind: "pick" as const, map: maps[3] },
       { team: "Decider", kind: "decider" as const, map: maps[6] },
     ].slice(0, playedMaps).map((step, index) => ({
       ...step,
       ...getFallbackCompletedMapScore(match, index),
     })),
-    { team: match.team1.abbr, kind: "ban", map: maps[4] },
-    { team: match.team2.abbr, kind: "ban", map: maps[5] },
+    { team: match.team1.shortname, kind: "ban", map: maps[4] },
+    { team: match.team2.shortname, kind: "ban", map: maps[5] },
   ];
 }
 
@@ -472,16 +465,8 @@ function getFallbackMapWinner(match: Match, pickIndex: number) {
 }
 
 function rotateMapPool(match: Match) {
-  const seed = `${match.id}-${match.team1.abbr}-${match.team2.abbr}`.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const seed = `${match.id}-${match.team1.shortname}-${match.team2.shortname}`.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
   const offset = seed % activeMapPool.length;
 
   return [...activeMapPool.slice(offset), ...activeMapPool.slice(0, offset)];
-}
-
-function getMapAsset(assets: Record<string, string>, map?: string) {
-  if (!map) {
-    return undefined;
-  }
-
-  return assets[map.toLowerCase()];
 }

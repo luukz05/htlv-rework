@@ -6,6 +6,8 @@ import CountryFlag from "@/components/CountryFlag";
 import TeamLogo from "@/components/TeamLogo";
 import type { Team } from "@/services/types";
 
+const DEFAULT_PLAYER_IMAGE = "/images/default-player.png";
+
 type HeadToHeadPlayer = {
   nickname: string;
   image: string;
@@ -95,7 +97,7 @@ function TeamLineupStrip({ team, rank, players, selectedIndex, onSelect, align =
       <div className="grid grid-cols-5 gap-2">
         {players.map((player, index) => (
           <PlayerButton
-            key={`${team.abbr}-${player.nickname}`}
+            key={`${team.shortname}-${player.nickname}`}
             player={player}
             selected={selectedIndex === index}
             onClick={() => onSelect(index)}
@@ -117,12 +119,12 @@ function PlayerButton({ player, selected, onClick }: { player: HeadToHeadPlayer;
     >
       <div className="relative mx-auto h-28 w-full overflow-hidden bg-black/20 sm:h-32 lg:h-36">
         <Image
-          src={player.image}
-          alt={player.nickname}
-          fill
-          sizes="(max-width: 768px) 20vw, 150px"
-          className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
-        />
+  src={player.image?.trim() || DEFAULT_PLAYER_IMAGE}
+  alt={player.nickname}
+  fill
+  sizes="(max-width: 768px) 20vw, 150px"
+  className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
+/>
       </div>
       <div className="px-1.5 py-2">
         <div className="flex min-w-0 items-center justify-center gap-1.5">
@@ -143,18 +145,18 @@ function SelectedPlayer({ team, player, align }: { team: Team; player: HeadToHea
           <TeamLogo src={team.logo} name={team.name} size={220} className="h-full w-full object-contain" />
         </div>
         <Image
-          src={player.image}
-          alt={player.nickname}
-          fill
-          sizes="224px"
-          className="relative z-10 object-contain object-bottom drop-shadow-[0_20px_22px_rgba(0,0,0,0.6)]"
-        />
+  src={player.image?.trim() || DEFAULT_PLAYER_IMAGE}
+  alt={player.nickname}
+  fill
+  sizes="224px"
+  className="relative z-10 object-contain object-bottom drop-shadow-[0_20px_22px_rgba(0,0,0,0.6)]"
+/>
       </div>
       <div className="relative z-20 mt-2 min-w-0">
         <p className="truncate text-2xl font-black text-text-primary">{player.nickname}</p>
         <div className="mt-1.5 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-wider text-text-muted">
           <TeamLogo src={team.logo} name={team.name} size={18} />
-          <span>{team.abbr}</span>
+          <span>{team.shortname}</span>
           {player.country && <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-sm" />}
         </div>
       </div>

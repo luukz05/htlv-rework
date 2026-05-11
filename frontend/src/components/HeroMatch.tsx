@@ -1,30 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 import TeamLogo from "./TeamLogo";
+import StatusPill from "./StatusPill";
 import { api } from "@/services/api";
+import { mapBackgrounds, mapIcons, getMapAsset } from "@/lib/maps";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
-
-const mapBackgrounds: Record<string, string> = {
-  ancient: `${B}/maps/Bomb-B-Ancient-CS-2.jpg`,
-  anubis: `${B}/maps/Anubis-CS2.jpg`,
-  "dust ii": `${B}/maps/dust2_ct_ramp_Cs2.jpg`,
-  dust2: `${B}/maps/dust2_ct_ramp_Cs2.jpg`,
-  inferno: `${B}/maps/Banana-Inferno-CS2-31.03.2025.jpg`,
-  mirage: `${B}/maps/Bomb-A-Mirage-CS-2.jpg`,
-  nuke: `${B}/maps/Bomb-B-Nuke-CS-2.jpg`,
-  overpass: `${B}/maps/Overpass-CS2_Counter-Strike-anti-cheat-VAC-Live.jpg`,
-};
-
-const mapIcons: Record<string, string> = {
-  ancient: `${B}/mapIcons/Map_icon_de_ancient.webp`,
-  anubis: `${B}/mapIcons/Map_icon_de_anubis.webp`,
-  "dust ii": `${B}/mapIcons/Map_icon_de_dust2.webp`,
-  dust2: `${B}/mapIcons/Map_icon_de_dust2.webp`,
-  inferno: `${B}/mapIcons/CS2_inferno_logo.webp`,
-  mirage: `${B}/mapIcons/Set_mirage.webp`,
-  nuke: `${B}/mapIcons/Set_nuke_2.webp`,
-  overpass: `${B}/mapIcons/CS2_overpass_logo.webp`,
-};
 
 export default async function HeroMatch() {
   const { liveMatches } = await resolvePageData({
@@ -58,10 +38,7 @@ export default async function HeroMatch() {
       <div className="relative mx-auto max-w-[1460px] px-4 sm:px-5 py-10 md:py-14">
         {/* Badge */}
         <div className="mb-6 flex items-center gap-3 animate-fade-in-up">
-          <span className="flex items-center gap-2 rounded-full bg-red/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-red animate-glow">
-            <span className="h-2 w-2 rounded-full bg-red animate-pulse-dot" />
-            Live
-          </span>
+          <StatusPill status="live" />
           <span className="text-xs font-medium uppercase tracking-wider text-text-secondary">
             {match.event} &middot; Grand Final
           </span>
@@ -134,14 +111,6 @@ export default async function HeroMatch() {
       </div>
     </section>
   );
-}
-
-function getMapAsset(assets: Record<string, string>, map?: string) {
-  if (!map) {
-    return undefined;
-  }
-
-  return assets[map.toLowerCase()];
 }
 
 async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {

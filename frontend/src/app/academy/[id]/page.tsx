@@ -1,5 +1,3 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 import { api } from "@/services/api";
 import { compactTitle } from "@/lib/page-title";
@@ -40,14 +38,10 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ id
 
   if (!guide) {
     return (
-      <>
-        <Header />
-        <main className="mx-auto max-w-[800px] px-5 py-16 text-center">
-          <h1 className="text-2xl font-bold mb-4">Guide not found</h1>
-          <Link href="/academy" className="text-blue-light hover:text-blue">Back to Academy</Link>
-        </main>
-        <Footer />
-      </>
+      <main className="mx-auto max-w-[800px] px-5 py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">Guide not found</h1>
+        <Link href="/academy" className="text-blue-light hover:text-blue">Back to Academy</Link>
+      </main>
     );
   }
 
@@ -55,8 +49,6 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ id
 
   return (
     <>
-      <Header />
-
       {/* Hero image */}
       <div className="relative h-48 md:h-64 overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -156,7 +148,6 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ id
           })()}
         </div>
       </main>
-      <Footer />
     </>
   );
 }

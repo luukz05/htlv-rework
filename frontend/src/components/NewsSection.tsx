@@ -1,4 +1,5 @@
 
+import Link from "next/link";
 import type { NewsArticle } from "@/services/types";
 
 export default function NewsSection({ news }: { news: NewsArticle[] }) {
@@ -16,49 +17,53 @@ export default function NewsSection({ news }: { news: NewsArticle[] }) {
           </svg>
           Latest News
         </h2>
-        <a href="#" className="text-sm font-medium text-blue-light hover:text-blue transition-colors">View all news</a>
+        <Link href="/news" className="text-sm font-medium text-blue-light hover:text-blue transition-colors">View all news</Link>
       </div>
 
       {/* Featured + Side news */}
       <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-4 mb-4">
         {/* Featured */}
-        <article className="group cursor-pointer overflow-hidden rounded-xl border border-border bg-bg-card transition-all hover:border-border-hover">
-          <div className="h-52 overflow-hidden relative">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={featured.image} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-bg-card/40 to-transparent" />
-            <div className="absolute bottom-4 left-4 right-4">
-              <div className="mb-2 flex gap-2">
-                {featured.tags.map((tag) => (
-                  <span key={tag} className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                    tag === "Hot" ? "bg-red/20 text-red" : "bg-blue/15 text-blue-light"
-                  }`}>{tag}</span>
-                ))}
-                <span className="text-[11px] text-text-muted">{featured.time}</span>
+        <Link href={`/news/${featured.id}`} className="group block overflow-hidden rounded-xl border border-border bg-bg-card transition-all hover:border-border-hover">
+          <article>
+            <div className="h-52 overflow-hidden relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={featured.image} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-bg-card/40 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4">
+                <div className="mb-2 flex gap-2">
+                  {featured.tags.map((tag) => (
+                    <span key={tag} className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                      tag === "Hot" ? "bg-red/20 text-red" : "bg-blue/15 text-blue-light"
+                    }`}>{tag}</span>
+                  ))}
+                  <span className="text-[11px] text-text-muted">{featured.time}</span>
+                </div>
+                <h3 className="text-lg font-bold leading-snug mb-1.5">{featured.title}</h3>
+                <p className="text-sm text-text-secondary leading-relaxed line-clamp-2">{featured.description}</p>
               </div>
-              <h3 className="text-lg font-bold leading-snug mb-1.5">{featured.title}</h3>
-              <p className="text-sm text-text-secondary leading-relaxed line-clamp-2">{featured.description}</p>
             </div>
-          </div>
-        </article>
+          </article>
+        </Link>
 
         {/* Side list */}
         <div className="flex flex-col gap-3">
           {sideNews.map((article) => (
-            <article key={article.id} className="group flex gap-3 cursor-pointer rounded-lg border border-border bg-bg-card p-3 transition-all hover:border-border-hover hover:bg-bg-card-hover">
-              <div className="h-16 w-20 shrink-0 rounded-lg overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={article.image} alt="" className="h-full w-full object-cover" />
-              </div>
-              <div className="flex flex-col justify-center min-w-0">
-                <h4 className="text-[13px] font-semibold leading-tight line-clamp-2 mb-1">{article.title}</h4>
-                <div className="flex items-center gap-2 text-[11px] text-text-muted">
-                  <span>{article.time}</span>
-                  <span>&middot;</span>
-                  <span>{article.comments} comments</span>
+            <Link key={article.id} href={`/news/${article.id}`} className="group flex gap-3 rounded-lg border border-border bg-bg-card p-3 transition-all hover:border-border-hover hover:bg-bg-card-hover">
+              <article className="flex gap-3 w-full">
+                <div className="h-16 w-20 shrink-0 rounded-lg overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={article.image} alt="" className="h-full w-full object-cover" />
                 </div>
-              </div>
-            </article>
+                <div className="flex flex-col justify-center min-w-0">
+                  <h4 className="text-[13px] font-semibold leading-tight line-clamp-2 mb-1">{article.title}</h4>
+                  <div className="flex items-center gap-2 text-[11px] text-text-muted">
+                    <span>{article.time}</span>
+                    <span>&middot;</span>
+                    <span>{article.comments} comments</span>
+                  </div>
+                </div>
+              </article>
+            </Link>
           ))}
         </div>
       </div>
@@ -66,15 +71,17 @@ export default function NewsSection({ news }: { news: NewsArticle[] }) {
       {/* Bottom row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {bottomNews.map((article) => (
-          <article key={`b-${article.id}`} className="group cursor-pointer overflow-hidden rounded-xl border border-border bg-bg-card transition-all hover:border-border-hover hover:bg-bg-card-hover">
-            <div className="h-32 overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={article.image} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-            </div>
-            <div className="p-3">
-              <h4 className="text-[13px] font-semibold leading-tight line-clamp-2">{article.title}</h4>
-            </div>
-          </article>
+          <Link key={`b-${article.id}`} href={`/news/${article.id}`} className="group overflow-hidden rounded-xl border border-border bg-bg-card transition-all hover:border-border-hover hover:bg-bg-card-hover">
+            <article>
+              <div className="h-32 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={article.image} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              </div>
+              <div className="p-3">
+                <h4 className="text-[13px] font-semibold leading-tight line-clamp-2">{article.title}</h4>
+              </div>
+            </article>
+          </Link>
         ))}
       </div>
     </section>

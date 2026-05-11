@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 import {
   loadProfile,
@@ -273,9 +271,7 @@ export default function CrosshairChallengePage() {
   /* ── render ──────────────────────────────────────────── */
 
   return (
-    <>
-      <Header />
-      <main className="mx-auto max-w-[900px] px-5 py-8">
+    <main className="mx-auto max-w-[900px] px-5 py-8">
         {/* Breadcrumb */}
         <div className="mb-6 text-sm text-text-muted">
           <Link href="/" className="hover:text-text-secondary">Home</Link>
@@ -584,7 +580,6 @@ export default function CrosshairChallengePage() {
           </div>
         )}
       </main>
-      <Footer />
-    </>
-  );
+    );
+  }
 }

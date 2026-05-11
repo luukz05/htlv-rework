@@ -1,6 +1,5 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
+import StatusPill from "@/components/StatusPill";
 import Link from "next/link";
 import { api } from "@/services/api";
 import type { Match } from "@/services/types";
@@ -13,27 +12,7 @@ const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CT_ICON = "https://static.wikia.nocookie.net/cswikia/images/2/2a/Ct_logo.svg/revision/latest/scale-to-width-down/250?cb=20250307112005";
 const TR_ICON = "https://static.wikia.nocookie.net/cswikia/images/e/e0/Icon-t-patch-small.png/revision/latest?cb=20220130164538";
 
-const mapBackgrounds: Record<string, string> = {
-  ancient: `${B}/maps/Bomb-B-Ancient-CS-2.jpg`,
-  anubis: `${B}/maps/Anubis-CS2.jpg`,
-  "dust ii": `${B}/maps/dust2_ct_ramp_Cs2.jpg`,
-  dust2: `${B}/maps/dust2_ct_ramp_Cs2.jpg`,
-  inferno: `${B}/maps/Banana-Inferno-CS2-31.03.2025.jpg`,
-  mirage: `${B}/maps/Bomb-A-Mirage-CS-2.jpg`,
-  nuke: `${B}/maps/Bomb-B-Nuke-CS-2.jpg`,
-  overpass: `${B}/maps/Overpass-CS2_Counter-Strike-anti-cheat-VAC-Live.jpg`,
-};
-
-const mapIcons: Record<string, string> = {
-  ancient: `${B}/mapIcons/Map_icon_de_ancient.webp`,
-  anubis: `${B}/mapIcons/Map_icon_de_anubis.webp`,
-  "dust ii": `${B}/mapIcons/Map_icon_de_dust2.webp`,
-  dust2: `${B}/mapIcons/Map_icon_de_dust2.webp`,
-  inferno: `${B}/mapIcons/CS2_inferno_logo.webp`,
-  mirage: `${B}/mapIcons/Set_mirage.webp`,
-  nuke: `${B}/mapIcons/Set_nuke_2.webp`,
-  overpass: `${B}/mapIcons/CS2_overpass_logo.webp`,
-};
+import { mapBackgrounds, mapIcons, getMapAsset, getMapIcon, getMapBackground } from "@/lib/maps";
 
 const activeMapPool = ["Mirage", "Inferno", "Nuke", "Ancient", "Anubis", "Dust II", "Overpass"];
 
@@ -52,7 +31,9 @@ function MatchRow({ match, index }: { match: Match; index: number }) {
   return (
     <Link
       href={`/matches/${match.id}`}
-      className="group block relative min-h-[234px] rounded-xl border border-border overflow-hidden bg-cover bg-center transition-all hover:-translate-y-0.5 hover:border-border-hover cursor-pointer card-glow animate-fade-in-up sm:h-[212px] sm:min-h-[212px]"
+      className={`group block relative min-h-[234px] rounded-xl border overflow-hidden bg-cover bg-center transition-all hover:-translate-y-0.5 cursor-pointer card-glow animate-fade-in-up sm:h-[212px] sm:min-h-[212px] ${
+        isLive ? "border-red/40 animate-live-glow" : "border-border hover:border-border-hover"
+      }`}
       style={{
         animationDelay: `${index * 0.04}s`,
         background: isUpcoming
@@ -78,7 +59,7 @@ function MatchRow({ match, index }: { match: Match; index: number }) {
           <div className="min-w-0">
             <p className="truncate text-xl font-black text-white sm:text-2xl">{match.team1.name}</p>
             <div className="mt-1 flex items-center gap-2">
-              <span className="text-[11px] font-black uppercase tracking-widest text-white">{match.team1.abbr}</span>
+              <span className="text-[11px] font-black uppercase tracking-widest text-white">{match.team1.shortname}</span>
               {!isUpcoming && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={CT_ICON} alt="CT" title="CT side" className="h-5 w-5 object-contain" />
@@ -114,7 +95,7 @@ function MatchRow({ match, index }: { match: Match; index: number }) {
               hasSingleMap ? "h-[72px] w-[72px] rounded-full p-3" : "min-h-11 rounded-full px-4 py-2",
             ].join(" ")}>
               {mapPool.map((map) => {
-                const icon = getMapAsset(mapIcons, map.map);
+                const icon = getMapIcon(map.map);
                 if (!icon) return null;
                 const hasMapScore = map.score1 !== undefined && map.score2 !== undefined;
                 const isCurrentMap = map.map.toLowerCase() === primaryMap?.toLowerCase();
@@ -146,12 +127,6 @@ function MatchRow({ match, index }: { match: Match; index: number }) {
               })}
             </div>
           )}
-          {isLive && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-red/15 px-2.5 py-0.5 text-[10px] font-bold text-red">
-              <span className="h-1.5 w-1.5 rounded-full bg-red animate-pulse-dot" />
-              LIVE
-            </span>
-          )}
         </div>
 
         <div className="flex min-h-24 min-w-0 items-center justify-end gap-4 sm:min-h-[112px] sm:gap-5">
@@ -162,7 +137,7 @@ function MatchRow({ match, index }: { match: Match; index: number }) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={TR_ICON} alt="TR" title="TR side" className="h-5 w-5 object-contain" />
               )}
-              <span className="text-[11px] font-black uppercase tracking-widest text-white">{match.team2.abbr}</span>
+              <span className="text-[11px] font-black uppercase tracking-widest text-white">{match.team2.shortname}</span>
             </div>
           </div>
           <div className="relative flex h-20 w-20 shrink-0 items-center justify-center sm:h-24 sm:w-24">
@@ -188,31 +163,23 @@ export default async function MatchesPage() {
   }, {} as Record<string, Match[]>);
 
   return (
-    <>
-      <Header />
-      <main className="mx-auto max-w-[1380px] px-4 py-8">
-        <div className="mb-6 text-sm text-text-muted">
-          <a href="#" className="hover:text-text-secondary">Home</a><span className="mx-2">&rsaquo;</span><span className="text-text-primary">Matches</span>
-        </div>
-        <h1 className="text-2xl font-bold mb-8">Matches &amp; Livescore</h1>
-        {liveMatches.length > 0 && (
-          <section className="mb-10">
-            <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-red mb-4">
-              <span className="h-2 w-2 rounded-full bg-red animate-pulse-dot" />
-              Live Now
-            </h2>
-            <div className="space-y-4">{liveMatches.map((m, i) => <MatchRow key={m.id} match={m} index={i} />)}</div>
-          </section>
-        )}
-        {Object.entries(grouped).map(([date, matches]) => (
-          <section key={date} className="mb-8">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-text-secondary mb-4">{date}</h2>
-            <div className="space-y-4">{matches.map((m, i) => <MatchRow key={m.id} match={m} index={i} />)}</div>
-          </section>
-        ))}
-      </main>
-      <Footer />
-    </>
+    <main className="mx-auto max-w-[1380px] px-4 py-8">
+      <div className="mb-6 text-sm text-text-muted">
+        <a href="#" className="hover:text-text-secondary">Home</a><span className="mx-2">&rsaquo;</span><span className="text-text-primary">Matches</span>
+      </div>
+      <h1 className="text-2xl font-bold mb-8">Matches &amp; Livescore</h1>
+      {liveMatches.length > 0 && (
+        <section className="mb-10">
+          <div className="space-y-4">{liveMatches.map((m, i) => <MatchRow key={m.id} match={m} index={i} />)}</div>
+        </section>
+      )}
+      {Object.entries(grouped).map(([date, matches]) => (
+        <section key={date} className="mb-8">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-text-secondary mb-4">{date}</h2>
+          <div className="space-y-4">{matches.map((m, i) => <MatchRow key={m.id} match={m} index={i} />)}</div>
+        </section>
+      ))}
+    </main>
   );
 }
 
@@ -287,35 +254,35 @@ function buildFallbackVetoSteps(match: Match): HeaderVetoStep[] {
 
   if (match.format === "BO1") {
     return [
-      { team: match.team1.abbr, kind: "ban", map: maps[0] },
-      { team: match.team2.abbr, kind: "ban", map: maps[1] },
-      { team: match.team1.abbr, kind: "ban", map: maps[2] },
-      { team: match.team2.abbr, kind: "ban", map: maps[3] },
-      { team: match.team1.abbr, kind: "ban", map: maps[4] },
-      { team: match.team2.abbr, kind: "ban", map: maps[5] },
+      { team: match.team1.shortname, kind: "ban", map: maps[0] },
+      { team: match.team2.shortname, kind: "ban", map: maps[1] },
+      { team: match.team1.shortname, kind: "ban", map: maps[2] },
+      { team: match.team2.shortname, kind: "ban", map: maps[3] },
+      { team: match.team1.shortname, kind: "ban", map: maps[4] },
+      { team: match.team2.shortname, kind: "ban", map: maps[5] },
       { team: "Decider", kind: "decider", map: match.map || maps[6] },
     ];
   }
 
   if (match.format === "BO5") {
     return [
-      { team: match.team1.abbr, kind: "ban", map: maps[0] },
-      { team: match.team2.abbr, kind: "ban", map: maps[1] },
-      { team: match.team1.abbr, kind: "pick", map: match.map || maps[2] },
-      { team: match.team2.abbr, kind: "pick", map: maps[3] },
-      { team: match.team1.abbr, kind: "pick", map: maps[4] },
-      { team: match.team2.abbr, kind: "pick", map: maps[5] },
+      { team: match.team1.shortname, kind: "ban", map: maps[0] },
+      { team: match.team2.shortname, kind: "ban", map: maps[1] },
+      { team: match.team1.shortname, kind: "pick", map: match.map || maps[2] },
+      { team: match.team2.shortname, kind: "pick", map: maps[3] },
+      { team: match.team1.shortname, kind: "pick", map: maps[4] },
+      { team: match.team2.shortname, kind: "pick", map: maps[5] },
       { team: "Decider", kind: "decider", map: maps[6] },
     ];
   }
 
   return [
-    { team: match.team1.abbr, kind: "ban", map: maps[0] },
-    { team: match.team2.abbr, kind: "ban", map: maps[1] },
-    { team: match.team1.abbr, kind: "pick", map: match.map || maps[2], ...getFallbackCompletedMapScore(match, 0) },
-    { team: match.team2.abbr, kind: "pick", map: maps[3], ...getFallbackCompletedMapScore(match, 1) },
-    { team: match.team1.abbr, kind: "ban", map: maps[4] },
-    { team: match.team2.abbr, kind: "ban", map: maps[5] },
+    { team: match.team1.shortname, kind: "ban", map: maps[0] },
+    { team: match.team2.shortname, kind: "ban", map: maps[1] },
+    { team: match.team1.shortname, kind: "pick", map: match.map || maps[2], ...getFallbackCompletedMapScore(match, 0) },
+    { team: match.team2.shortname, kind: "pick", map: maps[3], ...getFallbackCompletedMapScore(match, 1) },
+    { team: match.team1.shortname, kind: "ban", map: maps[4] },
+    { team: match.team2.shortname, kind: "ban", map: maps[5] },
     { team: "Decider", kind: "decider", map: maps[6] },
   ];
 }
@@ -329,16 +296,8 @@ function getFallbackCompletedMapScore(match: Match, _pickIndex: number) {
 }
 
 function rotateMapPool(match: Match) {
-  const seed = `${match.id}-${match.team1.abbr}-${match.team2.abbr}`.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const seed = `${match.id}-${match.team1.shortname}-${match.team2.shortname}`.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
   const offset = seed % activeMapPool.length;
 
   return [...activeMapPool.slice(offset), ...activeMapPool.slice(0, offset)];
-}
-
-function getMapAsset(assets: Record<string, string>, map?: string) {
-  if (!map) {
-    return undefined;
-  }
-
-  return assets[map.toLowerCase()];
 }
