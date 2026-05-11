@@ -57,12 +57,14 @@ import {
   register,
   updateMe,
 } from "../controllers/usersController.js";
+import { globalSearch } from "../controllers/searchController.js";
 
 export function createRouter() {
   const router = new Router();
 
   router.get("/health", (_req, res) => json(res, { ok: true }));
   router.get("/navigation", listNavigation);
+  router.get("/search", globalSearch);
 
   router.post("/auth/register", register);
   router.post("/auth/login", login);
