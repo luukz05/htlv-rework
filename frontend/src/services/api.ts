@@ -16,6 +16,7 @@ import type {
   Team,
   TeamProfile,
   TeamRoster,
+  GlobalSearchResult,
 } from "./types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -48,6 +49,7 @@ async function apiSend<T>(path: string, method: "POST" | "PATCH", body?: unknown
 export const api = {
   health: () => apiGet<{ ok: boolean }>("/health"),
   navigation: () => apiGet<Array<{ label: string; href: string; badge?: string }>>("/navigation"),
+  search: (q: string) => apiGet<GlobalSearchResult>(`/search?q=${encodeURIComponent(q)}`),
 
   register: (body: { username?: string; email?: string; password?: string }) => apiSend("/auth/register", "POST", body),
   login: (body: { username?: string; email?: string; password?: string }) => apiSend("/auth/login", "POST", body),

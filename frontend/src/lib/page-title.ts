@@ -14,7 +14,7 @@ export function compactTitle(value: string, maxLength = 64) {
 }
 
 export function matchTitle(match: Match) {
-  const teams = `${match.team1.abbr} vs ${match.team2.abbr}`;
+  const teams = `${match.team1.shortname} vs ${match.team2.shortname}`;
   const context = [match.event, match.format].filter(Boolean).join(" - ");
 
   if (match.status === "live") {

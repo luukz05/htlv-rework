@@ -48,49 +48,84 @@ export const legacyProfiles: LegacyProfile[] = [
     era: "1.6 to CS2",
     heroImage: `${B}/players/fallen_hall_of_fame.jpg`,
     summary:
-      "FalleN is the rare Counter-Strike figure whose legacy reaches far beyond server results: he won Majors, built infrastructure, mentored a region, and turned Brazilian CS into a permanent force.",
+      "Gabriel \"FalleN\" Toledo de Alcantara Sguario is the rare player who became an ecosystem: he captained two Major titles, opened an international path for Brazil, built competitive infrastructure, and remains active in CS2 with FURIA.",
     biography: [
-      "Gabriel \"FalleN\" Toledo became the public face of Brazilian Counter-Strike by pairing elite in-game leadership with institution building. His teams were never just lineups chasing trophies; they were proof that a region outside Europe and North America could create a complete competitive ecosystem.",
-      "The peak came in 2016, when Luminosity and then SK Gaming won the MLG Columbus and ESL One Cologne Majors. Those titles made his core the first South American Major champions and cemented FalleN as one of the defining tactical leaders of the Global Offensive era.",
-      "His influence kept expanding through projects such as Games Academy, through mentoring younger talent, and through his continued presence on top-level rosters. Even before formal Hall of Fame eligibility, his story reads like a cornerstone chapter in any Counter-Strike history book.",
+      "FalleN was born on May 30, 1991 and is listed by Liquipedia as active since 2003, spanning Counter-Strike, Source, Global Offensive, and Counter-Strike 2. That longevity matters because his career was not just a transition between versions of the game; it was a bridge from Brazil's semi-professional scene to the modern international circuit.",
+      "Before becoming a world champion, he was already a leader, teacher, and organizer. He moved through Brazilian projects such as crashers, FireGamers, compLexity, Mandic, KaBuM.TD, and Keyd Stars while carrying the idea that Brazil needed to learn, train, and compete at a global standard. Games Academy became a central part of that mission, working as a school, showcase, and meeting point for an entire generation.",
+      "The historical leap came with the Brazilian core that moved from KaBuM and Keyd, exploded with Luminosity, and became a powerhouse under SK Gaming. In 2016, FalleN led the first South American Major-winning team at MLG Columbus and repeated the feat at ESL One Cologne months later. As an AWPer and IGL, he combined structured calling, emotional reads, and individual impact in decisive rounds.",
+      "The SK era cemented The Professor nickname. The team stacked elite trophies, including ESL Pro League Season 6 Finals, EPICENTER 2017, and ECS Season 3 Finals, while also forming part of the run that ended in the Intel Grand Slam Season 1 title. FalleN also earned four HLTV-listed MVP awards, highlighted by DreamHack Open Austin 2016, ESL One Cologne 2017, BLAST Pro Series Copenhagen 2017, and ZOTAC Cup Masters 2018.",
+      "After his peak, his historical value kept growing through MIBR, Team Liquid, Imperial, and FURIA. Imperial's Last Dance brought the champion core's memory back to Major arenas, while his move to FURIA kept him active as a symbol of continuity: still competing, but also carrying the cultural authority of someone who helped build the scene itself.",
+      "That is why his Hall of Fame dossier cannot fit into a trophy list alone. FalleN is a two-time Major champion, HLTV's number two player of 2016, HLTV's number six player of 2017, Esports Personality of the Year 2016, a founder, a mentor, a captain, and an informal ambassador for Brazilian Counter-Strike.",
     ],
     infobox: [
       { label: "Legacy status", value: "Regional pioneer and Major-winning captain" },
-      { label: "Prime years", value: "2015–2017" },
-      { label: "Signature trait", value: "Structured calling with AWP impact" },
+      { label: "Full name", value: "Gabriel Toledo de Alcantara Sguario" },
+      { label: "Born", value: "May 30, 1991" },
+      { label: "Current team", value: "FURIA" },
+      { label: "Years active", value: "2003 - present" },
+      { label: "Prime years", value: "2015 - 2017" },
+      { label: "Signature trait", value: "IGL authority with AWP impact" },
       { label: "Historic milestone", value: "First South American Major champion" },
+      { label: "Known as", value: "The Professor / Godfather of Brazilian CS" },
+      { label: "Approx. winnings", value: "$1.46M+" },
     ],
     timeline: [
       {
-        period: "Early scene",
-        title: "Builder before superstar",
+        period: "2003 - 2014",
+        title: "Builder before the breakthrough",
         detail:
-          "Established himself as a leader long before the Brazilian breakthrough and kept local Counter-Strike alive through periods with limited international visibility.",
+          "Competed through the early Brazilian scene and became a leader, teacher, and organizer before the region had consistent international infrastructure.",
       },
       {
-        period: "2015–2016",
-        title: "The Brazilian explosion",
+        period: "2015 - 2016",
+        title: "KaBuM, Keyd, and the door opening",
         detail:
-          "Led Luminosity into SK Gaming and turned the roster into the most important team in Brazilian CS history with back-to-back Major titles.",
+          "Helped the Brazilian core reach the global stage through KaBuM.TD and Keyd Stars, setting up the jump that would become Luminosity's rise.",
       },
       {
-        period: "Legacy phase",
-        title: "Mentor, captain, public symbol",
+        period: "2016",
+        title: "Back-to-back Major captain",
         detail:
-          "Remained a reference point for the region while continuing to compete and shape how Brazilian players see top-level careers.",
+          "Led Luminosity to MLG Columbus and SK Gaming to ESL One Cologne, making his team the first South American Major champions.",
+      },
+      {
+        period: "2017 - 2018",
+        title: "Elite SK and global recognition",
+        detail:
+          "Remained a title-winning IGL, earned HLTV Top 20 recognition for a second straight year, and collected MVP awards across big international events.",
+      },
+      {
+        period: "2018 - 2023",
+        title: "MIBR, Liquid, Imperial",
+        detail:
+          "Moved through veteran chapters while keeping his status as the public symbol of Brazilian CS and later revived the old core's story with Imperial.",
+      },
+      {
+        period: "2023 - present",
+        title: "FURIA and CS2 continuity",
+        detail:
+          "Returned to a leading Brazilian organization in the CS2 era, keeping his career active while mentoring another generation on elite stages.",
       },
     ],
     achievements: [
       "MLG Columbus 2016 Major champion",
       "ESL One Cologne 2016 Major champion",
       "Intel Grand Slam Season 1 winner",
-      "Multiple HLTV Top 20 appearances",
+      "HLTV Top 20: #2 in 2016 and #6 in 2017",
+      "HLTV MVP at four tournaments",
+      "ESL Pro League Season 6 Finals champion",
+      "EPICENTER 2017 champion",
+      "ECS Season 3 Finals champion",
+      "Esports Personality of the Year 2016",
       "Founder of Games Academy",
     ],
     signatureMoments: [
       "Back-to-back Major victories with the LG/SK core",
-      "The rise of Brazilian tactical Counter-Strike on the world stage",
-      "Long-term impact as mentor, entrepreneur, and captain",
+      "MLG Columbus 2016 turning Brazil into a Major-winning region",
+      "ESL One Cologne 2017 MVP performance as a veteran superstar",
+      "The Last Dance run with Imperial reconnecting the old core with Major arenas",
+      "Games Academy helping formalize a development path for Brazilian players",
+      "Long-term impact as mentor, entrepreneur, captain, and cultural reference",
     ],
   },
   {

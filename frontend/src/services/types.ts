@@ -1,7 +1,7 @@
 export interface Team {
   name: string;
   color: string;
-  abbr: string;
+  shortname: string;
   logo: string;
 }
 
@@ -42,10 +42,12 @@ export interface NewsArticle {
 }
 
 export interface RankedTeam {
+  id?: string;
   rank: number;
   name: string;
   color: string;
   points: number;
+  vrs?: number;
   change: "up" | "down" | "same";
   changeVal?: number;
   region: string;
@@ -66,6 +68,7 @@ export interface Event {
 }
 
 export interface Player {
+  id: number;
   rank: number;
   name: string;
   realName: string;
@@ -76,6 +79,15 @@ export interface Player {
   kd: string;
   adr: number;
   kast: string;
+  swing: string;
+  impact: number;
+  dpr: number;
+  hsPercent: string;
+  totalKills: number;
+  totalDeaths: number;
+  assists: number;
+  openingKills: number;
+  clutchesWon: number;
   image: string;
   teamLogo: string;
 }
@@ -197,6 +209,7 @@ export interface PlayerProfile {
   nickname: string;
   realName: string;
   age: number;
+  rank: number;
   country: string;
   countryFlag: string;
   image: string;
@@ -206,6 +219,7 @@ export interface PlayerProfile {
   rating2: number;
   dpr: number;
   kast: string;
+  swing: string;
   impact: number;
   adr: number;
   kd: string;
@@ -213,6 +227,7 @@ export interface PlayerProfile {
   mapsPlayed: number;
   totalKills: number;
   totalDeaths: number;
+  assists: number;
   roundsPlayed: number;
   clutchesWon: number;
   clutchesTotal: number;
@@ -225,6 +240,27 @@ export interface PlayerProfile {
   teamHistory: { team: string; logo: string; period: string }[];
   achievements: string[];
   bio: string;
+  personalBio?: {
+    born?: string;
+    nationality?: string;
+    status?: string;
+    yearsActive?: string;
+    liquipediaRole?: string;
+    alternateIds?: string[];
+    nicknames?: string[];
+    games?: string[];
+    summary: string;
+    sourceUrl: string;
+    sourceLabel: string;
+  };
+  biography?: {
+    intro: string;
+    sections: { title: string; body: string }[];
+    timeline: { period: string; title: string; description: string }[];
+    highlights: string[];
+    sourceUrl: string;
+    sourceLabel: string;
+  };
   teamSlug: string;
   region: string;
   majorWins: number;
@@ -239,7 +275,7 @@ export interface PlayerProfile {
 export interface TeamRoster {
   teamName: string;
   teamLogo: string;
-  teamAbbr: string;
+  teamshortname: string;
   players: string[];
 }
 
@@ -253,7 +289,7 @@ export interface MapCalloutQuiz {
 export interface TeamProfile {
   id: string;
   name: string;
-  abbr: string;
+  shortname: string;
   color: string;
   logo: string;
   region: string;
@@ -278,4 +314,10 @@ export interface TeamProfile {
   last10Results: ("W" | "L")[];
   majorsWon: number;
   totalPrizeEarnings: string;
+}
+
+export interface GlobalSearchResult {
+  teams: Array<{ id: string; name: string; logo: string; region: string }>;
+  players: Array<{ id: number; nickname: string; realName: string; image: string; team: string }>;
+  events: Array<{ id: number; name: string; image: string; date: string }>;
 }
