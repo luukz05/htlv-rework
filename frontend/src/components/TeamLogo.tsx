@@ -14,7 +14,7 @@ export default function TeamLogo({ src, name, size = 24, className = "" }: Props
         style={{ width: size, height: size }}
         className={`shrink-0 rounded-full bg-border/40 flex items-center justify-center ${className}`}
       >
-        <span className="text-[8px] font-bold text-text-muted">?</span>
+        <span className="text-[10px] sm:text-[8px] font-bold text-text-muted">?</span>
       </div>
     );
   }

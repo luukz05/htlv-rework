@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Sidebar from "@/components/Sidebar";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 import StatsClient from "./StatsClient";
 import RankingsNavTabs from "../NavTabs";
 
@@ -46,9 +47,4 @@ export default async function PlayersPage() {
       </div>
     </main>
   );
-}
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

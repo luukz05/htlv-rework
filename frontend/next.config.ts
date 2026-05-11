@@ -10,6 +10,15 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
+  async redirects() {
+    return [
+      {
+        source: "/rankings",
+        destination: "/rankings/teams",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

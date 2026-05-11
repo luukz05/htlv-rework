@@ -11,7 +11,6 @@
     "frontend:dev": "npm --prefix frontend run dev",
     "frontend:build": "npm --prefix frontend run build",
     "frontend:start": "npm --prefix frontend run start",
-    "sync-team-logos": "npm --prefix frontend run sync-team-logos",
     "backend:dev": "npm --prefix backend run dev",
     "backend:build": "npm --prefix backend run build",
     "backend:start": "npm --prefix backend run start"

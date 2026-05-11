@@ -8,7 +8,7 @@ export const navigation = [
   { label: "Stats", href: "/stats" },
   { label: "Maps", href: "/maps" },
   { label: "Galleries", href: "/galleries" },
-  { label: "Rankings", href: "/rankings" },
+  { label: "Rankings", href: "/rankings/teams" },
   { label: "Forums", href: "/forums" },
   { label: "Academy", href: "/academy" },
   { label: "Games", href: "/games", badge: "NEW" },

@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import CountryFlag from "@/components/CountryFlag";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 import type { Event, Match, Player, Team, TeamProfile, TeamRoster } from "@/services/types";
 import { compactTitle, matchTitle } from "@/lib/page-title";
 import MatchHeadToHeadClient from "./MatchHeadToHeadClient";
@@ -142,12 +143,6 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
     </div>
   );
 }
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
-}
-
 type LineupPlayer = {
   nickname: string;
   image: string;
@@ -328,7 +323,7 @@ function ConsolidatedMatchView({ match }: { match: Match }) {
 function OverviewMetric({ label, value, suffix = "" }: { label: string; value: string; suffix?: string }) {
   return (
     <div className="rounded border border-border bg-bg-surface px-3 py-2">
-      <p className="text-[9px] font-bold uppercase tracking-wider text-text-muted">{label}</p>
+      <p className="text-[10px] sm:text-[9px] font-bold uppercase tracking-wider text-text-muted">{label}</p>
       <p className="mt-0.5 text-sm font-black text-text-primary">{value}{suffix}</p>
     </div>
   );
@@ -341,7 +336,7 @@ function OddBox({ team, value, movement }: { team: string; value: number; moveme
     <div className="rounded border border-border bg-bg-card px-3 py-2 text-center">
       <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">{team}</p>
       <p className="mt-1 text-lg font-black text-green tabular-nums">{value.toFixed(2)}</p>
-      <div className="mt-1 flex items-center justify-center gap-2 text-[9px] font-bold uppercase tracking-wider text-text-muted">
+      <div className="mt-1 flex items-center justify-center gap-2 text-[10px] sm:text-[9px] font-bold uppercase tracking-wider text-text-muted">
         <span>{probability}%</span>
         <span className={movement.startsWith("+") ? "text-green" : "text-red"}>{movement}</span>
       </div>
@@ -386,7 +381,7 @@ function MapStatCard({ map, index, team1, team2 }: { map: string; index: number;
 function TinyMapMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded bg-bg-card px-2 py-1.5">
-      <p className="text-[9px] font-bold uppercase tracking-wider text-text-muted">{label}</p>
+      <p className="text-[10px] sm:text-[9px] font-bold uppercase tracking-wider text-text-muted">{label}</p>
       <p className="text-xs font-black text-text-primary">{value}</p>
     </div>
   );
@@ -417,7 +412,7 @@ function HeaderVetoStrip({ match }: { match: Match }) {
     <div className="flex flex-wrap items-center justify-center gap-2">
       {steps.map((step, index) => (
         <div key={`${step.team}-${step.map}-${index}`} className="inline-flex items-center gap-2 border border-white/10 bg-black/25 px-3 py-2 text-xs backdrop-blur-sm">
-          <span className={`rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider ${step.kind === "pick" ? "bg-green/15 text-green" : step.kind === "decider" ? "bg-yellow/15 text-yellow" : "bg-red/15 text-red"}`}>
+          <span className={`rounded px-1.5 py-0.5 text-[10px] sm:text-[9px] font-black uppercase tracking-wider ${step.kind === "pick" ? "bg-green/15 text-green" : step.kind === "decider" ? "bg-yellow/15 text-yellow" : "bg-red/15 text-red"}`}>
             {step.kind}
           </span>
           <span className="font-bold text-text-secondary">{step.team}</span>

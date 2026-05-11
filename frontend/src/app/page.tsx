@@ -6,6 +6,7 @@ import TeamLogo from "@/components/TeamLogo";
 import CountryFlag, { LanguageFlag } from "@/components/CountryFlag";
 import StatusPill from "@/components/StatusPill";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 import type { Event, ForumThread, Player, PlayerHighlight, PlayerProfile, RoundHighlight, Stream } from "@/services/types";
 
 export const metadata = {
@@ -65,9 +66,9 @@ function PlayerOfTheWeek({
         <span className="text-[11px] font-bold uppercase tracking-wider text-yellow bg-yellow/15 px-2.5 py-1 rounded-full">HLTV MVP · {event}</span>
       </div>
       <Link href="/rankings/players" className="block rounded-xl border border-border bg-bg-card overflow-hidden card-glow group">
-        <div className="relative grid grid-cols-1 md:grid-cols-[240px_1fr]">
+        <div className="relative md:grid md:grid-cols-[240px_1fr]">
           {/* Player image */}
-          <div className="player-photo-frame relative h-64 md:h-auto overflow-hidden">
+          <div className="player-photo-frame relative h-72 overflow-hidden md:h-auto">
             <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-20">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -79,48 +80,85 @@ function PlayerOfTheWeek({
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={player.image} alt={player.name} className="player-photo player-photo--hero relative z-10 translate-y-4 transition-transform duration-500 group-hover:scale-105" />
-            <div className="absolute inset-0 z-20 bg-gradient-to-t from-bg-card via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-bg-card" />
+            {/* Mobile bottom gradient */}
+            <div className="absolute inset-x-0 bottom-0 h-32 z-20 md:hidden bg-gradient-to-t from-bg-card via-bg-card/80 to-transparent" />
+            {/* Desktop side gradient */}
+            <div className="absolute inset-0 z-20 hidden md:block md:bg-gradient-to-r md:from-transparent md:to-bg-card" />
+            {/* MVP badge */}
             <div className="absolute top-3 left-3 z-30 flex items-center gap-0.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="https://www.hltv.org/img/static/event/mvpGold.png" alt="" className="h-9 w-9 object-contain" aria-hidden="true" />
               <span className="text-base font-black uppercase tracking-wider text-yellow">3x</span>
             </div>
+
+            {/* Mobile bottom overlay: nickname + key stats */}
+            <div className="absolute inset-x-0 bottom-0 z-30 md:hidden flex items-end justify-between gap-3 p-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 min-w-0">
+                  <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-base shrink-0" />
+                  <h3 className="text-3xl font-black leading-none text-white truncate drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">{player.name}</h3>
+                </div>
+                <p className="mt-1 text-xs text-text-secondary truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">{player.realName}</p>
+              </div>
+              <div className="flex gap-3 shrink-0">
+                <div className="text-right">
+                  <p className="text-2xl font-black tabular-nums text-green leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">{player.rating.toFixed(2)}</p>
+                  <p className="mt-0.5 text-[9px] font-bold uppercase tracking-wider text-text-muted">Rating</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-black tabular-nums text-blue-light leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">{player.kd}</p>
+                  <p className="mt-0.5 text-[9px] font-bold uppercase tracking-wider text-text-muted">K/D</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Player info */}
-          <div className="p-5 md:p-6 flex flex-col justify-center">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <TeamLogo src={player.teamLogo} name={player.team} size={28} />
-                <span className="text-xs font-medium text-text-muted uppercase tracking-wider">{player.team}</span>
+          <div className="flex flex-col justify-center p-3 md:p-6 min-w-0">
+            <div className="space-y-3 md:space-y-4">
+              <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                <TeamLogo src={player.teamLogo} name={player.team} size={20} className="md:hidden" />
+                <TeamLogo src={player.teamLogo} name={player.team} size={28} className="hidden md:block" />
+                <span className="text-[11px] md:text-xs font-medium text-text-muted uppercase tracking-wider truncate">{player.team}</span>
               </div>
 
-              <div className="grid w-full items-end gap-2 md:grid-cols-[minmax(145px,190px)_repeat(6,minmax(44px,1fr))]">
+              {/* Desktop: name + 6 stats inline */}
+              <div className="hidden md:grid w-full items-end gap-2 md:grid-cols-[minmax(145px,190px)_repeat(6,minmax(44px,1fr))]">
                 <div className="flex min-w-0 items-center gap-3">
                   <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-lg" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-3xl font-black leading-none group-hover:text-blue-light transition-colors">{player.name}</h3>
+                      <h3 className="text-3xl font-black leading-none group-hover:text-blue-light transition-colors truncate">{player.name}</h3>
                     </div>
-                    <p className="mt-1 text-sm text-text-muted">{player.realName}</p>
+                    <p className="mt-1 text-sm text-text-muted truncate">{player.realName}</p>
                   </div>
                 </div>
 
                 {headlineStats.map((stat) => (
                   <div key={stat.label} className="min-w-0 border-l border-border pl-2">
                     <p className={`text-sm font-black leading-none tabular-nums ${stat.color}`}>{stat.value}</p>
-                    <p className="mt-1 truncate text-[8px] font-bold uppercase tracking-wider text-text-muted">{stat.label}</p>
+                    <p className="mt-1 truncate text-[10px] sm:text-[8px] font-bold uppercase tracking-wider text-text-muted">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Mobile: 4 secondary stats (Rating & K/D já no overlay) */}
+              <div className="md:hidden grid grid-cols-4 gap-2">
+                {headlineStats.filter((s) => s.label !== "Rating" && s.label !== "K/D").map((stat) => (
+                  <div key={stat.label} className="min-w-0 border-l border-border pl-2">
+                    <p className={`text-sm font-black leading-none tabular-nums ${stat.color}`}>{stat.value}</p>
+                    <p className="mt-1 truncate text-[10px] font-bold uppercase tracking-wider text-text-muted">{stat.label}</p>
                   </div>
                 ))}
               </div>
 
               <div>
-                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-text-muted">HLTV awards and trophies</p>
-                <div className="grid gap-2 sm:grid-cols-2">
+                <p className="mb-1.5 md:mb-2 text-[10px] font-black uppercase tracking-widest text-text-muted">HLTV awards and trophies</p>
+                <div className="grid gap-1.5 md:gap-2 grid-cols-1 sm:grid-cols-2">
                   {achievements.map((achievement, i) => {
                     const trophyRating = ratingForAchievement(achievement);
                     return (
-                      <div key={achievement} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-border bg-bg-body/45 px-3 py-2 text-xs font-semibold text-text-secondary">
+                      <div key={achievement} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-border bg-bg-body/45 px-2.5 md:px-3 py-1.5 md:py-2 text-[11px] md:text-xs font-semibold text-text-secondary">
                         <span className={i === 0 ? "text-yellow" : "text-text-muted"}>
                           {i === 0 ? "★" : "•"}
                         </span>
@@ -306,11 +344,11 @@ function ForumDiscussions({ forumThreads }: { forumThreads: ForumThread[] }) {
               <div className="flex items-center gap-4 shrink-0">
                 <div className="flex flex-col items-center">
                   <span className="text-xs font-bold tabular-nums">{thread.replies}</span>
-                  <span className="text-[9px] text-text-muted">replies</span>
+                  <span className="text-[10px] sm:text-[9px] text-text-muted">replies</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="text-xs font-bold tabular-nums text-text-secondary">{(thread.views / 1000).toFixed(1)}k</span>
-                  <span className="text-[9px] text-text-muted">views</span>
+                  <span className="text-[10px] sm:text-[9px] text-text-muted">views</span>
                 </div>
               </div>
             </a>
@@ -512,7 +550,7 @@ function MoreNews({ news }: { news: Awaited<ReturnType<typeof api.news>> }) {
               <div className="p-3">
                 <div className="flex gap-2 mb-1.5">
                   {article.tags.map((tag) => (
-                    <span key={tag} className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-blue/15 text-blue-light">{tag}</span>
+                    <span key={tag} className="rounded px-1.5 py-0.5 text-[10px] sm:text-[9px] font-bold uppercase tracking-wider bg-blue/15 text-blue-light">{tag}</span>
                   ))}
                 </div>
                 <h4 className="text-[13px] font-semibold leading-tight line-clamp-2 mb-1.5">{article.title}</h4>
@@ -588,9 +626,4 @@ export default async function Home() {
       <MoreNews news={news} />
     </>
   );
-}
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

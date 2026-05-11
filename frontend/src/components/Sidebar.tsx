@@ -3,6 +3,7 @@ import TeamLogo from "./TeamLogo";
 import CountryFlag, { LanguageFlag } from "./CountryFlag";
 import StatusPill from "./StatusPill";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 import type { Match, Player, RankedTeam, Stream } from "@/services/types";
 
 function LiveMatches({ liveMatches, upcomingMatches }: { liveMatches: Match[]; upcomingMatches: Match[] }) {
@@ -163,7 +164,7 @@ function TopRanking({ ranking }: { ranking: RankedTeam[] }) {
           );
         })}
       </div>
-      <Link href="/rankings" className="block border-t border-border px-4 py-2.5 text-center text-xs font-semibold text-blue-light hover:text-blue hover:bg-blue-glow transition-all">
+      <Link href="/rankings/teams" className="block border-t border-border px-4 py-2.5 text-center text-xs font-semibold text-blue-light hover:text-blue hover:bg-blue-glow transition-all">
         Full Ranking
       </Link>
     </div>
@@ -284,9 +285,4 @@ export default async function Sidebar() {
       <StreamList streams={streams} />
     </aside>
   );
-}
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

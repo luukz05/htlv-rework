@@ -2,6 +2,7 @@ import TeamLogo from "@/components/TeamLogo";
 import StatusPill from "@/components/StatusPill";
 import Link from "next/link";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 import type { Event, Match, Team } from "@/services/types";
 import { notFound } from "next/navigation";
 
@@ -107,7 +108,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
               {liveOrNext && (
                 <Link
                   href={`/matches/${liveOrNext.id}`}
-                  className={`min-w-[280px] rounded-lg border p-4 transition ${
+                  className={`w-full sm:w-auto sm:min-w-[280px] rounded-lg border p-4 transition ${
                     liveOrNext.status === "live"
                       ? "border-red/40 bg-red/10 animate-live-glow shadow-[0_0_20px_-5px_rgba(239,68,68,0.3)]"
                       : "border-border bg-bg-card/90 hover:border-border-hover hover:bg-bg-card"
@@ -179,7 +180,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                   <p className="text-xs text-text-muted">Visual tournament progression following the Swiss system.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
-                  <label htmlFor="swiss-list-toggle" className="swiss-view-toggle flex cursor-pointer items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary">
+                  <label htmlFor="swiss-list-toggle" className="swiss-view-toggle hidden md:flex cursor-pointer items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary">
                     <span>List view</span>
                     <span className="swiss-view-toggle-track relative h-5 w-9 rounded-full border border-border bg-bg-surface transition">
                       <span className="swiss-view-toggle-thumb absolute left-0.5 top-0.5 h-3.5 w-3.5 rounded-full bg-text-muted transition-transform" />
@@ -198,7 +199,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                 </div>
               </div>
 
-              <div className="overflow-x-auto pb-4 peer-checked:hidden">
+              <div className="block overflow-x-auto pb-4 md:peer-checked:hidden">
                 <div className="swiss-visual-container min-w-[1000px]">
                   {swissBracket.map((round) => {
                     const matches = round.pools.flatMap(p => p.matches);
@@ -225,7 +226,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                                         {match.team1.team && match.team1.team.name !== "TBD" ? (
                                           <TeamLogo src={match.team1.team.logo} name={match.team1.team.name} size={18} className="swiss-visual-team-logo" />
                                         ) : (
-                                          <div className="h-[18px] w-[18px] rounded-full bg-border/20 flex items-center justify-center text-[8px] font-bold text-text-muted">?</div>
+                                          <div className="h-[18px] w-[18px] rounded-full bg-border/20 flex items-center justify-center text-[10px] sm:text-[8px] font-bold text-text-muted">?</div>
                                         )}
                                       </div>
                                     </div>
@@ -236,7 +237,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                                           {match.team1.score}:{match.team2.score}
                                         </span>
                                       ) : (
-                                        <span className="text-[8px] font-black text-text-muted/50 uppercase tracking-tighter">
+                                        <span className="text-[10px] sm:text-[8px] font-black text-text-muted/50 uppercase tracking-tighter">
                                           {match.time || "vs"}
                                         </span>
                                       )}
@@ -247,7 +248,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                                         {match.team2.team && match.team2.team.name !== "TBD" ? (
                                           <TeamLogo src={match.team2.team.logo} name={match.team2.team.name} size={18} className="swiss-visual-team-logo" />
                                         ) : (
-                                          <div className="h-[18px] w-[18px] rounded-full bg-border/20 flex items-center justify-center text-[8px] font-bold text-text-muted">?</div>
+                                          <div className="h-[18px] w-[18px] rounded-full bg-border/20 flex items-center justify-center text-[10px] sm:text-[8px] font-bold text-text-muted">?</div>
                                         )}
                                       </div>
                                       <span className="truncate text-[10px] font-bold text-text-secondary group-hover:text-text-primary transition-colors">{match.team2.team ? getTeamShortName(match.team2.team) : "TBD"}</span>
@@ -277,7 +278,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                 </div>
               </div>
 
-              <div className="hidden overflow-x-auto peer-checked:block">
+              <div className="hidden md:peer-checked:block overflow-x-auto">
                 <div className="min-w-[920px] overflow-hidden rounded-lg border border-border">
                   <div className="grid grid-cols-[46px_1.2fr_repeat(5,minmax(110px,1fr))_72px] border-b border-border bg-bg-surface px-3 py-2 text-[10px] font-black uppercase tracking-wider text-text-muted">
                     <span>Seed</span>
@@ -321,7 +322,8 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                 #swiss-list-toggle:checked ~ div .swiss-view-toggle .swiss-view-toggle-track { border-color: rgba(59,130,246,0.5); background: rgba(59,130,246,0.2); }
                 #swiss-list-toggle:checked ~ .swiss-view-toggle .swiss-view-toggle-thumb,
                 #swiss-list-toggle:checked ~ div .swiss-view-toggle .swiss-view-toggle-thumb { transform: translateX(16px); background: #60a5fa; }
-                .swiss-visual-container { display: flex; gap: 24px; justify-content: space-between; position: relative; padding: 30px 0; min-height: 700px; }
+                .swiss-visual-container { display: flex; gap: 24px; justify-content: space-between; position: relative; padding: 30px 0; min-height: 480px; }
+                @media (min-width: 1024px) { .swiss-visual-container { min-height: 700px } }
                 .swiss-visual-column { flex: 1; display: flex; flex-direction: column; gap: 48px; justify-content: center; min-width: 220px; }
                 .swiss-visual-matchups-wrapper { display: flex; flex-direction: column; gap: 12px; }
                 .swiss-visual-matchups-title { 
@@ -442,7 +444,7 @@ function StatCard({ label, value, className = "" }: { label: string; value: stri
   return (
     <div className="rounded-lg border border-border bg-bg-card p-4 text-center card-glow">
       <p className={`text-sm font-bold ${className}`}>{value}</p>
-      <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-text-muted">{label}</p>
+      <p className="mt-1 text-[10px] sm:text-[9px] font-bold uppercase tracking-wider text-text-muted">{label}</p>
     </div>
   );
 }
@@ -1070,9 +1072,4 @@ function groupBy<T, K extends keyof T>(items: T[], key: K) {
     acc[group].push(item);
     return acc;
   }, {});
-}
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

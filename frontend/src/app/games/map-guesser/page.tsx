@@ -185,9 +185,9 @@ export default function MapGuesserPage() {
   /* ── render ──────────────────────────────────────────── */
 
   return (
-    <main className="mx-auto max-w-[800px] px-5 py-8">
+    <main className="mx-auto max-w-[800px] px-3 py-5 sm:px-5 sm:py-8">
       {/* Breadcrumb */}
-      <div className="mb-6 text-sm text-text-muted">
+      <div className="mb-4 text-sm text-text-muted sm:mb-6">
         <Link href="/" className="hover:text-text-secondary">Home</Link>
         <span className="mx-2">&rsaquo;</span>
         <Link href="/games" className="hover:text-text-secondary">Games</Link>
@@ -195,14 +195,14 @@ export default function MapGuesserPage() {
         <span className="text-text-primary">Map Guesser</span>
       </div>
 
-      <h1 className="text-2xl md:text-3xl font-black mb-6 text-center animate-fade-in-up">
+      <h1 className="text-xl font-black mb-4 text-center animate-fade-in-up sm:text-2xl sm:mb-6 md:text-3xl">
         Map Guesser
       </h1>
 
       {/* ── IDLE SCREEN ──────────────────────────────── */}
       {phase === "idle" && (
-        <div className="flex flex-col items-center gap-6 py-16 animate-fade-in-up">
-          <div className="rounded-xl border border-border bg-bg-card p-10 text-center card-glow max-w-md w-full">
+        <div className="flex flex-col items-center gap-6 py-8 animate-fade-in-up sm:py-16">
+          <div className="rounded-xl border border-border bg-bg-card p-5 text-center card-glow max-w-md w-full sm:p-10">
             <svg
               width="64"
               height="64"
@@ -236,7 +236,7 @@ export default function MapGuesserPage() {
       {(phase === "playing" || phase === "feedback") && game && currentQ && (
         <div className="animate-fade-in-up">
           {/* Progress bar */}
-          <div className="mb-6">
+          <div className="mb-5 sm:mb-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-text-muted">
                 Question {game.current + 1} / {TOTAL_QUESTIONS}
@@ -256,20 +256,20 @@ export default function MapGuesserPage() {
           </div>
 
           {/* Callout card */}
-          <div className="rounded-xl border border-border bg-bg-card p-8 text-center mb-8 card-glow">
-            <p className="text-xs font-bold uppercase tracking-wider text-text-muted mb-2">
+          <div className="rounded-xl border border-border bg-bg-card p-5 text-center mb-5 card-glow sm:p-8 sm:mb-8">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-text-muted mb-2 sm:text-xs">
               Which map has this callout?
             </p>
-            <h2 className="text-3xl md:text-4xl font-black text-blue-light mb-3">
+            <h2 className="text-2xl font-black text-blue-light mb-2 sm:text-3xl sm:mb-3 md:text-4xl">
               {currentQ.callout}
             </h2>
-            <p className="text-sm text-text-secondary max-w-lg mx-auto">
+            <p className="text-[13px] text-text-secondary max-w-lg mx-auto sm:text-sm">
               {currentQ.description}
             </p>
           </div>
 
           {/* Options grid 2x2 */}
-          <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto">
+          <div className="grid grid-cols-2 gap-2 max-w-lg mx-auto sm:gap-4">
             {currentQ.options.map((opt) => {
               let borderClass = "border-border hover:border-blue/50";
               let bgClass =
@@ -292,7 +292,7 @@ export default function MapGuesserPage() {
                   key={opt}
                   disabled={phase === "feedback"}
                   onClick={() => handleAnswer(opt)}
-                  className={`rounded-xl border p-5 text-center transition-all ${borderClass} ${bgClass}`}
+                  className={`rounded-xl border p-3 text-center transition-all sm:p-5 ${borderClass} ${bgClass}`}
                 >
                   <span className="text-sm font-bold">{opt}</span>
 

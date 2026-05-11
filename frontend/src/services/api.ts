@@ -100,7 +100,6 @@ export const api = {
   streams: () => apiGet<Stream[]>("/streams"),
   galleries: () => apiGet<Array<{ id: number; title: string; category: string; images: number; image: string; date: string }>>("/galleries"),
   playerOfTheWeek: () => apiGet<PlayerHighlight>("/players/of-the-week"),
-  legends: () => apiGet<unknown[]>("/legends"),
   fantasyLeaderboard: () => apiGet<Array<{ rank: number; name: string; points: number; team: string; change: string }>>("/fantasy/leaderboard"),
   fantasyPlayers: () => apiGet<Array<Player & { fantasyPoints: number; price: string; owned: string }>>("/fantasy/players"),
   bookmakers: () => apiGet<string[]>("/betting/bookmakers"),

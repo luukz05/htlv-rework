@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 
 export const metadata = {
   title: "Events - Schedule and Prize Pools",
@@ -96,9 +97,4 @@ export default async function EventsPage() {
       </section>
     </main>
   );
-}
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

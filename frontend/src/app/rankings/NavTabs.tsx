@@ -14,14 +14,7 @@ export default function RankingsNavTabs() {
   return (
     <div className="flex gap-0 mb-8 border-b border-border overflow-x-auto">
       {tabs.map((tab) => {
-        let isActive = false;
-        if (tab.href === "/rankings") {
-          // Active for /rankings, /rankings/, or any rankings route outside the other tabs.
-          isActive = pathname === "/rankings" || pathname === "/rankings/" || 
-            (pathname.startsWith("/rankings") && !pathname.includes("/players"));
-        } else {
-          isActive = pathname.startsWith(tab.href);
-        }
+        const isActive = pathname.startsWith(tab.href);
 
         return (
           <Link

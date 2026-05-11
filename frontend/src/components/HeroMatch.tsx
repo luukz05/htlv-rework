@@ -2,6 +2,7 @@
 import TeamLogo from "./TeamLogo";
 import StatusPill from "./StatusPill";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 import { mapBackgrounds, mapIcons, getMapAsset } from "@/lib/maps";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -111,9 +112,4 @@ export default async function HeroMatch() {
       </div>
     </section>
   );
-}
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

@@ -196,9 +196,9 @@ export default function GuessLineupPage() {
   /* ── render ──────────────────────────────────────────── */
 
   return (
-    <main className="mx-auto max-w-[900px] px-5 py-8">
+    <main className="mx-auto max-w-[900px] px-3 py-5 sm:px-5 sm:py-8">
       {/* Breadcrumb */}
-      <div className="mb-6 text-sm text-text-muted">
+      <div className="mb-4 text-sm text-text-muted sm:mb-6">
         <Link href="/" className="hover:text-text-secondary">Home</Link>
         <span className="mx-2">&rsaquo;</span>
         <Link href="/games" className="hover:text-text-secondary">Games</Link>
@@ -206,14 +206,14 @@ export default function GuessLineupPage() {
         <span className="text-text-primary">Guess the Lineup</span>
       </div>
 
-      <h1 className="text-2xl md:text-3xl font-black mb-6 text-center animate-fade-in-up">
+      <h1 className="text-xl font-black mb-4 text-center animate-fade-in-up sm:text-2xl sm:mb-6 md:text-3xl">
         Guess the Lineup
       </h1>
 
       {/* ── START SCREEN ─────────────────────────────── */}
       {!game && (
-        <div className="flex flex-col items-center gap-6 py-16 animate-fade-in-up">
-          <div className="rounded-xl border border-border bg-bg-card p-10 text-center card-glow max-w-md w-full">
+        <div className="flex flex-col items-center gap-6 py-8 animate-fade-in-up sm:py-16">
+          <div className="rounded-xl border border-border bg-bg-card p-5 text-center card-glow max-w-md w-full sm:p-10">
             <svg
               width="64"
               height="64"
@@ -267,25 +267,25 @@ export default function GuessLineupPage() {
           </div>
 
           {/* Team display */}
-          <div className="flex flex-col items-center mb-8">
+          <div className="flex flex-col items-center mb-5 sm:mb-8">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={roster.teamLogo}
               alt={roster.teamName}
-              className="w-24 h-24 object-contain mb-3"
+              className="w-16 h-16 object-contain mb-2 sm:w-24 sm:h-24 sm:mb-3"
             />
-            <h2 className="text-xl font-black">{roster.teamName}</h2>
-            <p className="text-xs text-text-muted mt-1">
+            <h2 className="text-lg font-black sm:text-xl">{roster.teamName}</h2>
+            <p className="text-[11px] text-text-muted mt-1 sm:text-xs">
               Name all 5 players on this roster
             </p>
           </div>
 
           {/* Player slots */}
-          <div className="grid grid-cols-5 gap-3 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-5 sm:gap-3 sm:mb-8">
             {roster.players.map((player, i) => (
               <div
                 key={i}
-                className={`relative flex flex-col items-center justify-center rounded-xl border p-4 min-h-[100px] transition-all duration-300 ${
+                className={`relative flex flex-col items-center justify-center rounded-xl border p-3 min-h-[80px] transition-all duration-300 sm:p-4 sm:min-h-[100px] ${
                   game.found[i]
                     ? "border-green/40 bg-green/10"
                     : "border-border bg-bg-card"
@@ -375,7 +375,7 @@ export default function GuessLineupPage() {
 
           {/* End screen */}
           {game.phase === "ended" && (
-            <div className="rounded-xl border border-border bg-bg-card p-8 text-center card-glow animate-scale-in max-w-md mx-auto">
+            <div className="rounded-xl border border-border bg-bg-card p-5 text-center card-glow animate-scale-in max-w-md mx-auto sm:p-8">
               <h3 className="text-xl font-black mb-2">
                 {game.found.every(Boolean) ? "Perfect!" : "Time's Up!"}
               </h3>

@@ -1,5 +1,6 @@
 import PlayerDetailClient from "./PlayerDetailClient";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 import { notFound } from "next/navigation";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -30,9 +31,4 @@ export default async function PlayerDetailPage({ params }: { params: Promise<{ i
       <PlayerDetailClient player={p} />
     </>
   );
-}
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

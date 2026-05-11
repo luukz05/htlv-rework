@@ -26,6 +26,8 @@ export default function ResultsClient({ results }: { results: Match[] }) {
   const [mapFilter, setMapFilter] = useState("all");
   const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("all");
   const [openFilter, setOpenFilter] = useState<string | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const activeFilterCount = (eventFilter !== "all" ? 1 : 0) + (mapFilter !== "all" ? 1 : 0) + (periodFilter !== "all" ? 1 : 0);
 
   const eventOptions = useMemo(() => getUniqueOptions(results.map((match) => match.event)), [results]);
   const mapOptions = useMemo(() => getUniqueOptions(results.flatMap((match) => getMatchMaps(match).map((item) => item.map))), [results]);
@@ -44,36 +46,64 @@ export default function ResultsClient({ results }: { results: Match[] }) {
 
   return (
     <>
-      <div className={`mb-8 grid gap-3 rounded-xl border border-border bg-bg-card/70 p-4 sm:grid-cols-3 relative ${openFilter ? "z-50" : "z-10"}`}>
-        <FilterDropdown
-          id="championship"
-          label="Championship"
-          value={eventFilter}
-          options={[{ label: "All championships", value: "all" }, ...eventOptions.map((event) => ({ label: event, value: event }))]}
-          isOpen={openFilter === "championship"}
-          onOpenChange={(isOpen) => setOpenFilter(isOpen ? "championship" : null)}
-          onChange={setEventFilter}
-        />
+      <div className={`mb-8 rounded-xl border border-border bg-bg-card/70 p-3 sm:p-4 relative ${openFilter ? "z-50" : "z-10"}`}>
+        <button
+          type="button"
+          onClick={() => setFiltersOpen((open) => !open)}
+          aria-expanded={filtersOpen}
+          className="flex w-full items-center justify-between gap-2 text-left sm:hidden"
+        >
+          <span className="flex items-center gap-2 text-sm font-bold text-text-primary">
+            Filters
+            {activeFilterCount > 0 && (
+              <span className="rounded-full bg-blue-light/15 px-2 py-0.5 text-[10px] font-black tabular-nums text-blue-light">
+                {activeFilterCount}
+              </span>
+            )}
+          </span>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            className={`shrink-0 text-text-muted transition-transform duration-200 ${filtersOpen ? "rotate-180" : ""}`}
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+        <div className={`${filtersOpen ? "mt-3 grid" : "hidden"} gap-3 sm:mt-0 sm:grid sm:grid-cols-3`}>
+          <FilterDropdown
+            id="championship"
+            label="Championship"
+            value={eventFilter}
+            options={[{ label: "All championships", value: "all" }, ...eventOptions.map((event) => ({ label: event, value: event }))]}
+            isOpen={openFilter === "championship"}
+            onOpenChange={(isOpen) => setOpenFilter(isOpen ? "championship" : null)}
+            onChange={setEventFilter}
+          />
 
-        <FilterDropdown
-          id="map"
-          label="Map"
-          value={mapFilter}
-          options={[{ label: "All maps", value: "all" }, ...mapOptions.map((map) => ({ label: map, value: map }))]}
-          isOpen={openFilter === "map"}
-          onOpenChange={(isOpen) => setOpenFilter(isOpen ? "map" : null)}
-          onChange={setMapFilter}
-        />
+          <FilterDropdown
+            id="map"
+            label="Map"
+            value={mapFilter}
+            options={[{ label: "All maps", value: "all" }, ...mapOptions.map((map) => ({ label: map, value: map }))]}
+            isOpen={openFilter === "map"}
+            onOpenChange={(isOpen) => setOpenFilter(isOpen ? "map" : null)}
+            onChange={setMapFilter}
+          />
 
-        <FilterDropdown
-          id="period"
-          label="Period"
-          value={periodFilter}
-          options={periodFilters}
-          isOpen={openFilter === "period"}
-          onOpenChange={(isOpen) => setOpenFilter(isOpen ? "period" : null)}
-          onChange={(value) => setPeriodFilter(value as PeriodFilter)}
-        />
+          <FilterDropdown
+            id="period"
+            label="Period"
+            value={periodFilter}
+            options={periodFilters}
+            isOpen={openFilter === "period"}
+            onOpenChange={(isOpen) => setOpenFilter(isOpen ? "period" : null)}
+            onChange={(value) => setPeriodFilter(value as PeriodFilter)}
+          />
+        </div>
       </div>
 
       {filteredResults.length === 0 ? (
@@ -198,7 +228,7 @@ function ResultRow({ match, index }: { match: Match; index: number }) {
   return (
     <Link
       href={`/matches/${match.id}`}
-      className="group block relative min-h-[234px] rounded-xl border border-border overflow-hidden bg-cover bg-center transition-all hover:-translate-y-0.5 hover:border-border-hover cursor-pointer card-glow animate-fade-in-up sm:h-[212px] sm:min-h-[212px]"
+      className="group block relative min-h-[170px] rounded-xl border border-border overflow-hidden bg-cover bg-center transition-all hover:-translate-y-0.5 hover:border-border-hover cursor-pointer card-glow animate-fade-in-up sm:h-[212px] sm:min-h-[212px]"
       style={{
         animationDelay: `${index * 0.04}s`,
         backgroundImage: `
@@ -211,28 +241,28 @@ function ResultRow({ match, index }: { match: Match; index: number }) {
       <div className="absolute left-0 top-0 bottom-0 w-1.5" style={{ background: t1Won ? match.team1.color : `${match.team1.color}88` }} />
       <div className="absolute right-0 top-0 bottom-0 w-1.5" style={{ background: t2Won ? match.team2.color : `${match.team2.color}88` }} />
 
-      <div className="relative grid min-h-[234px] grid-cols-[minmax(0,1fr)] items-center gap-4 px-5 py-6 sm:h-full sm:min-h-0 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:px-7">
-        <div className="flex min-h-24 min-w-0 items-center gap-4 sm:min-h-[112px] sm:gap-5">
-          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center sm:h-24 sm:w-24">
-            <TeamLogo src={match.team1.logo} name={match.team1.name} size={96} className={`h-20 w-20 transition-transform group-hover:scale-105 sm:h-24 sm:w-24 ${t1Won ? "" : "opacity-55 grayscale"}`} />
+      <div className="relative grid h-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-3 py-4 sm:gap-4 sm:px-7 sm:py-6">
+        <div className="flex min-w-0 flex-col items-center gap-1 sm:flex-row sm:items-center sm:gap-5 sm:min-h-[112px]">
+          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center sm:h-24 sm:w-24">
+            <TeamLogo src={match.team1.logo} name={match.team1.name} size={96} className={`h-12 w-12 transition-transform group-hover:scale-105 sm:h-24 sm:w-24 ${t1Won ? "" : "opacity-55 grayscale"}`} />
           </div>
-          <div className="min-w-0">
-            <p className={`truncate text-xl font-black sm:text-2xl ${t1Won ? "text-white" : "text-white/55"}`}>{match.team1.name}</p>
-            <div className="mt-1 flex items-center gap-2">
-              <span className={`text-[11px] font-black uppercase tracking-widest ${t1Won ? "text-white" : "text-white/55"}`}>{match.team1.shortname}</span>
+          <div className="min-w-0 text-center sm:text-left">
+            <p className={`hidden truncate text-base font-black sm:block sm:text-2xl ${t1Won ? "text-white" : "text-white/55"}`}>{match.team1.name}</p>
+            <div className="flex items-center justify-center gap-2 sm:mt-1 sm:justify-start">
+              <span className={`text-[9px] font-black uppercase tracking-widest sm:text-[11px] ${t1Won ? "text-white" : "text-white/55"}`}>{match.team1.shortname}</span>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={CT_ICON} alt="CT" title="CT side" className="h-5 w-5 object-contain opacity-85" />
+              <img src={CT_ICON} alt="CT" title="CT side" className="hidden h-5 w-5 object-contain opacity-85 sm:block" />
             </div>
           </div>
         </div>
 
-        <div className="flex min-h-[168px] min-w-[220px] flex-col items-center justify-center gap-2 px-5 py-2 sm:min-h-[176px] sm:w-[290px]">
-          <div className="flex items-center gap-4">
-            <span className={`text-4xl font-black tabular-nums sm:text-5xl ${t1Won ? "text-white" : "text-white/50"}`}>{match.score1}</span>
-            <span className="text-sm text-white/50">vs</span>
-            <span className={`text-4xl font-black tabular-nums sm:text-5xl ${t2Won ? "text-white" : "text-white/50"}`}>{match.score2}</span>
+        <div className="flex flex-col items-center justify-center gap-1.5 px-2 py-1 sm:min-h-[176px] sm:w-[290px] sm:gap-2 sm:px-5 sm:py-2">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <span className={`text-2xl font-black tabular-nums sm:text-5xl ${t1Won ? "text-white" : "text-white/50"}`}>{match.score1}</span>
+            <span className="text-xs text-white/50 sm:text-sm">vs</span>
+            <span className={`text-2xl font-black tabular-nums sm:text-5xl ${t2Won ? "text-white" : "text-white/50"}`}>{match.score2}</span>
           </div>
-          <div className="flex max-w-[260px] flex-wrap items-center justify-center gap-1.5">
+          <div className="hidden sm:flex max-w-[260px] flex-wrap items-center justify-center gap-1.5">
             <span className="text-[10px] font-black uppercase tracking-wider text-text-secondary">{match.event}</span>
             <span className="text-[10px] text-text-muted">·</span>
             <span className="text-[10px] font-bold text-text-secondary">{match.format}</span>
@@ -245,19 +275,21 @@ function ResultRow({ match, index }: { match: Match; index: number }) {
           </div>
           {mapPool.length > 0 && (
             <div className={[
-              "flex flex-nowrap items-center justify-center gap-2 overflow-hidden bg-black/24 ring-1 ring-white/10",
-              hasSingleMap ? "h-[72px] w-[72px] rounded-full p-3" : "min-h-11 rounded-full px-4 py-2",
+              "flex flex-nowrap items-center justify-center gap-1.5 overflow-hidden bg-black/24 ring-1 ring-white/10 sm:gap-2",
+              hasSingleMap
+                ? "h-[48px] w-[48px] rounded-full p-1.5 sm:h-[72px] sm:w-[72px] sm:p-3"
+                : "min-h-9 rounded-full px-2 py-1 sm:min-h-11 sm:px-4 sm:py-2",
             ].join(" ")}>
               {mapPool.map((map) => {
                 const icon = getMapAsset(mapIcons, map.map);
                 if (!icon) return null;
 
                 return (
-                  <span key={map.map} className="relative flex w-10 shrink-0 flex-col items-center gap-0.5">
+                  <span key={map.map} className="relative flex w-7 shrink-0 flex-col items-center gap-0.5 sm:w-10">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={icon} alt={map.map} title={map.map} className="h-9 w-9 object-contain opacity-90 transition-all sm:h-10 sm:w-10" />
+                    <img src={icon} alt={map.map} title={map.map} className="h-6 w-6 object-contain opacity-90 transition-all sm:h-10 sm:w-10" />
                     {map.score1 !== undefined && map.score2 !== undefined && (
-                      <span className="rounded px-1.5 py-0.5 text-[10px] font-light leading-none text-white/50 tabular-nums">
+                      <span className="rounded px-1 py-0.5 text-[9px] font-light leading-none text-white/60 tabular-nums sm:px-1.5 sm:text-[10px] sm:text-white/50">
                         {map.score1}-{map.score2}
                       </span>
                     )}
@@ -266,22 +298,37 @@ function ResultRow({ match, index }: { match: Match; index: number }) {
               })}
             </div>
           )}
-          <StatusPill status="finished" />
+          <div className="hidden sm:block">
+            <StatusPill status="finished" />
+          </div>
         </div>
 
-        <div className="flex min-h-24 min-w-0 items-center justify-end gap-4 sm:min-h-[112px] sm:gap-5">
-          <div className="min-w-0 text-right">
-            <p className={`truncate text-xl font-black sm:text-2xl ${t2Won ? "text-white" : "text-white/55"}`}>{match.team2.name}</p>
-            <div className="mt-1 flex items-center justify-end gap-2">
+        <div className="flex min-w-0 flex-col-reverse items-center gap-1 sm:flex-row sm:items-center sm:justify-end sm:gap-5 sm:min-h-[112px]">
+          <div className="min-w-0 text-center sm:text-right">
+            <p className={`hidden truncate text-base font-black sm:block sm:text-2xl ${t2Won ? "text-white" : "text-white/55"}`}>{match.team2.name}</p>
+            <div className="flex items-center justify-center gap-2 sm:mt-1 sm:justify-end">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={TR_ICON} alt="TR" title="TR side" className="h-5 w-5 object-contain opacity-85" />
-              <span className={`text-[11px] font-black uppercase tracking-widest ${t2Won ? "text-white" : "text-white/55"}`}>{match.team2.shortname}</span>
+              <img src={TR_ICON} alt="TR" title="TR side" className="hidden h-5 w-5 object-contain opacity-85 sm:block" />
+              <span className={`text-[9px] font-black uppercase tracking-widest sm:text-[11px] ${t2Won ? "text-white" : "text-white/55"}`}>{match.team2.shortname}</span>
             </div>
           </div>
-          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center sm:h-24 sm:w-24">
-            <TeamLogo src={match.team2.logo} name={match.team2.name} size={96} className={`h-20 w-20 transition-transform group-hover:scale-105 sm:h-24 sm:w-24 ${t2Won ? "" : "opacity-55 grayscale"}`} />
+          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center sm:h-24 sm:w-24">
+            <TeamLogo src={match.team2.logo} name={match.team2.name} size={96} className={`h-12 w-12 transition-transform group-hover:scale-105 sm:h-24 sm:w-24 ${t2Won ? "" : "opacity-55 grayscale"}`} />
           </div>
         </div>
+      </div>
+
+      {/* Mobile-only footer: event + format */}
+      <div className="sm:hidden flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 border-t border-white/10 bg-black/30 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-text-secondary">
+        <span className="break-words">{match.event}</span>
+        <span className="text-text-muted">&middot;</span>
+        <span>{match.format}</span>
+        {primaryMap && (
+          <>
+            <span className="text-text-muted">&middot;</span>
+            <span>{primaryMap}</span>
+          </>
+        )}
       </div>
     </Link>
   );

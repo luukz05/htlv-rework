@@ -89,12 +89,12 @@ function TeamLineupStrip({ team, rank, players, selectedIndex, onSelect, align =
         </div>
         {rank && (
           <div className="rounded border border-border bg-bg-surface px-2.5 py-1 text-center">
-            <p className="text-[9px] font-bold uppercase tracking-wider text-text-muted">World rank</p>
+            <p className="text-[10px] sm:text-[9px] font-bold uppercase tracking-wider text-text-muted">World rank</p>
             <p className="text-sm font-black text-blue-light">#{rank}</p>
           </div>
         )}
       </div>
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-5 gap-1 sm:gap-2">
         {players.map((player, index) => (
           <PlayerButton
             key={`${team.shortname}-${player.nickname}`}
@@ -117,7 +117,7 @@ function PlayerButton({ player, selected, onClick }: { player: HeadToHeadPlayer;
         selected ? "border-blue-light shadow-[0_0_0_1px_rgba(56,189,248,0.3)]" : "border-border hover:border-border-hover hover:bg-bg-card-hover"
       }`}
     >
-      <div className="relative mx-auto h-28 w-full overflow-hidden bg-black/20 sm:h-32 lg:h-36">
+      <div className="relative mx-auto h-16 w-full overflow-hidden bg-black/20 sm:h-32 lg:h-36">
         <Image
   src={player.image?.trim() || DEFAULT_PLAYER_IMAGE}
   alt={player.nickname}
@@ -126,12 +126,12 @@ function PlayerButton({ player, selected, onClick }: { player: HeadToHeadPlayer;
   className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
 />
       </div>
-      <div className="px-1.5 py-2">
-        <div className="flex min-w-0 items-center justify-center gap-1.5">
-          {player.country && <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-sm" />}
-          <p className="truncate text-xs font-black text-text-primary">{player.nickname}</p>
+      <div className="px-1 py-1.5 sm:px-2 sm:py-2">
+        <div className="flex min-w-0 items-center justify-center gap-1">
+          {player.country && <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-xs sm:text-sm" />}
+          <p className="whitespace-nowrap text-[11px] font-black text-text-primary sm:text-xs">{player.nickname}</p>
         </div>
-        <p className="mt-0.5 truncate text-[10px] text-text-muted">{player.role || "Player"}</p>
+        <p className="mt-0.5 whitespace-nowrap text-[9px] text-text-muted sm:text-[10px]">{player.role || "Player"}</p>
       </div>
     </button>
   );

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Roboto } from "next/font/google";
 import { DEFAULT_TITLE, SITE_NAME } from "@/lib/page-title";
 import Header from "@/components/Header";
@@ -20,6 +20,13 @@ export const metadata: Metadata = {
   },
   description:
     "Modern redesign of HLTV.org - the home of competitive Counter-Strike. News, matches, stats, rankings.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0d1117",
 };
 
 export default function RootLayout({

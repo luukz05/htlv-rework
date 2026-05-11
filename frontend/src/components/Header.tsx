@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import TeamLogo from "./TeamLogo";
@@ -116,7 +117,7 @@ function RibbonGroup({
 }) {
   const content = (
     <>
-      <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">{label}</span>
+      <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">{label}</span>
       {children}
     </>
   );
@@ -195,13 +196,13 @@ function DataRibbon() {
 
   return (
     <div className="border-t border-border/70 bg-bg-body/80 backdrop-blur-md">
-      <div className="data-ribbon-scroll mx-auto flex h-[60px] max-w-[1460px] items-center gap-3 overflow-x-auto px-4 py-2 sm:px-5">
+      <div className="data-ribbon-scroll scroll-fade-right mx-auto flex h-[60px] max-w-[1460px] items-center gap-3 overflow-x-auto px-4 py-2 sm:px-5">
         <div className="flex h-11 min-w-max shrink-0 items-center gap-2">
-          <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Top 5 global</span>
+          <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Top 5 global</span>
           {featuredTeams.map((team) => (
             <Link
               key={team.name}
-              href={team.id ? `/teams/${team.id}` : "/rankings"}
+              href={team.id ? `/teams/${team.id}` : "/rankings/teams"}
               title={`${team.rank}. ${team.name}`}
               className="group flex items-center gap-1 transition-colors"
             >
@@ -228,7 +229,7 @@ function DataRibbon() {
         </RibbonGroup>
 
         <div className="grid h-11 min-w-[360px] shrink-0 grid-cols-[auto_repeat(5,minmax(44px,1fr))] items-center gap-2">
-          <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Top 5 players</span>
+          <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Top 5 players</span>
           {featuredPlayers.map((player) => (
             <Link key={player.rank} href="/rankings/players" title={`${player.rank}. ${player.name}`} className="group flex min-w-0 items-center justify-center gap-1">
               <span className="text-[10px] font-black tabular-nums text-text-muted">{player.rank}</span>
@@ -238,7 +239,7 @@ function DataRibbon() {
         </div>
 
         <Link href={`/events/${mainEvent.id}`} className="flex h-11 min-w-max flex-1 items-center justify-end gap-2 transition-colors hover:text-text-primary">
-          <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Evento do mes</span>
+          <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Evento do mes</span>
           <span className="max-w-40 truncate text-xs font-bold text-text-primary">{mainEvent.name}</span>
           <span className="rounded bg-yellow/15 px-1.5 py-0.5 text-[10px] font-black uppercase text-yellow">{mainEvent.tier}-Tier</span>
           <span className="hidden text-[10px] font-bold uppercase tracking-wider text-text-muted lg:inline">{mainEvent.location}</span>
@@ -251,12 +252,35 @@ function DataRibbon() {
 export default function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
-    if (href === "/rankings") return pathname === "/rankings" || pathname === "/rankings/";
     return pathname.startsWith(href);
   };
+
+  useEffect(() => {
+    setPortalTarget(document.body);
+  }, []);
+
+  useEffect(() => {
+    if (mobileOpen) {
+      const previous = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      const handleKey = (e: KeyboardEvent) => {
+        if (e.key === "Escape") setMobileOpen(false);
+      };
+      window.addEventListener("keydown", handleKey);
+      return () => {
+        document.body.style.overflow = previous;
+        window.removeEventListener("keydown", handleKey);
+      };
+    }
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   return (
     <>
@@ -283,7 +307,7 @@ export default function Header() {
                 >
                   {link.label}
                   {link.isNew && (
-                    <span className="ml-1 text-[8px] font-black uppercase bg-red text-white px-1 py-0.5 rounded-full leading-none">
+                    <span className="ml-1 text-[10px] sm:text-[8px] font-black uppercase bg-red text-white px-1 py-0.5 rounded-full leading-none">
                       NEW
                     </span>
                   )}
@@ -295,11 +319,11 @@ export default function Header() {
             })}
           </nav>
 
-          <div className="flex items-center gap-3 ml-auto">
+          <div className="flex items-center gap-2 sm:gap-3 ml-auto">
             <SearchBar />
             <Link
               href="/login"
-              className="rounded-lg bg-blue px-3.5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-light"
+              className="rounded-lg bg-blue px-3 sm:px-3.5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-light"
             >
               Login
             </Link>
@@ -309,28 +333,66 @@ export default function Header() {
             >
               Sign Up
             </Link>
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="text-text-secondary lg:hidden">
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              className="relative z-[210] flex h-10 w-10 items-center justify-center rounded-lg text-text-primary transition-colors hover:bg-bg-card lg:hidden"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-nav-drawer"
+            >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 12h18M3 6h18M3 18h18" />
+                {mobileOpen ? (
+                  <path d="M18 6 6 18M6 6l12 12" />
+                ) : (
+                  <path d="M3 12h18M3 6h18M3 18h18" />
+                )}
               </svg>
             </button>
           </div>
         </div>
-        <DataRibbon />
+        <div className="hidden md:block">
+          <DataRibbon />
+        </div>
       </header>
 
-      {mobileOpen && (
-        <div className="fixed inset-0 z-[200] bg-black/50" onClick={() => setMobileOpen(false)}>
+      {portalTarget && createPortal(
+        <div
+          id="mobile-nav-drawer"
+          role="dialog"
+          aria-modal="true"
+          aria-hidden={!mobileOpen}
+          className={`fixed inset-0 z-[250] lg:hidden ${mobileOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+          style={{ height: "100dvh" }}
+        >
+          <button
+            type="button"
+            aria-label="Close menu"
+            tabIndex={mobileOpen ? 0 : -1}
+            onClick={() => setMobileOpen(false)}
+            className={`absolute inset-0 cursor-default bg-black/60 backdrop-blur-sm transition-opacity duration-200 ${
+              mobileOpen ? "opacity-100" : "opacity-0"
+            }`}
+          />
           <div
-            className="absolute right-0 top-0 bottom-0 w-64 bg-bg-surface border-l border-border p-5 overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+            className={`absolute right-0 top-0 bottom-0 flex w-72 max-w-[85vw] flex-col bg-bg-surface border-l border-border shadow-2xl shadow-black/50 transition-transform duration-200 ease-out ${
+              mobileOpen ? "translate-x-0" : "translate-x-full"
+            }`}
           >
-            <button onClick={() => setMobileOpen(false)} className="mb-4 ml-auto flex text-text-muted">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 6 6 18M6 6l12 12" />
-              </svg>
-            </button>
-            <nav className="flex flex-col gap-3">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+              <span className="text-[11px] font-black uppercase tracking-widest text-text-muted">Menu</span>
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close menu"
+                className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-card transition-colors"
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
               {navLinks.map((link) => {
                 if (link.children) {
                   return (
@@ -344,10 +406,10 @@ export default function Header() {
                             key={child.href}
                             href={child.href}
                             onClick={() => setMobileOpen(false)}
-                            className={`rounded-lg px-3 py-2 text-sm font-medium ${
+                            className={`rounded-lg px-3 py-2.5 text-sm font-medium ${
                               isActive(child.href)
-                                ? "text-blue-light bg-blue-glow"
-                                : "text-text-secondary hover:text-text-primary"
+                                ? "text-blue-light bg-blue/10"
+                                : "text-text-secondary hover:text-text-primary hover:bg-bg-card"
                             }`}
                           >
                             {child.label}
@@ -363,24 +425,25 @@ export default function Header() {
                     key={link.label}
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className={`rounded-lg px-3 py-2 text-sm font-medium flex items-center gap-2 ${
+                    className={`rounded-lg px-3 py-2.5 text-sm font-medium flex items-center gap-2 ${
                       isActive(link.href)
-                        ? "text-blue-light bg-blue-glow"
+                        ? "text-blue-light bg-blue/10"
                         : "text-text-primary hover:bg-bg-card"
                     }`}
                   >
                     {link.label}
                     {link.isNew && (
-                      <span className="text-[8px] font-black uppercase bg-red text-white px-1.5 py-0.5 rounded-full leading-none">
+                      <span className="text-[10px] sm:text-[8px] font-black uppercase bg-red text-white px-1.5 py-0.5 rounded-full leading-none">
                         NEW
                       </span>
                     )}
                   </Link>
                 );
               })}
-            </nav>
-          </div>
+          </nav>
         </div>
+      </div>,
+      portalTarget,
       )}
     </>
   );

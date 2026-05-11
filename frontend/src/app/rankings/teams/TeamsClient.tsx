@@ -106,7 +106,7 @@ export default function TeamsClient({ initialTeams }: TeamsClientProps) {
 
   const StatHeader = ({ label, defKey, sortKey, align = "center" }: { label: string; defKey: keyof typeof STAT_DEFINITIONS; sortKey: string; align?: "left" | "center" | "right" }) => (
     <th 
-      className={`py-2 px-2 text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 transition-colors ${align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"}`} 
+      className={`py-2 px-2 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 transition-colors ${align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"}`} 
       onClick={() => requestSort(sortKey as any)}
     >
       <div className={`flex items-center gap-1 ${align === "center" ? "justify-center" : align === "right" ? "justify-end" : ""}`}>
@@ -124,9 +124,15 @@ export default function TeamsClient({ initialTeams }: TeamsClientProps) {
       {fixedTop3.length >= 3 && (
         <section className="animate-fade-in-up relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-            <PodiumCard team={fixedTop3[1]} rank={2} delay="delay-2" />
-            <PodiumCard team={fixedTop3[0]} rank={1} delay="delay-1" isHero />
-            <PodiumCard team={fixedTop3[2]} rank={3} delay="delay-3" />
+            <div className="order-2 md:order-1">
+              <PodiumCard team={fixedTop3[1]} rank={2} delay="delay-2" />
+            </div>
+            <div className="order-1 md:order-2">
+              <PodiumCard team={fixedTop3[0]} rank={1} delay="delay-1" isHero />
+            </div>
+            <div className="order-3">
+              <PodiumCard team={fixedTop3[2]} rank={3} delay="delay-3" />
+            </div>
           </div>
         </section>
       )}
@@ -134,30 +140,65 @@ export default function TeamsClient({ initialTeams }: TeamsClientProps) {
       {/* Main Table Section */}
       <section className="animate-fade-in-up delay-2 relative z-30">
         <div className="rounded-xl border border-border bg-bg-card card-glow">
-          <div className="overflow-visible">
+          <div className="table-scroll">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-bg-body/50 border-b border-border">
-                  <th className="py-2 px-3 text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 rounded-tl-xl" onClick={() => requestSort("rank")}>
+                  <th className="py-2 px-3 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 rounded-tl-xl" onClick={() => requestSort("rank")}>
                     <div className="flex items-center gap-1">Rank <SortIcon column="rank" /></div>
                   </th>
-                  <th className="py-2 px-3 text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5" onClick={() => requestSort("name")}>
+                  <th className="py-2 px-3 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5" onClick={() => requestSort("name")}>
                     <div className="flex items-center gap-1">Team <SortIcon column="name" /></div>
                   </th>
                   <StatHeader label="Points" defKey="points" sortKey="points" />
-                  <th className="py-2 px-2 text-[9px] font-black text-text-muted uppercase tracking-wider text-center">
+                  <th className="hidden md:table-cell py-2 px-2 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider text-center">
                     <div className="flex items-center justify-center gap-1">
                       <Tooltip content={STAT_DEFINITIONS.vrs}>
                         <span className="border-b border-dotted border-text-muted/30 cursor-help">VRS</span>
                       </Tooltip>
                     </div>
                   </th>
-                  <StatHeader label="Win %" defKey="winRate" sortKey="overallWinRate" />
-                  <StatHeader label="Maps" defKey="mapsPlayed" sortKey="totalMapsPlayed" />
-                  <StatHeader label="Peak" defKey="peakRank" sortKey="peakRanking" />
-                  <StatHeader label="Top 5 Wks" defKey="top5Weeks" sortKey="weeksInTop5" />
-                  <StatHeader label="Top 10 Wks" defKey="top10Weeks" sortKey="weeksInTop10" />
-                  <th className="py-2 px-4 text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 text-right rounded-tr-xl" onClick={() => requestSort("majorsWon")}>
+                  <th className="hidden sm:table-cell py-2 px-2 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 transition-colors text-center" onClick={() => requestSort("overallWinRate" as any)}>
+                    <div className="flex items-center justify-center gap-1">
+                      <Tooltip content={STAT_DEFINITIONS.winRate}>
+                        <span className="border-b border-dotted border-text-muted/30 cursor-help">Win %</span>
+                      </Tooltip>
+                      <SortIcon column="overallWinRate" />
+                    </div>
+                  </th>
+                  <th className="hidden md:table-cell py-2 px-2 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 transition-colors text-center" onClick={() => requestSort("totalMapsPlayed" as any)}>
+                    <div className="flex items-center justify-center gap-1">
+                      <Tooltip content={STAT_DEFINITIONS.mapsPlayed}>
+                        <span className="border-b border-dotted border-text-muted/30 cursor-help">Maps</span>
+                      </Tooltip>
+                      <SortIcon column="totalMapsPlayed" />
+                    </div>
+                  </th>
+                  <th className="hidden lg:table-cell py-2 px-2 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 transition-colors text-center" onClick={() => requestSort("peakRanking" as any)}>
+                    <div className="flex items-center justify-center gap-1">
+                      <Tooltip content={STAT_DEFINITIONS.peakRank}>
+                        <span className="border-b border-dotted border-text-muted/30 cursor-help">Peak</span>
+                      </Tooltip>
+                      <SortIcon column="peakRanking" />
+                    </div>
+                  </th>
+                  <th className="hidden lg:table-cell py-2 px-2 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 transition-colors text-center" onClick={() => requestSort("weeksInTop5" as any)}>
+                    <div className="flex items-center justify-center gap-1">
+                      <Tooltip content={STAT_DEFINITIONS.top5Weeks}>
+                        <span className="border-b border-dotted border-text-muted/30 cursor-help">Top 5 Wks</span>
+                      </Tooltip>
+                      <SortIcon column="weeksInTop5" />
+                    </div>
+                  </th>
+                  <th className="hidden xl:table-cell py-2 px-2 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 transition-colors text-center" onClick={() => requestSort("weeksInTop10" as any)}>
+                    <div className="flex items-center justify-center gap-1">
+                      <Tooltip content={STAT_DEFINITIONS.top10Weeks}>
+                        <span className="border-b border-dotted border-text-muted/30 cursor-help">Top 10 Wks</span>
+                      </Tooltip>
+                      <SortIcon column="weeksInTop10" />
+                    </div>
+                  </th>
+                  <th className="py-2 px-4 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 text-right rounded-tr-xl" onClick={() => requestSort("majorsWon")}>
                     <div className="flex items-center justify-end gap-1">Majors <SortIcon column="majorsWon" /></div>
                   </th>
                 </tr>
@@ -170,9 +211,9 @@ export default function TeamsClient({ initialTeams }: TeamsClientProps) {
                         <span className={`text-[11px] font-bold tabular-nums ${idx === 0 ? "text-yellow" : idx === 1 ? "text-slate-400" : idx === 2 ? "text-amber-700" : "text-text-muted"}`}>
                           #{team.rank}
                         </span>
-                        {team.change === "up" && <span className="text-[9px] font-bold text-green">+{team.changeVal}</span>}
-                        {team.change === "down" && <span className="text-[9px] font-bold text-red">-{team.changeVal}</span>}
-                        {team.change === "same" && <span className="text-[9px] font-bold text-text-muted">-</span>}
+                        {team.change === "up" && <span className="text-[10px] sm:text-[9px] font-bold text-green">+{team.changeVal}</span>}
+                        {team.change === "down" && <span className="text-[10px] sm:text-[9px] font-bold text-red">-{team.changeVal}</span>}
+                        {team.change === "same" && <span className="text-[10px] sm:text-[9px] font-bold text-text-muted">-</span>}
                       </div>
                     </td>
                     <td className="py-1.5 px-3">
@@ -184,8 +225,8 @@ export default function TeamsClient({ initialTeams }: TeamsClientProps) {
                           </Link>
                           {team.profile && (
                             <div className="flex items-center gap-1 mt-0.5">
-                              <CountryFlag countryCode={team.profile.country} preferredFlag={team.profile.countryFlag} className="text-[9px]" />
-                              <span className="text-[9px] font-bold uppercase tracking-wider text-text-muted">{team.region}</span>
+                              <CountryFlag countryCode={team.profile.country} preferredFlag={team.profile.countryFlag} className="text-[10px] sm:text-[9px]" />
+                              <span className="text-[10px] sm:text-[9px] font-bold uppercase tracking-wider text-text-muted">{team.region}</span>
                             </div>
                           )}
                         </div>
@@ -193,30 +234,30 @@ export default function TeamsClient({ initialTeams }: TeamsClientProps) {
                     </td>
                     <td className="py-1.5 px-2 text-center">
                       <span className={`text-[12px] font-black tabular-nums ${
-                        team.points >= 800 ? "text-yellow" : 
-                        team.points >= 500 ? "text-green" : 
-                        team.points >= 250 ? "text-blue-light" : 
+                        team.points >= 800 ? "text-yellow" :
+                        team.points >= 500 ? "text-green" :
+                        team.points >= 250 ? "text-blue-light" :
                         "text-text-secondary"
                       }`}>
                         {team.points}
                       </span>
                     </td>
-                    <td className="py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-secondary">
+                    <td className="hidden md:table-cell py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-secondary">
                       {typeof team.vrs === "number" ? team.vrs.toLocaleString() : "-"}
                     </td>
-                    <td className="py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
+                    <td className="hidden sm:table-cell py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
                       {team.profile?.overallWinRate ? `${team.profile.overallWinRate}%` : "-"}
                     </td>
-                    <td className="py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
+                    <td className="hidden md:table-cell py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
                       {team.profile?.totalMapsPlayed || "-"}
                     </td>
-                    <td className="py-1.5 px-2 text-center text-[10px] font-bold tabular-nums text-text-secondary">
+                    <td className="hidden lg:table-cell py-1.5 px-2 text-center text-[10px] font-bold tabular-nums text-text-secondary">
                       {team.profile?.peakRanking ? `#${team.profile.peakRanking}` : "-"}
                     </td>
-                    <td className="py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
+                    <td className="hidden lg:table-cell py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
                       {team.profile?.weeksInTop5 || "-"}
                     </td>
-                    <td className="py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
+                    <td className="hidden xl:table-cell py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
                       {team.profile?.weeksInTop10 || "-"}
                     </td>
                     <td className="py-1.5 px-4 text-right text-[11px] font-black tabular-nums text-blue-light">
@@ -259,11 +300,11 @@ function PodiumCard({ team, rank, delay, isHero }: {
         
         <div className={`grid grid-cols-2 gap-1 border-t border-border pt-3 mt-2`}>
           <div className="text-center border-r border-border">
-            <p className="text-[8px] font-bold uppercase tracking-wider text-text-muted mb-0">Points</p>
+            <p className="text-[10px] sm:text-[8px] font-bold uppercase tracking-wider text-text-muted mb-0">Points</p>
             <p className={`text-sm font-black tabular-nums ${rank === 1 ? 'text-yellow' : 'text-green'}`}>{team.points}</p>
           </div>
           <div className="text-center">
-            <p className="text-[8px] font-bold uppercase tracking-wider text-text-muted mb-0">Win Rate</p>
+            <p className="text-[10px] sm:text-[8px] font-bold uppercase tracking-wider text-text-muted mb-0">Win Rate</p>
             <p className="text-sm font-black tabular-nums text-text-primary">{team.profile?.overallWinRate ? `${team.profile.overallWinRate}%` : "-"}</p>
           </div>
         </div>

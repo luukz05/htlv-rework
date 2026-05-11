@@ -656,7 +656,35 @@ export default function CrosshairChallengePage() {
           Crosshair Challenge
         </h1>
 
-        {/* ── IDLE SCREEN ──────────────────────────────── */}
+        {/* ── DESKTOP-ONLY GATE ─────────────────────────── */}
+        <div className="md:hidden flex flex-col items-center gap-4 py-16 animate-fade-in-up">
+          <div className="rounded-xl border border-yellow/30 bg-yellow/5 p-8 text-center card-glow max-w-md w-full">
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#eab308"
+              strokeWidth="1.5"
+              className="mx-auto mb-4"
+            >
+              <rect x="2" y="3" width="20" height="14" rx="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+            <h2 className="text-lg font-bold mb-2">Desktop only</h2>
+            <p className="text-sm text-text-secondary mb-4">
+              This challenge needs precise mouse aiming, right-click to dodge flashbangs and the spacebar.
+              Open this page on a desktop to play.
+            </p>
+            <Link href="/games" className="inline-block rounded-xl bg-blue px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-blue-light">
+              Back to games
+            </Link>
+          </div>
+        </div>
+
+        {/* ── IDLE SCREEN (desktop only) ──────────────────────────────── */}
+        <div className="hidden md:block">
         {phase === "idle" && (
           <div className="flex flex-col items-center gap-6 py-16 animate-fade-in-up">
             <div className="rounded-xl border border-border bg-bg-card p-10 text-center card-glow max-w-md w-full">
@@ -1131,6 +1159,7 @@ export default function CrosshairChallengePage() {
             </div>
           </div>
         )}
+        </div>
       </main>
     );
   }

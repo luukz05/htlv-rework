@@ -95,19 +95,26 @@ export default function StatsClient({ initialPlayers }: StatsClientProps) {
     return sortConfig.direction === "asc" ? <ChevronUp className="w-3 h-3 text-blue-light" /> : <ChevronDown className="w-3 h-3 text-blue-light" />;
   };
 
-  const StatHeader = ({ label, defKey, sortKey, align = "center" }: { label: string; defKey: keyof typeof STAT_DEFINITIONS; sortKey: keyof Player; align?: "left" | "center" | "right" }) => (
-    <th 
-      className={`py-2 px-2 text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 transition-colors ${align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"}`} 
-      onClick={() => requestSort(sortKey)}
-    >
-      <div className={`flex items-center gap-1 ${align === "center" ? "justify-center" : align === "right" ? "justify-end" : ""}`}>
-        <Tooltip content={STAT_DEFINITIONS[defKey]}>
-          <span className="border-b border-dotted border-text-muted/30 cursor-help">{label}</span>
-        </Tooltip>
-        <SortIcon column={sortKey} />
-      </div>
-    </th>
-  );
+  const StatHeader = ({ label, defKey, sortKey, align = "center", hideOn }: { label: string; defKey: keyof typeof STAT_DEFINITIONS; sortKey: keyof Player; align?: "left" | "center" | "right"; hideOn?: "sm" | "md" | "lg" | "xl" }) => {
+    const hideClass = hideOn === "sm" ? "hidden sm:table-cell"
+      : hideOn === "md" ? "hidden md:table-cell"
+      : hideOn === "lg" ? "hidden lg:table-cell"
+      : hideOn === "xl" ? "hidden xl:table-cell"
+      : "";
+    return (
+      <th
+        className={`${hideClass} py-2 px-2 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 transition-colors ${align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"}`}
+        onClick={() => requestSort(sortKey)}
+      >
+        <div className={`flex items-center gap-1 ${align === "center" ? "justify-center" : align === "right" ? "justify-end" : ""}`}>
+          <Tooltip content={STAT_DEFINITIONS[defKey]}>
+            <span className="border-b border-dotted border-text-muted/30 cursor-help">{label}</span>
+          </Tooltip>
+          <SortIcon column={sortKey} />
+        </div>
+      </th>
+    );
+  };
 
   return (
     <div className="space-y-5 pb-10">
@@ -115,9 +122,15 @@ export default function StatsClient({ initialPlayers }: StatsClientProps) {
       {fixedTop3.length >= 3 && (
         <section className="animate-fade-in-up relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-            <PodiumCard player={fixedTop3[1]} rank={2} delay="delay-2" />
-            <PodiumCard player={fixedTop3[0]} rank={1} delay="delay-1" isHero />
-            <PodiumCard player={fixedTop3[2]} rank={3} delay="delay-3" />
+            <div className="order-2 md:order-1">
+              <PodiumCard player={fixedTop3[1]} rank={2} delay="delay-2" />
+            </div>
+            <div className="order-1 md:order-2">
+              <PodiumCard player={fixedTop3[0]} rank={1} delay="delay-1" isHero />
+            </div>
+            <div className="order-3">
+              <PodiumCard player={fixedTop3[2]} rank={3} delay="delay-3" />
+            </div>
           </div>
         </section>
       )}
@@ -125,32 +138,32 @@ export default function StatsClient({ initialPlayers }: StatsClientProps) {
       {/* Main Table Section */}
       <section className="animate-fade-in-up delay-2 relative z-30">
         <div className="rounded-xl border border-border bg-bg-card card-glow">
-          <div className="overflow-visible">
+          <div className="table-scroll">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-bg-body/50 border-b border-border">
-                  <th className="py-2 px-3 text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 rounded-tl-xl" onClick={() => requestSort("rank")}>
+                  <th className="py-2 px-3 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 rounded-tl-xl" onClick={() => requestSort("rank")}>
                     <div className="flex items-center gap-1">Rank <SortIcon column="rank" /></div>
                   </th>
-                  <th className="py-2 px-3 text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5" onClick={() => requestSort("name")}>
+                  <th className="py-2 px-3 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5" onClick={() => requestSort("name")}>
                     <div className="flex items-center gap-1">Player <SortIcon column="name" /></div>
                   </th>
                   <StatHeader label="Rating" defKey="rating" sortKey="rating" />
-                  <StatHeader label="K/D" defKey="kd" sortKey="kd" />
-                  <StatHeader label="ADR" defKey="adr" sortKey="adr" />
-                  <StatHeader label="KAST" defKey="kast" sortKey="kast" />
-                  <StatHeader label="Swing" defKey="swing" sortKey="swing" />
-                  <StatHeader label="Impact" defKey="impact" sortKey="impact" />
-                  <StatHeader label="Clutches" defKey="clutchesWon" sortKey="clutchesWon" />
-                  <StatHeader label="Open K" defKey="openingKills" sortKey="openingKills" />
-                  <th className="py-2 px-4 text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 text-right rounded-tr-xl" onClick={() => requestSort("hsPercent")}>
+                  <StatHeader label="K/D" defKey="kd" sortKey="kd" hideOn="sm" />
+                  <StatHeader label="ADR" defKey="adr" sortKey="adr" hideOn="md" />
+                  <StatHeader label="KAST" defKey="kast" sortKey="kast" hideOn="lg" />
+                  <StatHeader label="Swing" defKey="swing" sortKey="swing" hideOn="md" />
+                  <StatHeader label="Impact" defKey="impact" sortKey="impact" hideOn="lg" />
+                  <StatHeader label="Clutches" defKey="clutchesWon" sortKey="clutchesWon" hideOn="xl" />
+                  <StatHeader label="Open K" defKey="openingKills" sortKey="openingKills" hideOn="xl" />
+                  <th className="hidden sm:table-cell py-2 px-4 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 text-right rounded-tr-xl" onClick={() => requestSort("hsPercent")}>
                     <div className="flex items-center justify-end gap-1">HS% <SortIcon column="hsPercent" /></div>
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
                 {filteredPlayers.map((player, idx) => (
-                  <tr key={player.name} className="group hover:bg-bg-card-hover transition-colors">
+                  <tr key={player.id} className="group hover:bg-bg-card-hover transition-colors">
                     <td className="py-1.5 px-3">
                       <span className={`text-[11px] font-bold tabular-nums ${idx === 0 ? "text-yellow" : idx === 1 ? "text-slate-400" : idx === 2 ? "text-amber-700" : "text-text-muted"}`}>
                         #{player.rank}
@@ -163,7 +176,7 @@ export default function StatsClient({ initialPlayers }: StatsClientProps) {
                             <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-[10px]" />
                             <span className="text-[12px] font-bold text-text-primary group-hover/name:text-blue-light transition-colors">{player.name}</span>
                           </Link>
-                          <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-text-muted">
+                          <div className="flex items-center gap-1 text-[10px] sm:text-[9px] font-bold uppercase tracking-wider text-text-muted">
                             <TeamLogo src={player.teamLogo} name={player.team} size={10} />
                             {player.team}
                           </div>
@@ -172,39 +185,39 @@ export default function StatsClient({ initialPlayers }: StatsClientProps) {
                     </td>
                     <td className="py-1.5 px-2 text-center">
                       <span className={`text-[12px] font-black tabular-nums ${
-                        (player.rating ?? 0) >= 1.2 ? "text-green" : 
-                        (player.rating ?? 0) >= 1.05 ? "text-blue-light" : 
+                        (player.rating ?? 0) >= 1.2 ? "text-green" :
+                        (player.rating ?? 0) >= 1.05 ? "text-blue-light" :
                         "text-text-secondary"
                       }`}>
                         {(player.rating ?? 0).toFixed(2)}
                       </span>
                     </td>
-                    <td className="py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
+                    <td className="hidden sm:table-cell py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
                       {player.kd}
                     </td>
-                    <td className="py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
+                    <td className="hidden md:table-cell py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
                       {(player.adr ?? 0).toFixed(1)}
                     </td>
-                    <td className="py-1.5 px-2 text-center text-[10px] font-bold tabular-nums text-text-secondary">
+                    <td className="hidden lg:table-cell py-1.5 px-2 text-center text-[10px] font-bold tabular-nums text-text-secondary">
                       {player.kast}
                     </td>
-                    <td className="py-1.5 px-2 text-center">
-                      <span className={`text-[9px] font-black tabular-nums px-1 py-0 rounded ${
+                    <td className="hidden md:table-cell py-1.5 px-2 text-center">
+                      <span className={`text-[10px] sm:text-[9px] font-black tabular-nums px-1 py-0 rounded ${
                         (player.swing || "").startsWith("+") ? "bg-green/10 text-green" : "bg-red/10 text-red"
                       }`}>
                         {player.swing || "0.00"}
                       </span>
                     </td>
-                    <td className="py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
+                    <td className="hidden lg:table-cell py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
                       {(player.impact ?? 0).toFixed(2)}
                     </td>
-                    <td className="py-1.5 px-2 text-center text-[11px] font-black tabular-nums text-blue-light">
+                    <td className="hidden xl:table-cell py-1.5 px-2 text-center text-[11px] font-black tabular-nums text-blue-light">
                       {player.clutchesWon}
                     </td>
-                    <td className="py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
+                    <td className="hidden xl:table-cell py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
                       {player.openingKills}
                     </td>
-                    <td className="py-1.5 px-4 text-right text-[10px] font-bold tabular-nums text-text-muted">
+                    <td className="hidden sm:table-cell py-1.5 px-4 text-right text-[10px] font-bold tabular-nums text-text-muted">
                       {player.hsPercent}
                     </td>
                   </tr>
@@ -250,18 +263,18 @@ function PodiumCard({ player, rank, delay, isHero }: {
           <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-[10px]" />
           <span className="text-base font-black tracking-tight text-text-primary">{player.name}</span>
         </div>
-        <div className="flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wider text-text-muted mb-3">
+        <div className="flex items-center justify-center gap-1 text-[10px] sm:text-[9px] font-bold uppercase tracking-wider text-text-muted mb-3">
           <TeamLogo src={player.teamLogo} name={player.team} size={12} />
           {player.team}
         </div>
         
         <div className={`grid grid-cols-2 gap-1 border-t border-border pt-3`}>
           <div className="text-center border-r border-border">
-            <p className="text-[8px] font-bold uppercase tracking-wider text-text-muted mb-0">Rating</p>
+            <p className="text-[10px] sm:text-[8px] font-bold uppercase tracking-wider text-text-muted mb-0">Rating</p>
             <p className={`text-sm font-black tabular-nums ${rank === 1 ? 'text-yellow' : 'text-green'}`}>{(player.rating ?? 0).toFixed(2)}</p>
           </div>
           <div className="text-center">
-            <p className="text-[8px] font-bold uppercase tracking-wider text-text-muted mb-0">Impact</p>
+            <p className="text-[10px] sm:text-[8px] font-bold uppercase tracking-wider text-text-muted mb-0">Impact</p>
             <p className="text-sm font-black tabular-nums text-text-primary">{(player.impact ?? 0).toFixed(2)}</p>
           </div>
         </div>

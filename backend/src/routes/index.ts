@@ -33,7 +33,6 @@ import {
   listForums,
   listGalleries,
   listHighlights,
-  listLegends,
   listMapCalloutQuizzes,
   listMaps,
   listNews,
@@ -119,7 +118,6 @@ export function createRouter() {
   router.get("/highlights/round", getRoundHighlight);
   router.get("/highlights", listHighlights);
   router.get("/streams", listStreams);
-  router.get("/legends", listLegends);
   router.get("/galleries", listGalleries);
 
   return router;

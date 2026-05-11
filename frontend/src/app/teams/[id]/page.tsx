@@ -104,7 +104,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
   </div>
 
   {/* Player photos */}
-  <div className="relative z-10 mt-auto flex h-[300px] items-end justify-start overflow-x-auto px-1 md:h-[350px] md:justify-center md:overflow-visible">
+  <div className="relative z-10 -mt-20 flex h-[200px] items-end justify-center overflow-hidden px-1 md:mt-auto md:h-[350px] md:justify-center md:overflow-visible">
      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-[0.09] md:justify-end md:opacity-[0.12]">
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img
@@ -128,7 +128,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
         <Link
           key={player.nickname}
           href={`/rankings/players/${player.playerId}`}
-          className="-mx-2 flex h-full min-w-[150px] items-end transition-transform duration-300 hover:-translate-y-2 md:-mx-5 md:min-w-0 md:flex-1"
+          className="-mx-0.5 flex h-full min-w-0 flex-1 items-end transition-transform duration-300 hover:-translate-y-2 md:-mx-5 md:min-w-0 md:flex-1"
           title={player.nickname}
         >
           {playerImage}
@@ -136,7 +136,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
       ) : (
         <div
           key={player.nickname}
-          className="-mx-2 flex h-full min-w-[150px] items-end md:-mx-5 md:min-w-0 md:flex-1"
+          className="-mx-0.5 flex h-full min-w-0 flex-1 items-end md:-mx-5 md:min-w-0 md:flex-1"
           title={player.nickname}
         >
           {playerImage}
@@ -146,29 +146,29 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
   </div>
           {/* Player info below hero */}
           <div
-  className="relative z-20 grid grid-cols-2 overflow-hidden rounded-xl border-x border-b border-border sm:grid-cols-3 lg:grid-cols-5"
+  className="relative z-20 grid grid-cols-5 overflow-hidden rounded-xl border-x border-b border-border"
   style={{ backgroundColor: "#1b2333" }}
 >
   {team.roster.map((player) => {
     const playerInfo = (
       <div
-        className="h-full border-border px-3 py-3 text-center transition-all lg:border-r last:border-r-0"
+        className="h-full border-r border-border px-1 py-1.5 text-center transition-all last:border-r-0 sm:px-3 sm:py-3"
         style={{ backgroundColor: "#1b2333" }}
       >
-        <p className="truncate text-sm font-black text-text-primary">
+        <p className="text-[10px] font-black text-text-primary whitespace-nowrap sm:text-sm">
           {player.nickname}
         </p>
 
-        <p className="mt-1 flex items-center justify-center gap-1.5 text-xs text-text-muted">
+        <p className="mt-1 flex items-center justify-center gap-1 text-[10px] text-text-muted sm:gap-1.5 sm:text-xs">
           <CountryFlag
             countryCode={player.country}
             preferredFlag={player.countryFlag}
             className="text-xs"
           />
-          <span className="truncate">{player.country}</span>
+          <span className="hidden whitespace-nowrap sm:inline">{player.country}</span>
         </p>
 
-        <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-blue-light">
+        <p className="mt-0.5 text-[9px] font-bold uppercase tracking-wide text-blue-light sm:mt-1 sm:text-[11px]">
           {player.role}
         </p>
       </div>

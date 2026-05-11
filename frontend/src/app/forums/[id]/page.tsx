@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 import { compactTitle } from "@/lib/page-title";
 import { notFound } from "next/navigation";
 
@@ -119,9 +120,4 @@ export default async function ForumThreadPage({ params }: { params: Promise<{ id
       </div>
     </main>
   );
-}
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

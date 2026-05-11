@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 
 export const metadata = {
   title: "Forums - Active Discussions",
@@ -51,8 +52,8 @@ export default async function ForumsPage() {
 
       {/* Thread list */}
       <div className="rounded-xl border border-border bg-bg-card overflow-hidden">
-        {/* Header */}
-        <div className="grid grid-cols-[1fr_80px_80px_100px] gap-4 px-5 py-2.5 border-b border-border text-[11px] font-bold uppercase tracking-wider text-text-muted">
+        {/* Header — desktop only */}
+        <div className="hidden sm:grid sm:grid-cols-[1fr_80px_80px_100px] gap-4 px-5 py-2.5 border-b border-border text-[11px] font-bold uppercase tracking-wider text-text-muted">
           <span>Thread</span>
           <span className="text-center">Replies</span>
           <span className="text-center">Views</span>
@@ -61,9 +62,9 @@ export default async function ForumsPage() {
 
         {/* Pinned */}
         {pinned.map((thread) => (
-          <Link href={`/forums/${thread.id}`} key={thread.id} className="grid grid-cols-[1fr_80px_80px_100px] gap-4 px-5 py-3.5 border-b border-border bg-blue/[0.03] hover:bg-bg-card-hover transition-colors cursor-pointer items-center">
+          <Link href={`/forums/${thread.id}`} key={thread.id} className="block sm:grid sm:grid-cols-[1fr_80px_80px_100px] sm:items-center sm:gap-4 px-4 sm:px-5 py-3.5 border-b border-border bg-blue/[0.03] hover:bg-bg-card-hover transition-colors cursor-pointer">
             <div>
-              <div className="flex items-center gap-2 mb-0.5">
+              <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="#2563eb" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 <span className="text-[10px] font-bold text-blue-light uppercase">Pinned</span>
                 <span className="rounded bg-bg-surface px-1.5 py-0.5 text-[10px] font-medium text-text-muted">{thread.category}</span>
@@ -74,16 +75,24 @@ export default async function ForumsPage() {
                 <span className="mx-1">&middot;</span>
                 <span className="text-text-muted">{thread.authorRank}</span>
               </p>
+              {/* Mobile-only stats footer */}
+              <div className="mt-2 flex sm:hidden items-center gap-3 text-[11px] text-text-muted">
+                <span>{thread.replies} replies</span>
+                <span>&middot;</span>
+                <span>{thread.views >= 1000 ? `${(thread.views / 1000).toFixed(1)}k` : thread.views} views</span>
+                <span>&middot;</span>
+                <span>{thread.lastReply}</span>
+              </div>
             </div>
-            <span className="text-center text-sm text-text-secondary tabular-nums">{thread.replies}</span>
-            <span className="text-center text-sm text-text-muted tabular-nums">{thread.views >= 1000 ? `${(thread.views / 1000).toFixed(1)}k` : thread.views}</span>
-            <span className="text-right text-xs text-text-muted">{thread.lastReply}</span>
+            <span className="hidden sm:block text-center text-sm text-text-secondary tabular-nums">{thread.replies}</span>
+            <span className="hidden sm:block text-center text-sm text-text-muted tabular-nums">{thread.views >= 1000 ? `${(thread.views / 1000).toFixed(1)}k` : thread.views}</span>
+            <span className="hidden sm:block text-right text-xs text-text-muted">{thread.lastReply}</span>
           </Link>
         ))}
 
         {/* Regular threads */}
         {regular.map((thread) => (
-          <Link href={`/forums/${thread.id}`} key={thread.id} className="grid grid-cols-[1fr_80px_80px_100px] gap-4 px-5 py-3.5 border-b border-border last:border-b-0 hover:bg-bg-card-hover transition-colors cursor-pointer items-center">
+          <Link href={`/forums/${thread.id}`} key={thread.id} className="block sm:grid sm:grid-cols-[1fr_80px_80px_100px] sm:items-center sm:gap-4 px-4 sm:px-5 py-3.5 border-b border-border last:border-b-0 hover:bg-bg-card-hover transition-colors cursor-pointer">
             <div>
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="rounded bg-bg-surface px-1.5 py-0.5 text-[10px] font-medium text-text-muted">{thread.category}</span>
@@ -94,27 +103,30 @@ export default async function ForumsPage() {
                 <span className="mx-1">&middot;</span>
                 <span>{thread.authorRank}</span>
               </p>
+              {/* Mobile-only stats footer */}
+              <div className="mt-2 flex sm:hidden items-center gap-3 text-[11px] text-text-muted">
+                <span>{thread.replies} replies</span>
+                <span>&middot;</span>
+                <span>{thread.views >= 1000 ? `${(thread.views / 1000).toFixed(1)}k` : thread.views} views</span>
+                <span>&middot;</span>
+                <span>{thread.lastReply}</span>
+              </div>
             </div>
-            <span className="text-center text-sm text-text-secondary tabular-nums">{thread.replies}</span>
-            <span className="text-center text-sm text-text-muted tabular-nums">{thread.views >= 1000 ? `${(thread.views / 1000).toFixed(1)}k` : thread.views}</span>
-            <span className="text-right text-xs text-text-muted">{thread.lastReply}</span>
+            <span className="hidden sm:block text-center text-sm text-text-secondary tabular-nums">{thread.replies}</span>
+            <span className="hidden sm:block text-center text-sm text-text-muted tabular-nums">{thread.views >= 1000 ? `${(thread.views / 1000).toFixed(1)}k` : thread.views}</span>
+            <span className="hidden sm:block text-right text-xs text-text-muted">{thread.lastReply}</span>
           </Link>
         ))}
       </div>
 
       {/* Pagination */}
       <div className="flex items-center justify-center gap-1.5 mt-6">
-        <button className="h-8 w-8 rounded-lg border border-border text-text-muted hover:border-border-hover hover:text-text-primary transition-all">&lsaquo;</button>
+        <button className="h-11 w-11 sm:h-9 sm:w-9 rounded-lg border border-border text-text-muted hover:border-border-hover hover:text-text-primary transition-all">&lsaquo;</button>
         {[1, 2, 3, "...", 10].map((p, i) => (
-          <button key={i} className={`h-8 min-w-[32px] rounded-lg text-sm font-medium transition-all ${p === 1 ? "bg-blue text-white" : "border border-border text-text-muted hover:border-border-hover hover:text-text-primary"}`}>{p}</button>
+          <button key={i} className={`h-11 min-w-[44px] sm:h-9 sm:min-w-[36px] rounded-lg text-sm font-medium transition-all ${p === 1 ? "bg-blue text-white" : "border border-border text-text-muted hover:border-border-hover hover:text-text-primary"}`}>{p}</button>
         ))}
-        <button className="h-8 w-8 rounded-lg border border-border text-text-muted hover:border-border-hover hover:text-text-primary transition-all">&rsaquo;</button>
+        <button className="h-11 w-11 sm:h-9 sm:w-9 rounded-lg border border-border text-text-muted hover:border-border-hover hover:text-text-primary transition-all">&rsaquo;</button>
       </div>
     </main>
   );
-}
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

@@ -6,7 +6,6 @@ import {
   forumThreads,
   gameMaps,
   highlights,
-  legends,
   mapCalloutQuizzes,
   news,
   roundHighlight,
@@ -26,7 +25,6 @@ export const listMaps: RouteHandler = (_req, res) => json(res, gameMaps);
 export const listAcademy: RouteHandler = (_req, res) => json(res, academyGuides);
 export const listHighlights: RouteHandler = (_req, res) => json(res, highlights);
 export const listStreams: RouteHandler = (_req, res) => json(res, streams);
-export const listLegends: RouteHandler = (_req, res) => json(res, legends);
 export const listGalleries: RouteHandler = (_req, res) => json(res, galleries);
 export const listMapCalloutQuizzes: RouteHandler = (_req, res) => json(res, mapCalloutQuizzes);
 export const getRoundHighlight: RouteHandler = (_req, res) => json(res, roundHighlight);

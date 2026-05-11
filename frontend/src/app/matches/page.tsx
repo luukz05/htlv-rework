@@ -2,6 +2,7 @@ import TeamLogo from "@/components/TeamLogo";
 import StatusPill from "@/components/StatusPill";
 import Link from "next/link";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 import type { Match } from "@/services/types";
 
 export const metadata = {
@@ -31,7 +32,7 @@ function MatchRow({ match, index }: { match: Match; index: number }) {
   return (
     <Link
       href={`/matches/${match.id}`}
-      className={`group block relative min-h-[234px] rounded-xl border overflow-hidden bg-cover bg-center transition-all hover:-translate-y-0.5 cursor-pointer card-glow animate-fade-in-up sm:h-[212px] sm:min-h-[212px] ${
+      className={`group block relative min-h-[160px] rounded-xl border overflow-hidden bg-cover bg-center transition-all hover:-translate-y-0.5 cursor-pointer card-glow animate-fade-in-up sm:h-[212px] sm:min-h-[212px] ${
         isLive ? "border-red/40 animate-live-glow" : "border-border hover:border-border-hover"
       }`}
       style={{
@@ -51,34 +52,34 @@ function MatchRow({ match, index }: { match: Match; index: number }) {
       <div className="absolute left-0 top-0 bottom-0 w-1.5" style={{ background: match.team1.color }} />
       <div className="absolute right-0 top-0 bottom-0 w-1.5" style={{ background: match.team2.color }} />
 
-      <div className="relative grid min-h-[234px] grid-cols-[minmax(0,1fr)] items-center gap-4 px-5 py-6 sm:h-full sm:min-h-0 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:px-7">
-        <div className="flex min-h-24 min-w-0 items-center gap-4 sm:min-h-[112px] sm:gap-5">
-          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center sm:h-24 sm:w-24">
-            <TeamLogo src={match.team1.logo} name={match.team1.name} size={96} className="h-20 w-20 transition-transform group-hover:scale-105 sm:h-24 sm:w-24" />
+      <div className="relative grid h-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-3 py-4 sm:gap-4 sm:px-7 sm:py-6">
+        <div className="flex min-w-0 flex-col items-center gap-1 sm:flex-row sm:items-center sm:gap-5 sm:min-h-[112px]">
+          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center sm:h-24 sm:w-24">
+            <TeamLogo src={match.team1.logo} name={match.team1.name} size={96} className="h-12 w-12 transition-transform group-hover:scale-105 sm:h-24 sm:w-24" />
           </div>
-          <div className="min-w-0">
-            <p className="truncate text-xl font-black text-white sm:text-2xl">{match.team1.name}</p>
-            <div className="mt-1 flex items-center gap-2">
-              <span className="text-[11px] font-black uppercase tracking-widest text-white">{match.team1.shortname}</span>
+          <div className="min-w-0 text-center sm:text-left">
+            <p className="hidden truncate text-base font-black text-white sm:block sm:text-2xl">{match.team1.name}</p>
+            <div className="flex items-center justify-center gap-2 sm:mt-1 sm:justify-start">
+              <span className="text-[9px] font-black uppercase tracking-widest text-white sm:text-[11px]">{match.team1.shortname}</span>
               {!isUpcoming && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={CT_ICON} alt="CT" title="CT side" className="h-5 w-5 object-contain" />
+                <img src={CT_ICON} alt="CT" title="CT side" className="hidden h-5 w-5 object-contain sm:block" />
               )}
             </div>
           </div>
         </div>
 
-        <div className="flex min-h-[168px] min-w-[220px] flex-col items-center justify-center gap-2 px-5 py-2 sm:min-h-[176px] sm:w-[290px]">
+        <div className="flex flex-col items-center justify-center gap-1.5 px-2 py-1 sm:min-h-[176px] sm:w-[290px] sm:gap-2 sm:px-5 sm:py-2">
           {hasScore ? (
-            <div className="flex items-center gap-4">
-              <span className={`text-4xl font-black tabular-nums sm:text-5xl ${t1Won ? "text-white" : "text-white/50"}`}>{match.score1}</span>
-              <span className="text-sm text-white/50  text-text-muted/50">vs</span>
-              <span className={`text-4xl font-black tabular-nums sm:text-5xl ${t2Won ? "text-white" : "text-white/50"}`}>{match.score2}</span>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <span className={`text-2xl font-black tabular-nums sm:text-5xl ${t1Won ? "text-white" : "text-white/50"}`}>{match.score1}</span>
+              <span className="text-xs text-white/50 sm:text-sm">vs</span>
+              <span className={`text-2xl font-black tabular-nums sm:text-5xl ${t2Won ? "text-white" : "text-white/50"}`}>{match.score2}</span>
             </div>
           ) : (
-            <p className="text-3xl font-black text-blue-light sm:text-4xl">{match.time}</p>
+            <p className="text-2xl font-black text-blue-light sm:text-4xl">{match.time}</p>
           )}
-          <div className="flex max-w-[260px] flex-wrap items-center justify-center gap-1.5">
+          <div className="hidden sm:flex max-w-[260px] flex-wrap items-center justify-center gap-1.5">
             <span className="text-[10px] font-black uppercase tracking-wider text-text-secondary">{match.event}</span>
             <span className="text-[10px] text-text-muted">&middot;</span>
             <span className="text-[10px] font-bold text-text-secondary">{match.format}</span>
@@ -91,8 +92,10 @@ function MatchRow({ match, index }: { match: Match; index: number }) {
           </div>
           {showMapStrip && (
             <div className={[
-              "flex flex-nowrap items-center justify-center gap-2 overflow-hidden bg-black/24 ring-1 ring-white/10",
-              hasSingleMap ? "h-[72px] w-[72px] rounded-full p-3" : "min-h-11 rounded-full px-4 py-2",
+              "flex flex-nowrap items-center justify-center gap-1.5 overflow-hidden bg-black/24 ring-1 ring-white/10 sm:gap-2",
+              hasSingleMap
+                ? "h-[48px] w-[48px] rounded-full p-1.5 sm:h-[72px] sm:w-[72px] sm:p-3"
+                : "min-h-9 rounded-full px-2 py-1 sm:min-h-11 sm:px-4 sm:py-2",
             ].join(" ")}>
               {mapPool.map((map) => {
                 const icon = getMapIcon(map.map);
@@ -101,24 +104,24 @@ function MatchRow({ match, index }: { match: Match; index: number }) {
                 const isCurrentMap = map.map.toLowerCase() === primaryMap?.toLowerCase();
 
                 return (
-                  <span key={map.map} className="relative flex w-10 shrink-0 flex-col items-center gap-0.5">
+                  <span key={map.map} className="relative flex w-7 shrink-0 flex-col items-center gap-0.5 sm:w-10">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={icon}
                       alt={map.map}
                       title={map.map}
                       className={[
-                        "h-9 w-9 object-contain transition-all sm:h-10 sm:w-10",
+                        "h-6 w-6 object-contain transition-all sm:h-10 sm:w-10",
                         isCurrentMap ? "" : "opacity-80",
                       ].join(" ")}
                     />
                     {hasMapScore && (
-                      <span className="rounded px-1.5 py-0.5 text-[10px] font-black leading-none text-white/50 font-light tabular-nums">
+                      <span className="rounded px-1 py-0.5 text-[9px] font-black leading-none text-white/60 font-light tabular-nums sm:px-1.5 sm:text-[10px] sm:text-white/50">
                         {map.score1}-{map.score2}
                       </span>
                     )}
                     {!hasMapScore && isCurrentMap && isLive && (
-                      <span className="text-[8px] font-black leading-none text-red">
+                      <span className="text-[9px] font-black leading-none text-red sm:text-[8px]">
                         LIVE
                       </span>
                     )}
@@ -129,21 +132,34 @@ function MatchRow({ match, index }: { match: Match; index: number }) {
           )}
         </div>
 
-        <div className="flex min-h-24 min-w-0 items-center justify-end gap-4 sm:min-h-[112px] sm:gap-5">
-          <div className="min-w-0 text-right">
-            <p className="truncate text-xl font-black text-white sm:text-2xl">{match.team2.name}</p>
-            <div className="mt-1 flex items-center justify-end gap-2">
+        <div className="flex min-w-0 flex-col-reverse items-center gap-1 sm:flex-row sm:items-center sm:justify-end sm:gap-5 sm:min-h-[112px]">
+          <div className="min-w-0 text-center sm:text-right">
+            <p className="hidden truncate text-base font-black text-white sm:block sm:text-2xl">{match.team2.name}</p>
+            <div className="flex items-center justify-center gap-2 sm:mt-1 sm:justify-end">
               {!isUpcoming && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={TR_ICON} alt="TR" title="TR side" className="h-5 w-5 object-contain" />
+                <img src={TR_ICON} alt="TR" title="TR side" className="hidden h-5 w-5 object-contain sm:block" />
               )}
-              <span className="text-[11px] font-black uppercase tracking-widest text-white">{match.team2.shortname}</span>
+              <span className="text-[9px] font-black uppercase tracking-widest text-white sm:text-[11px]">{match.team2.shortname}</span>
             </div>
           </div>
-          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center sm:h-24 sm:w-24">
-            <TeamLogo src={match.team2.logo} name={match.team2.name} size={96} className="h-20 w-20 transition-transform group-hover:scale-105 sm:h-24 sm:w-24" />
+          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center sm:h-24 sm:w-24">
+            <TeamLogo src={match.team2.logo} name={match.team2.name} size={96} className="h-12 w-12 transition-transform group-hover:scale-105 sm:h-24 sm:w-24" />
           </div>
         </div>
+      </div>
+
+      {/* Mobile-only footer: event + format */}
+      <div className="sm:hidden flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 border-t border-white/10 bg-black/30 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-text-secondary">
+        <span className="break-words">{match.event}</span>
+        <span className="text-text-muted">&middot;</span>
+        <span>{match.format}</span>
+        {primaryMap && (
+          <>
+            <span className="text-text-muted">&middot;</span>
+            <span>{primaryMap}</span>
+          </>
+        )}
       </div>
     </Link>
   );
@@ -182,12 +198,6 @@ export default async function MatchesPage() {
     </main>
   );
 }
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
-}
-
 type MatchMapSummary = {
   map: string;
   score1?: number;

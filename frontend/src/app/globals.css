@@ -30,6 +30,7 @@ html { scroll-behavior: smooth }
 body {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   background:
     radial-gradient(circle at 12% 4%, rgba(37, 99, 235, 0.18), transparent 30rem),
     radial-gradient(circle at 88% 12%, rgba(34, 197, 94, 0.12), transparent 32rem),
@@ -70,6 +71,7 @@ body::after {
   position: relative;
   z-index: 1;
   min-height: 100vh;
+  min-height: 100dvh;
   width: min(100%, 1480px);
   margin-inline: auto;
   overflow: clip;
@@ -101,6 +103,65 @@ body::after {
 
 .data-ribbon-scroll::-webkit-scrollbar {
   display: none;
+}
+
+/* Responsive helpers */
+.label-xxs { font-size: 11px; line-height: 1.1 }
+.label-xs  { font-size: 12px; line-height: 1.2 }
+
+@media (min-width: 640px) {
+  .label-xxs { font-size: 10px }
+  .label-xs  { font-size: 11px }
+}
+
+.table-scroll {
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 640px) {
+  .table-scroll {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.scroll-fade-right {
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent 100%);
+  mask-image: linear-gradient(to right, black calc(100% - 32px), transparent 100%);
+}
+
+.scroll-fade-x {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent);
+}
+
+@media (min-width: 1024px) {
+  .scroll-fade-right,
+  .scroll-fade-x {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--color-bg-card);
+  border-radius: 999px;
 }
 
 .map-token {

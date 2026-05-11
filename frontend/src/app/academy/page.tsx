@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 
 export const metadata = {
   title: "Academy - CS2 Guides",
@@ -109,12 +110,12 @@ export default async function AcademyPage() {
                 <p className="text-xs text-text-muted line-clamp-2 mb-3">{guide.description}</p>
                 <div className="flex items-center gap-1">
                   {guide.sections.slice(0, 3).map((s) => (
-                    <span key={s.title} className="text-[9px] bg-bg-surface px-2 py-0.5 rounded text-text-muted truncate">
+                    <span key={s.title} className="text-[10px] sm:text-[9px] bg-bg-surface px-2 py-0.5 rounded text-text-muted truncate">
                       {s.title}
                     </span>
                   ))}
                   {guide.sections.length > 3 && (
-                    <span className="text-[9px] text-text-muted">+{guide.sections.length - 3}</span>
+                    <span className="text-[10px] sm:text-[9px] text-text-muted">+{guide.sections.length - 3}</span>
                   )}
                 </div>
               </div>
@@ -135,9 +136,4 @@ export default async function AcademyPage() {
       </div>
     </main>
   );
-}
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

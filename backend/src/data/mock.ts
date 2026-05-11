@@ -931,68 +931,6 @@ export const academyGuides: Guide[] = [
   },
 ];
 
-// -- Legend Anthem --
-export interface Legend {
-  id: number;
-  nickname: string;
-  realName: string;
-  country: string;
-  countryFlag: string;
-  image: string;
-  role: string;
-  epithet: string;
-  bio: string;
-  achievements: { title: string; year: string }[];
-  careerStats: { label: string; value: string }[];
-  teams: { name: string; logo: string; period: string }[];
-  quote: string;
-}
-
-export const legends: Legend[] = [
-  {
-    id: 1,
-    nickname: "FalleN",
-    realName: "Gabriel Toledo",
-    country: "BR",
-    countryFlag: flag.BR,
-    image: playerPhoto.fallen,
-    role: "AWPer / In-Game Leader",
-    epithet: "The Professor",
-    bio: "Gabriel \"FalleN\" Toledo is the godfather of Brazilian Counter-Strike. An AWPer, in-game leader, mentor, and visionary, FalleN didn't just play the game — he built an entire region's scene from the ground up. He founded Games Academy, mentored an entire generation of Brazilian talent, and led Luminosity/SK Gaming to back-to-back Major championships in 2016, making history as the first South American team to ever win a Major. Known as \"The Professor\" for his tactical genius and leadership, FalleN's legacy extends far beyond his trophies. He proved that greatness can come from anywhere.",
-    achievements: [
-      { title: "Major Champion — MLG Columbus 2016", year: "2016" },
-      { title: "Major Champion — ESL One Cologne 2016", year: "2016" },
-      { title: "Major MVP — MLG Columbus 2016", year: "2016" },
-      { title: "Intel Grand Slam Season 1", year: "2017" },
-      { title: "ESL One New York Champion", year: "2016" },
-      { title: "ECS Season 1 Champion", year: "2016" },
-      { title: "ESL Pro League Season 3 Champion", year: "2016" },
-      { title: "ESL Pro League Season 4 Champion", year: "2016" },
-      { title: "EPICENTER Champion", year: "2017" },
-      { title: "DreamHack Masters Las Vegas Champion", year: "2017" },
-      { title: "HLTV Top 20 Players — 6 appearances", year: "2015–2022" },
-      { title: "Games Academy Founder", year: "2014" },
-    ],
-    careerStats: [
-      { label: "Maps Played", value: "2,847" },
-      { label: "Total Kills", value: "48,392" },
-      { label: "Career Rating", value: "1.08" },
-      { label: "Headshot %", value: "41.2%" },
-      { label: "AWP Kills/Round", value: "0.28" },
-      { label: "Opening Kills", value: "5,124" },
-      { label: "Clutches Won", value: "487" },
-      { label: "1v1 Win Rate", value: "58.3%" },
-    ],
-    teams: [
-      { name: "Imperial", logo: logo.imperial, period: "2023 – Present" },
-      { name: "Team Liquid", logo: logo.liquid, period: "2022 – 2023" },
-      { name: "FURIA", logo: logo.furia, period: "2021 – 2022" },
-      { name: "MiBR/SK Gaming/Luminosity", logo: logo.imperial, period: "2015 – 2020" },
-    ],
-    quote: "I don't play for myself. I play for every kid in Brazil who dreams of being a pro. I play for the region. That's what drives me.",
-  },
-];
-
 // -- Player Profiles (detailed) --
 export interface PlayerProfile {
   id: number;

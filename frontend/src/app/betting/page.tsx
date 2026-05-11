@@ -1,6 +1,7 @@
 import Link from "next/link";
 import TeamLogo from "@/components/TeamLogo";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 
 export const metadata = {
   title: "Betting - Match Odds",
@@ -40,53 +41,57 @@ export default async function BettingPage() {
 
       {/* Odds table */}
       <div className="rounded-xl border border-border bg-bg-card overflow-hidden card-glow animate-fade-in-up delay-1">
-        {/* Table header */}
-        <div className="grid grid-cols-[1fr_repeat(3,140px)] gap-2 px-5 py-3 border-b border-border bg-bg-surface/50">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted">Match</span>
-          {bookmakers.map((bk) => (
-            <span key={bk} className="text-[10px] font-bold uppercase tracking-wider text-text-muted text-center">{bk}</span>
-          ))}
-        </div>
+        <div className="table-scroll">
+          <div className="min-w-[640px] lg:min-w-0">
+            {/* Table header */}
+            <div className="grid grid-cols-[1fr_repeat(3,minmax(110px,140px))] gap-2 px-4 sm:px-5 py-3 border-b border-border bg-bg-surface/50">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted">Match</span>
+              {bookmakers.map((bk) => (
+                <span key={bk} className="text-[10px] font-bold uppercase tracking-wider text-text-muted text-center">{bk}</span>
+              ))}
+            </div>
 
-        {/* Matches */}
-        <div className="divide-y divide-border">
-          {bettingMatches.map(({ match, odds }, i) => (
-            <div
-              key={match.id}
-              className={`grid grid-cols-[1fr_repeat(3,140px)] gap-2 items-center px-5 py-4 hover:bg-bg-card-hover transition-all animate-fade-in-up delay-${Math.min(i + 1, 5)}`}
-            >
-              {/* Match info */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <TeamLogo src={match.team1.logo} name={match.team1.name} size={20} />
-                  <span className="text-sm font-semibold">{match.team1.name}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <TeamLogo src={match.team2.logo} name={match.team2.name} size={20} />
-                  <span className="text-sm font-semibold">{match.team2.name}</span>
-                </div>
-                <div className="flex items-center gap-2 text-[10px] text-text-muted">
-                  <span>{match.event}</span>
-                  <span>&middot;</span>
-                  <span>{match.format}</span>
-                  <span>&middot;</span>
-                  <span>{match.date} {match.time}</span>
-                </div>
-              </div>
+            {/* Matches */}
+            <div className="divide-y divide-border">
+              {bettingMatches.map(({ match, odds }, i) => (
+                <div
+                  key={match.id}
+                  className={`grid grid-cols-[1fr_repeat(3,minmax(110px,140px))] gap-2 items-center px-4 sm:px-5 py-4 hover:bg-bg-card-hover transition-all animate-fade-in-up delay-${Math.min(i + 1, 5)}`}
+                >
+                  {/* Match info */}
+                  <div className="flex flex-col gap-2 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <TeamLogo src={match.team1.logo} name={match.team1.name} size={20} />
+                      <span className="text-sm font-semibold truncate">{match.team1.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <TeamLogo src={match.team2.logo} name={match.team2.name} size={20} />
+                      <span className="text-sm font-semibold truncate">{match.team2.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] sm:text-[10px] text-text-muted flex-wrap">
+                      <span className="truncate">{match.event}</span>
+                      <span>&middot;</span>
+                      <span>{match.format}</span>
+                      <span>&middot;</span>
+                      <span>{match.date} {match.time}</span>
+                    </div>
+                  </div>
 
-              {/* Odds columns */}
-              {odds.map((o) => (
-                <div key={o.bookmaker} className="flex flex-col gap-1.5">
-                  <button className="rounded-lg border border-border bg-bg-body/50 px-3 py-2 text-sm font-bold text-green hover:border-green/50 hover:bg-green/5 transition-all text-center tabular-nums">
-                    {o.team1.toFixed(2)}
-                  </button>
-                  <button className="rounded-lg border border-border bg-bg-body/50 px-3 py-2 text-sm font-bold text-blue-light hover:border-blue/50 hover:bg-blue/5 transition-all text-center tabular-nums">
-                    {o.team2.toFixed(2)}
-                  </button>
+                  {/* Odds columns */}
+                  {odds.map((o) => (
+                    <div key={o.bookmaker} className="flex flex-col gap-1.5">
+                      <button className="rounded-lg border border-border bg-bg-body/50 px-3 py-2.5 text-sm font-bold text-green hover:border-green/50 hover:bg-green/5 transition-all text-center tabular-nums">
+                        {o.team1.toFixed(2)}
+                      </button>
+                      <button className="rounded-lg border border-border bg-bg-body/50 px-3 py-2.5 text-sm font-bold text-blue-light hover:border-blue/50 hover:bg-blue/5 transition-all text-center tabular-nums">
+                        {o.team2.toFixed(2)}
+                      </button>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
@@ -96,9 +101,4 @@ export default async function BettingPage() {
       </p>
     </main>
   );
-}
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }

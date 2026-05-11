@@ -266,9 +266,9 @@ export default function CsdlePage() {
   }
 
   return (
-    <main className="mx-auto max-w-[900px] px-5 py-8">
+    <main className="mx-auto max-w-[900px] px-3 py-5 sm:px-5 sm:py-8">
       {/* Breadcrumb */}
-      <div className="mb-6 text-sm text-text-muted">
+      <div className="mb-4 text-sm text-text-muted sm:mb-6">
         <Link href="/" className="hover:text-text-secondary">Home</Link>
         <span className="mx-2">&rsaquo;</span>
         <Link href="/games" className="hover:text-text-secondary">Games</Link>
@@ -277,7 +277,7 @@ export default function CsdlePage() {
       </div>
 
       {/* Header row */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4 sm:gap-4 sm:mb-6">
         <div>
           <h1 className="text-2xl font-black flex items-center gap-3">
             <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30">
@@ -332,55 +332,59 @@ export default function CsdlePage() {
         )}
       </div>
 
-      {/* Column headers */}
-      {guesses.length > 0 && (
-        <div className="grid grid-cols-7 gap-1.5 mb-2 px-1">
-          {["Player", "Country", "Team", "Role", "Age", "Rating", "Region"].map((h) => (
-            <div key={h} className="text-[10px] font-bold uppercase tracking-wider text-text-muted text-center">
-              {h}
+      <div className="table-scroll scroll-fade-x sm:scroll-fade-none">
+        <div className="min-w-[420px] sm:min-w-[560px]">
+          {/* Column headers */}
+          {guesses.length > 0 && (
+            <div className="grid grid-cols-7 gap-1 mb-2 px-0.5 sm:gap-1.5 sm:px-1">
+              {["Player", "Country", "Team", "Role", "Age", "Rating", "Region"].map((h) => (
+                <div key={h} className="text-[9px] font-bold uppercase tracking-wider text-text-muted text-center sm:text-[10px]">
+                  {h}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          )}
 
-      {/* Guess rows */}
-      <div className="space-y-2 mb-6">
-        {guesses.map((row, ri) => (
-          <div key={ri} className="grid grid-cols-7 gap-1.5">
-            {row.clues.map((cell, ci) => (
-              <div
-                key={ci}
-                className={`rounded-lg border p-2 text-center text-xs font-semibold transition-all ${cellColor(cell.status)}`}
-                style={{
-                  animationDelay: `${ci * 120}ms`,
-                  animation: "fadeInUp 0.4s ease forwards",
-                  opacity: 0,
-                }}
-              >
-                <span>{cell.value}</span>
-                {cell.arrow && (
-                  <span className="ml-0.5">
-                    {cell.arrow === "up" ? "\u2191" : "\u2193"}
-                  </span>
-                )}
+          {/* Guess rows */}
+          <div className="space-y-1.5 mb-5 sm:space-y-2 sm:mb-6">
+            {guesses.map((row, ri) => (
+              <div key={ri} className="grid grid-cols-7 gap-1 sm:gap-1.5">
+                {row.clues.map((cell, ci) => (
+                  <div
+                    key={ci}
+                    className={`rounded-lg border p-1 text-center text-[11px] font-semibold transition-all sm:p-2 sm:text-xs ${cellColor(cell.status)}`}
+                    style={{
+                      animationDelay: `${ci * 120}ms`,
+                      animation: "fadeInUp 0.4s ease forwards",
+                      opacity: 0,
+                    }}
+                  >
+                    <span>{cell.value}</span>
+                    {cell.arrow && (
+                      <span className="ml-0.5">
+                        {cell.arrow === "up" ? "\u2191" : "\u2193"}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
             ))}
           </div>
-        ))}
-      </div>
 
-      {/* Empty guess slots */}
-      {!gameOver && (
-        <div className="space-y-2 mb-6">
-          {Array.from({ length: MAX_GUESSES - guesses.length }).map((_, i) => (
-            <div key={i} className="grid grid-cols-7 gap-1.5">
-              {Array.from({ length: 7 }).map((_, j) => (
-                <div key={j} className="rounded-lg border border-border/50 bg-bg-card/30 p-2 h-[38px]" />
+          {/* Empty guess slots */}
+          {!gameOver && (
+            <div className="space-y-1.5 mb-5 sm:space-y-2 sm:mb-6">
+              {Array.from({ length: MAX_GUESSES - guesses.length }).map((_, i) => (
+                <div key={i} className="grid grid-cols-7 gap-1 sm:gap-1.5">
+                  {Array.from({ length: 7 }).map((_, j) => (
+                    <div key={j} className="rounded-lg border border-border/50 bg-bg-card/30 p-1 h-[32px] sm:p-2 sm:h-[38px]" />
+                  ))}
+                </div>
               ))}
             </div>
-          ))}
+          )}
         </div>
-      )}
+      </div>
 
       {/* Inline animation style */}
       <style jsx>{`

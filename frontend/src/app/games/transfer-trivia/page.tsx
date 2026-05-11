@@ -238,9 +238,9 @@ export default function TransferTriviaPage() {
   }
 
   return (
-    <main className="mx-auto max-w-[900px] px-5 py-8">
+    <main className="mx-auto max-w-[900px] px-3 py-5 sm:px-5 sm:py-8">
       {/* Breadcrumb */}
-      <div className="mb-6 text-sm text-text-muted">
+      <div className="mb-4 text-sm text-text-muted sm:mb-6">
         <Link href="/" className="hover:text-text-secondary">Home</Link>
         <span className="mx-2">&rsaquo;</span>
         <Link href="/games" className="hover:text-text-secondary">Games</Link>
@@ -249,16 +249,16 @@ export default function TransferTriviaPage() {
       </div>
 
       {/* Title */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1">Transfer Trivia</h1>
-        <p className="text-sm text-text-muted">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl font-bold mb-1 sm:text-2xl">Transfer Trivia</h1>
+        <p className="text-[13px] text-text-muted sm:text-sm">
           Test your CS2 roster knowledge! Identify which teams each player has competed for.
         </p>
       </div>
 
       {/* Game finished screen */}
       {gameFinished ? (
-        <div className="rounded-xl border border-border bg-bg-card p-8 text-center card-glow animate-fade-in-up">
+        <div className="rounded-xl border border-border bg-bg-card p-5 text-center card-glow animate-fade-in-up sm:p-8">
           <div className="mb-6">
             <div className="text-5xl mb-3">
               {totalScore >= TOTAL_ROUNDS * 20 ? "🏆" : totalScore >= TOTAL_ROUNDS * 10 ? "⭐" : "🎮"}
@@ -327,9 +327,9 @@ export default function TransferTriviaPage() {
           </div>
 
           {/* Player card */}
-          <div className="rounded-xl border border-border bg-bg-card p-6 mb-6 card-glow animate-fade-in-up">
-            <div className="flex flex-col sm:flex-row items-center gap-5">
-              <div className="player-photo-frame relative h-28 w-28 shrink-0 overflow-hidden rounded-xl border-2 border-border">
+          <div className="rounded-xl border border-border bg-bg-card p-4 mb-5 card-glow animate-fade-in-up sm:p-6 sm:mb-6">
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5">
+              <div className="player-photo-frame relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 border-border sm:h-28 sm:w-28">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={roundData.player.image}
@@ -339,26 +339,26 @@ export default function TransferTriviaPage() {
               </div>
               <div className="text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                  <span className="text-2xl"><CountryFlag countryCode={roundData.player.country} preferredFlag={roundData.player.countryFlag} /></span>
-                  <h2 className="text-2xl font-black">{roundData.player.nickname}</h2>
+                  <span className="text-xl sm:text-2xl"><CountryFlag countryCode={roundData.player.country} preferredFlag={roundData.player.countryFlag} /></span>
+                  <h2 className="text-xl font-black sm:text-2xl">{roundData.player.nickname}</h2>
                 </div>
-                <p className="text-text-secondary text-sm">{roundData.player.realName}</p>
+                <p className="text-text-secondary text-[13px] sm:text-sm">{roundData.player.realName}</p>
                 <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
                   <TeamLogo src={roundData.player.teamLogo} name={roundData.player.team} size={20} />
-                  <span className="text-sm text-text-muted">Current: {roundData.player.team}</span>
+                  <span className="text-[13px] text-text-muted sm:text-sm">Current: {roundData.player.team}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Question */}
-          <div className="text-center mb-5">
-            <h3 className="text-lg font-bold">Which teams has this player played for?</h3>
-            <p className="text-xs text-text-muted mt-1">Select all teams you think are part of their career history</p>
+          <div className="text-center mb-4 sm:mb-5">
+            <h3 className="text-base font-bold sm:text-lg">Which teams has this player played for?</h3>
+            <p className="text-[11px] text-text-muted mt-1 sm:text-xs">Select all teams you think are part of their career history</p>
           </div>
 
           {/* Team grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <div className="grid grid-cols-2 gap-2 mb-5 sm:grid-cols-4 sm:gap-3 sm:mb-6">
             {roundData.pool.map((team) => {
               const isSelected = selected.has(team.name);
               const isCorrect = correctNames.has(team.name);
@@ -389,7 +389,7 @@ export default function TransferTriviaPage() {
                   key={team.name}
                   onClick={() => toggleTeam(team.name)}
                   disabled={submitted}
-                  className={`flex flex-col items-center gap-2 rounded-xl border ${borderStyle} ${bgStyle} ${glowStyle} p-4 transition-all ${
+                  className={`flex flex-col items-center gap-2 rounded-xl border ${borderStyle} ${bgStyle} ${glowStyle} p-3 transition-all sm:p-4 ${
                     submitted ? "cursor-default" : "cursor-pointer"
                   }`}
                 >

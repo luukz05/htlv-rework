@@ -60,7 +60,7 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
           <img src={p.teamLogo} alt="" className="w-[800px] h-[800px] object-contain" />
         </div>
         
-        <div className="relative z-10 mx-auto max-w-[1380px] px-4 pt-8 pb-10">
+        <div className="relative z-10 mx-auto max-w-[1380px] px-4 pt-5 pb-6 sm:pt-8 sm:pb-10">
           <div className="mb-6 text-sm text-text-muted flex items-center gap-2">
             <Link href="/" className="hover:text-text-secondary transition-colors">Home</Link>
             <span className="opacity-50">&rsaquo;</span>
@@ -69,39 +69,40 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
             <span className="text-text-primary font-medium">{p.nickname}</span>
           </div>
 
-          <div className="flex flex-col lg:flex-row items-center lg:items-end gap-8 lg:gap-12">
+          <div className="flex flex-col lg:flex-row items-center lg:items-end gap-3 lg:gap-12">
             {/* Player Image */}
-            <div className="relative shrink-0 self-end -mb-10">
-              <div className="relative w-64 h-64 md:w-[400px] md:h-[400px] overflow-hidden">
-                <img 
-                  src={p.image} 
-                  alt={p.nickname} 
-                  className="w-full h-full object-contain object-bottom" 
+            <div className="relative shrink-0 lg:self-end lg:-mb-10">
+              <div className="relative h-44 w-44 sm:h-56 sm:w-56 md:h-[400px] md:w-[400px] overflow-hidden">
+                <img
+                  src={p.image}
+                  alt={p.nickname}
+                  className="w-full h-full object-contain object-bottom"
                 />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0d1117] via-[#0d1117]/60 to-transparent sm:hidden" />
               </div>
             </div>
 
             {/* Player Info */}
-            <div className="flex-1 text-center lg:text-left pb-10">
+            <div className="relative flex-1 text-center lg:text-left pb-2 min-w-0 -mt-16 sm:mt-0 sm:pb-10">
               <div className="flex flex-col lg:flex-row lg:items-end gap-4 mb-6">
-                <div>
-                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-2">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-2">
                     <div className="flex items-center gap-2">
                       <span className="text-xl font-black text-text-muted">#{p.rank}</span>
                       <CountryFlag countryCode={p.country} preferredFlag={p.countryFlag} className="text-3xl shadow-sm" />
                     </div>
-                    <h1 className="text-5xl font-black tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">{p.nickname}</h1>
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent break-words">{p.nickname}</h1>
                   </div>
-                  <h2 className="text-xl text-text-secondary font-medium">{p.realName} &middot; {p.age} years old</h2>
+                  <h2 className="text-base sm:text-xl text-text-secondary font-medium">{p.realName} &middot; {p.age} years old</h2>
                 </div>
-                <div className="lg:ml-auto flex items-center justify-center gap-4">
-                  <div className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <div className="lg:ml-auto flex items-center justify-center gap-3 sm:gap-4">
+                  <div className="px-3 py-2 sm:px-5 sm:py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-1">Rating 2.1</p>
-                    <p className="text-3xl font-black text-green leading-none">{p.rating2.toFixed(2)}</p>
+                    <p className="text-2xl sm:text-3xl font-black text-green leading-none">{p.rating2.toFixed(2)}</p>
                   </div>
-                  <div className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                  <div className="px-3 py-2 sm:px-5 sm:py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-1">Impact</p>
-                    <p className="text-3xl font-black text-red leading-none">{p.impact.toFixed(2)}</p>
+                    <p className="text-2xl sm:text-3xl font-black text-red leading-none">{p.impact.toFixed(2)}</p>
                   </div>
                 </div>
               </div>
@@ -132,9 +133,9 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
                   { l: "HS%", v: p.hsPercent, c: "text-yellow" },
                   { l: "Earnings", v: p.careerEarnings, c: "text-green" },
                 ].map((s) => (
-                  <div key={s.l} className="flex items-center gap-3 bg-bg-card/40 border border-border px-4 py-2 rounded-lg backdrop-blur-sm">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">{s.l}</span>
-                    <span className={`text-sm font-bold tabular-nums ${s.c}`}>{s.v}</span>
+                  <div key={s.l} className="flex items-center gap-1.5 bg-bg-card/40 border border-border px-2 py-1.5 rounded-lg backdrop-blur-sm sm:gap-3 sm:px-4 sm:py-2">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-text-muted sm:text-[10px]">{s.l}</span>
+                    <span className={`text-xs font-bold tabular-nums sm:text-sm ${s.c}`}>{s.v}</span>
                   </div>
                 ))}
               </div>
@@ -145,12 +146,12 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
 
       {/* Tab Bar */}
       <div className="border-b border-border bg-bg-surface/80 backdrop-blur-xl sticky top-14 z-40">
-        <div className="mx-auto max-w-[1380px] px-4 flex gap-1">
+        <div className="mx-auto max-w-[1380px] px-4 flex gap-1 overflow-x-auto scrollbar-thin scroll-fade-right">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`relative px-6 py-4 text-sm font-bold tracking-wide transition-all ${activeTab === tab ? "text-blue-light" : "text-text-secondary hover:text-text-primary"}`}
+              className={`relative shrink-0 px-4 sm:px-6 py-4 text-sm font-bold tracking-wide transition-all ${activeTab === tab ? "text-blue-light" : "text-text-secondary hover:text-text-primary"}`}
             >
               {tab}
               {activeTab === tab && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-light shadow-[0_0_12px_rgba(59,130,246,0.5)]" />}
@@ -159,10 +160,10 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
         </div>
       </div>
 
-      <main className="mx-auto max-w-[1380px] px-4 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-10">
+      <main className="mx-auto max-w-[1380px] px-4 py-6 sm:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 sm:gap-10">
           {/* Main Content */}
-          <div className="space-y-10">
+          <div className="space-y-6 sm:space-y-10">
             {activeTab === "Overview" && (
               <>
                 {/* Achievements - Now directly accessible */}
@@ -275,14 +276,14 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
                         ].map((stat) => (
                           <div key={stat.label} className="rounded-lg border border-border bg-bg-body/40 px-3 py-2">
                             <p className={`text-sm font-black tabular-nums ${stat.color}`}>{stat.value}</p>
-                            <p className="mt-0.5 text-[9px] font-black uppercase tracking-widest text-text-muted">{stat.label}</p>
+                            <p className="mt-0.5 text-[10px] sm:text-[9px] font-black uppercase tracking-widest text-text-muted">{stat.label}</p>
                           </div>
                         ))}
                       </div>
                     </div>
 
                     <div className="relative overflow-hidden rounded-xl border border-border bg-bg-body/40">
-                      <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label={`Recent form chart for ${p.nickname}`} className="h-[260px] w-full">
+                      <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label={`Recent form chart for ${p.nickname}`} className="h-[150px] w-full sm:h-[260px]">
                         <defs>
                           <linearGradient id={`form-area-${p.id}`} x1="0" x2="0" y1="0" y2="1">
                             <stop offset="0%" stopColor="#22c55e" stopOpacity="0.28" />
@@ -326,23 +327,27 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
                   <div className="px-6 py-4 border-b border-border bg-white/5">
                     <h2 className="text-lg font-bold">Performance by Map</h2>
                   </div>
-                  <div className="grid grid-cols-[1fr_80px_100px_80px] gap-2 px-6 py-3 border-b border-border text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted">
-                    <span>Map Name</span><span className="text-right">Rating</span><span className="text-right">Win Rate</span><span className="text-right">Matches</span>
-                  </div>
-                  <div className="divide-y divide-border">
-                    {p.bestMaps.map((m) => (
-                      <Link key={m.map} href={`/maps/${m.map.toLowerCase().replace(" ", "")}`} className="grid grid-cols-[1fr_80px_100px_80px] gap-2 items-center px-6 py-4 hover:bg-white/[0.02] transition-all group">
-                        <span className="text-sm font-bold group-hover:text-blue-light transition-colors">{m.map}</span>
-                        <span className="text-sm font-black text-green text-right tabular-nums">{m.rating.toFixed(2)}</span>
-                        <div className="flex items-center gap-3 justify-end">
-                          <div className="w-20 h-2 rounded-full bg-border overflow-hidden">
-                            <div className="h-full rounded-full bg-blue-light shadow-[0_0_8px_rgba(59,130,246,0.5)]" style={{ width: `${m.winRate}%` }} />
-                          </div>
-                          <span className="text-xs font-bold tabular-nums text-text-secondary">{m.winRate}%</span>
-                        </div>
-                        <span className="text-xs font-medium text-text-muted text-right tabular-nums">{m.matches}</span>
-                      </Link>
-                    ))}
+                  <div className="table-scroll">
+                    <div className="min-w-[420px]">
+                      <div className="grid grid-cols-[1fr_80px_100px_80px] gap-2 px-4 sm:px-6 py-3 border-b border-border text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted">
+                        <span>Map Name</span><span className="text-right">Rating</span><span className="text-right">Win Rate</span><span className="text-right">Matches</span>
+                      </div>
+                      <div className="divide-y divide-border">
+                        {p.bestMaps.map((m) => (
+                          <Link key={m.map} href={`/maps/${m.map.toLowerCase().replace(" ", "")}`} className="grid grid-cols-[1fr_80px_100px_80px] gap-2 items-center px-4 sm:px-6 py-4 hover:bg-white/[0.02] transition-all group">
+                            <span className="text-sm font-bold group-hover:text-blue-light transition-colors">{m.map}</span>
+                            <span className="text-sm font-black text-green text-right tabular-nums">{m.rating.toFixed(2)}</span>
+                            <div className="flex items-center gap-3 justify-end">
+                              <div className="w-20 h-2 rounded-full bg-border overflow-hidden">
+                                <div className="h-full rounded-full bg-blue-light shadow-[0_0_8px_rgba(59,130,246,0.5)]" style={{ width: `${m.winRate}%` }} />
+                              </div>
+                              <span className="text-xs font-bold tabular-nums text-text-secondary">{m.winRate}%</span>
+                            </div>
+                            <span className="text-xs font-medium text-text-muted text-right tabular-nums">{m.matches}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </section>
               </>
@@ -355,20 +360,24 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
                   <div className="px-6 py-4 border-b border-border">
                     <h2 className="text-lg font-bold">Event History</h2>
                   </div>
-                  <div className="grid grid-cols-[1fr_40px_80px_60px_100px_80px] gap-2 px-6 py-3 border-b border-border text-[10px] font-bold uppercase tracking-wider text-text-muted">
-                    <span>Event</span><span>Tier</span><span className="text-right">Rating</span><span className="text-right">Maps</span><span className="text-right">Placement</span><span className="text-right">Date</span>
-                  </div>
-                  <div className="divide-y divide-border">
-                    {p.eventHistory.map((e, i) => (
-                      <div key={i} className="grid grid-cols-[1fr_40px_80px_60px_100px_80px] gap-2 items-center px-6 py-4 hover:bg-bg-card-hover transition-all">
-                        <span className="text-sm font-bold truncate">{e.event}</span>
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded text-center ${e.tier === "S" ? "bg-yellow/20 text-yellow border border-yellow/20" : e.tier === "A" ? "bg-blue-light/20 text-blue-light border border-blue-light/20" : "bg-text-muted/20 text-text-secondary border border-text-muted/20"}`}>{e.tier}</span>
-                        <span className={`text-sm font-black text-right tabular-nums ${Number(e.rating) >= 1.10 ? "text-green" : "text-text-secondary"}`}>{e.rating}</span>
-                        <span className="text-xs font-bold text-text-muted text-right tabular-nums">{e.maps}</span>
-                        <span className="text-xs font-black text-right">{e.placement}</span>
-                        <span className="text-xs font-bold text-text-muted text-right">{e.date}</span>
+                  <div className="table-scroll">
+                    <div className="min-w-[560px]">
+                      <div className="grid grid-cols-[1fr_40px_80px_60px_100px_80px] gap-2 px-4 sm:px-6 py-3 border-b border-border text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                        <span>Event</span><span>Tier</span><span className="text-right">Rating</span><span className="text-right">Maps</span><span className="text-right">Placement</span><span className="text-right">Date</span>
                       </div>
-                    ))}
+                      <div className="divide-y divide-border">
+                        {p.eventHistory.map((e, i) => (
+                          <div key={i} className="grid grid-cols-[1fr_40px_80px_60px_100px_80px] gap-2 items-center px-4 sm:px-6 py-4 hover:bg-bg-card-hover transition-all">
+                            <span className="text-sm font-bold truncate">{e.event}</span>
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded text-center ${e.tier === "S" ? "bg-yellow/20 text-yellow border border-yellow/20" : e.tier === "A" ? "bg-blue-light/20 text-blue-light border border-blue-light/20" : "bg-text-muted/20 text-text-secondary border border-text-muted/20"}`}>{e.tier}</span>
+                            <span className={`text-sm font-black text-right tabular-nums ${Number(e.rating) >= 1.10 ? "text-green" : "text-text-secondary"}`}>{e.rating}</span>
+                            <span className="text-xs font-bold text-text-muted text-right tabular-nums">{e.maps}</span>
+                            <span className="text-xs font-black text-right">{e.placement}</span>
+                            <span className="text-xs font-bold text-text-muted text-right">{e.date}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </section>
 
@@ -381,15 +390,15 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
                     {p.weaponStats.map((w) => {
                       const maxKills = Math.max(...p.weaponStats.map((x) => x.kills));
                       return (
-                        <div key={w.weapon} className="flex items-center gap-6 px-6 py-4 hover:bg-bg-card-hover transition-all">
-                          <span className="text-sm font-bold w-32">{w.weapon}</span>
-                          <div className="flex-1">
+                        <div key={w.weapon} className="flex items-center gap-3 sm:gap-6 px-4 sm:px-6 py-4 hover:bg-bg-card-hover transition-all">
+                          <span className="text-sm font-bold w-20 sm:w-32 truncate">{w.weapon}</span>
+                          <div className="flex-1 min-w-0">
                             <div className="h-2.5 rounded-full bg-border overflow-hidden">
                               <div className="h-full rounded-full bg-gradient-to-r from-blue to-blue-light shadow-[0_0_10px_rgba(59,130,246,0.3)]" style={{ width: `${(w.kills / maxKills) * 100}%` }} />
                             </div>
                           </div>
-                          <span className="text-sm font-black tabular-nums w-20 text-right">{w.kills.toLocaleString()}</span>
-                          <span className="text-xs font-bold text-yellow tabular-nums w-16 text-right">{w.hsPercent} HS</span>
+                          <span className="text-sm font-black tabular-nums w-14 sm:w-20 text-right">{w.kills.toLocaleString()}</span>
+                          <span className="hidden sm:block text-xs font-bold text-yellow tabular-nums w-16 text-right">{w.hsPercent} HS</span>
                         </div>
                       );
                     })}
@@ -476,20 +485,20 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
                 </div>
                 <div className="divide-y divide-border">
                   {p.recentMatches.map((m, i) => (
-                    <div key={i} className="flex items-center gap-6 px-6 py-4 hover:bg-bg-card-hover transition-all">
-                      <span className={`text-[10px] font-black px-2 py-1 rounded border ${m.result.startsWith("W") ? "bg-green/10 text-green border-green/20" : "bg-red/10 text-red border-red/20"}`}>
+                    <div key={i} className="flex items-center gap-2 px-3 py-3 hover:bg-bg-card-hover transition-all sm:gap-6 sm:px-6 sm:py-4">
+                      <span className={`text-[10px] font-black px-2 py-1 rounded border shrink-0 ${m.result.startsWith("W") ? "bg-green/10 text-green border-green/20" : "bg-red/10 text-red border-red/20"}`}>
                         {m.result}
                       </span>
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <span className="text-xs font-bold text-text-muted uppercase">vs</span>
-                        <TeamLogo src={m.opponentLogo} name={m.opponent} size={24} />
+                      <div className="flex items-center gap-2 flex-1 min-w-0 sm:gap-3">
+                        <span className="hidden text-xs font-bold text-text-muted uppercase sm:inline">vs</span>
+                        <TeamLogo src={m.opponentLogo} name={m.opponent} size={20} className="sm:!h-6 sm:!w-6" />
                         <span className="text-sm font-bold truncate">{m.opponent}</span>
                       </div>
                       <span className="text-xs font-bold text-text-muted hidden sm:block uppercase tracking-wider">{m.map}</span>
                       <span className="text-xs font-bold text-text-muted hidden sm:block truncate max-w-[150px]">{m.event}</span>
-                      <div className="flex items-center gap-4 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0 sm:gap-4">
                         <span className={`text-sm font-black tabular-nums ${m.rating >= p.rating2 ? "text-green" : "text-text-secondary"}`}>{m.rating.toFixed(2)}</span>
-                        <span className="text-xs font-bold text-text-muted tabular-nums">{m.kills}/{m.deaths}</span>
+                        <span className="text-[11px] font-bold text-text-muted tabular-nums sm:text-xs">{m.kills}/{m.deaths}</span>
                       </div>
                     </div>
                   ))}

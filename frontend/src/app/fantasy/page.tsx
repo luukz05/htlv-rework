@@ -2,6 +2,7 @@ import Link from "next/link";
 import TeamLogo from "@/components/TeamLogo";
 import CountryFlag from "@/components/CountryFlag";
 import { api } from "@/services/api";
+import { resolvePageData } from "@/lib/resolve-page-data";
 
 export const metadata = {
   title: "Fantasy - Leaderboard and Player Prices",
@@ -78,21 +79,21 @@ export default async function FantasyPage() {
                     <div className="flex items-center gap-3">
                       <div className="text-center">
                         <p className="text-lg font-black text-green tabular-nums">{player.fantasyPoints}</p>
-                        <p className="text-[9px] font-bold uppercase text-text-muted">Points</p>
+                        <p className="text-[10px] sm:text-[9px] font-bold uppercase text-text-muted">Points</p>
                       </div>
                       <div className="w-px h-8 bg-border" />
                       <div className="text-center">
                         <p className="text-sm font-bold text-yellow tabular-nums">${player.price}M</p>
-                        <p className="text-[9px] font-bold uppercase text-text-muted">Price</p>
+                        <p className="text-[10px] sm:text-[9px] font-bold uppercase text-text-muted">Price</p>
                       </div>
                       <div className="w-px h-8 bg-border" />
                       <div className="text-center">
                         <p className="text-sm font-bold text-blue-light tabular-nums">{player.owned}</p>
-                        <p className="text-[9px] font-bold uppercase text-text-muted">Owned</p>
+                        <p className="text-[10px] sm:text-[9px] font-bold uppercase text-text-muted">Owned</p>
                       </div>
                     </div>
                   </div>
-                  <button className="shrink-0 rounded-lg border border-green/30 bg-green/10 px-3 py-1.5 text-[11px] font-bold text-green hover:bg-green/20 transition-colors">
+                  <button className="shrink-0 rounded-lg border border-green/30 bg-green/10 px-3 py-2.5 sm:py-1.5 text-xs sm:text-[11px] font-bold text-green hover:bg-green/20 transition-colors min-h-11 sm:min-h-0">
                     + Add
                   </button>
                 </div>
@@ -146,9 +147,4 @@ export default async function FantasyPage() {
       </div>
     </main>
   );
-}
-
-async function resolvePageData<T extends Record<string, Promise<unknown>>>(promises: T) {
-  const entries = await Promise.all(Object.entries(promises).map(async ([key, promise]) => [key, await promise]));
-  return Object.fromEntries(entries) as { [K in keyof T]: Awaited<T[K]> };
 }
