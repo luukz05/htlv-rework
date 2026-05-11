@@ -21,11 +21,12 @@ interface Target {
   size: number;
   spawnedAt: number;
   lifetime: number;
+  kind: "tr" | "bomb";
 }
 
 interface Chicken {
   id: number;
-  type: "bad" | "golden";
+  kind: "golden" | "bomb";
   fromX: number;
   fromY: number;
   toX: number;
@@ -58,16 +59,22 @@ const ROUND_DURATION = 30; // seconds
 const STARTING_LIVES = 3;
 const MISSES_PER_LIFE = 10;
 const GOLDEN_CHICKEN_BONUS = 5;
-const FLASH_WARNING_MS = 1000;
-const FLASH_DODGE_BEFORE_MS = 450;
-const FLASH_DODGE_AFTER_MS = 150;
+const FLASH_WARNING_MS = 1100;
+const FLASH_DODGE_BEFORE_MS = 500;
+const FLASH_DODGE_AFTER_MS = 180;
 const FLASH_BLIND_MS = 1800;
-const FLASH_SPAWN_MIN_MS = 5200;
-const FLASH_SPAWN_MAX_MS = 8800;
+const FLASH_SPAWN_MIN_MS = 6200;
+const FLASH_SPAWN_MAX_MS = 9800;
+const BOMB_SPAWN_CHANCE_MIN = 0.09;
+const BOMB_SPAWN_CHANCE_MAX = 0.18;
+const FLYING_BOMB_CHANCE = 0.22;
+const BOMB_EXPLOSION_FLASH_MS = 500;
 const TERRORIST_IMAGE =
   "https://static.wikia.nocookie.net/cswikia/images/1/18/Terrorist_large.png/revision/latest/scale-to-width-down/250?cb=20210528221152";
-const BAD_CHICKEN_IMAGE =
-  "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJai0ki7VeTHjMmyZyvY5kUnpLj3vmbhUxT0kJKuqHUJvav3a_dscPORXGOWxbog5LdvGH7jxBhxt2zUz92hcHOQb1cpCIwwG7BrDvzu4w/330x192?allow_animated=1";
+const FLASHBANG_IMAGE =
+  "https://www.pngmart.com/files/23/Flashbang-PNG-Image.png";
+const BOMB_IMAGE =
+  "https://images.steamusercontent.com/ugc/2091415411420134200/0C3E17B0C0E62DC5A6BBD0FB0ECDADB7E55ACA38/";
 const GOLDEN_CHICKEN_IMAGE =
   "https://community.fastly.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJai0ki7VeTHjNquOmmb_Glx5obj5BbkSRTylZPus3NatqT9MaFrIfXGWzfGkrcvseM7F3zmwxsi5T-Hzo6sJynDagIhWJFuBblddS7UA_M/330x192?allow_animated=1";
 
@@ -161,8 +168,9 @@ export default function CrosshairChallengePage() {
   const [isBlinded, setIsBlinded] = useState(false);
   const [flashFeedback, setFlashFeedback] = useState<"dodged" | "blinded" | null>(null);
   const [hitEffects, setHitEffects] = useState<
-    { id: number; x: number; y: number; variant: "hit" | "gold" }[]
+    { id: number; x: number; y: number; variant: "hit" | "gold" | "boom" }[]
   >([]);
+  const [explosionFlash, setExplosionFlash] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
 
@@ -216,7 +224,15 @@ export default function CrosshairChallengePage() {
     [],
   );
   const getTargetLifetime = useCallback(
-    (score: number) => Math.max(500, 1500 - Math.floor(score / 3) * 80),
+    (score: number) => Math.max(620, 1700 - Math.floor(score / 3) * 80),
+    [],
+  );
+  const getBombChance = useCallback(
+    (score: number) =>
+      Math.min(
+        BOMB_SPAWN_CHANCE_MAX,
+        BOMB_SPAWN_CHANCE_MIN + Math.floor(score / 8) * 0.02,
+      ),
     [],
   );
 
@@ -236,6 +252,7 @@ export default function CrosshairChallengePage() {
     const y = padding + Math.random() * (rect.height - padding * 2);
     const lifetime = getTargetLifetime(statsRef.current.score);
 
+    const isBomb = Math.random() < getBombChance(statsRef.current.score);
     const newTarget: Target = {
       id: ++targetIdRef.current,
       x,
@@ -243,6 +260,7 @@ export default function CrosshairChallengePage() {
       size,
       spawnedAt: performance.now(),
       lifetime,
+      kind: isBomb ? "bomb" : "tr",
     };
 
     setTargets((prev) => [...prev, newTarget]);
@@ -260,7 +278,7 @@ export default function CrosshairChallengePage() {
       1000 - Math.floor(statsRef.current.score / 4) * 50,
     );
     spawnTimerRef.current = setTimeout(spawnTarget, nextDelay);
-  }, [getTargetSize, getTargetLifetime]);
+  }, [getTargetSize, getTargetLifetime, getBombChance]);
 
   const spawnChicken = useCallback(() => {
     if (phaseRef.current !== "playing") return;
@@ -269,13 +287,13 @@ export default function CrosshairChallengePage() {
     if (!area) return;
 
     const rect = area.getBoundingClientRect();
-    const isGolden = Math.random() < 0.28;
-    const chickenWidth = Math.round(randomBetween(isGolden ? 78 : 70, isGolden ? 122 : 112));
-    const chickenHeight = Math.round(chickenWidth * 0.59);
+    const isFlyingBomb = Math.random() < FLYING_BOMB_CHANCE;
+    const chickenWidth = Math.round(randomBetween(isFlyingBomb ? 70 : 78, isFlyingBomb ? 110 : 122));
+    const chickenHeight = Math.round(chickenWidth * (isFlyingBomb ? 1 : 0.59));
     const path = buildChickenPath(rect.width, rect.height, chickenWidth);
     const chicken: Chicken = {
       id: ++chickenIdRef.current,
-      type: isGolden ? "golden" : "bad",
+      kind: isFlyingBomb ? "bomb" : "golden",
       ...path,
       width: chickenWidth,
       height: chickenHeight,
@@ -287,7 +305,7 @@ export default function CrosshairChallengePage() {
       setChickens((prev) => prev.filter((c) => c.id !== chicken.id));
     }, chicken.duration);
 
-    chickenTimerRef.current = setTimeout(spawnChicken, 1800 + Math.random() * 1200);
+    chickenTimerRef.current = setTimeout(spawnChicken, 2400 + Math.random() * 1400);
   }, []);
 
   const clearFlashTimers = useCallback(() => {
@@ -367,6 +385,7 @@ export default function CrosshairChallengePage() {
     flashDodgedRef.current = false;
     clearFlashTimers();
     setHitEffects([]);
+    setExplosionFlash(false);
     setXpEarned(0);
     setNewAchievements([]);
     targetIdRef.current = 0;
@@ -490,6 +509,32 @@ export default function CrosshairChallengePage() {
     e.stopPropagation();
     if (phase !== "playing") return;
 
+    setTargets((prev) => prev.filter((t) => t.id !== target.id));
+
+    if (target.kind === "bomb") {
+      const effectId = target.id;
+      setHitEffects((prev) => [
+        ...prev,
+        { id: effectId, x: target.x, y: target.y, variant: "boom" },
+      ]);
+      setTimeout(() => {
+        setHitEffects((prev) => prev.filter((eff) => eff.id !== effectId));
+      }, 600);
+
+      setExplosionFlash(true);
+      setTimeout(() => setExplosionFlash(false), BOMB_EXPLOSION_FLASH_MS);
+
+      const nextLives = livesRef.current - 1;
+      setLives(nextLives);
+      livesRef.current = nextLives;
+      setMissedShots(0);
+      missedShotsRef.current = 0;
+      if (nextLives <= 0) {
+        endGame();
+      }
+      return;
+    }
+
     const reactionMs = performance.now() - target.spawnedAt;
 
     setStats((prev) => ({
@@ -499,8 +544,6 @@ export default function CrosshairChallengePage() {
       score: prev.score + 1,
     }));
 
-    setTargets((prev) => prev.filter((t) => t.id !== target.id));
-
     /* hit effect */
     const effectId = target.id;
     setHitEffects((prev) => [
@@ -508,7 +551,7 @@ export default function CrosshairChallengePage() {
       { id: effectId, x: target.x, y: target.y, variant: "hit" },
     ]);
     setTimeout(() => {
-      setHitEffects((prev) => prev.filter((e) => e.id !== effectId));
+      setHitEffects((prev) => prev.filter((eff) => eff.id !== effectId));
     }, 400);
   };
 
@@ -518,8 +561,31 @@ export default function CrosshairChallengePage() {
 
     setChickens((prev) => prev.filter((c) => c.id !== chicken.id));
 
-    if (chicken.type === "bad") {
-      endGame();
+    const areaRect = gameAreaRef.current?.getBoundingClientRect();
+    const x = areaRect ? e.clientX - areaRect.left : chicken.fromX;
+    const y = areaRect ? e.clientY - areaRect.top : chicken.fromY;
+
+    if (chicken.kind === "bomb") {
+      const effectId = chicken.id + 20000;
+      setHitEffects((prev) => [
+        ...prev,
+        { id: effectId, x, y, variant: "boom" },
+      ]);
+      setTimeout(() => {
+        setHitEffects((prev) => prev.filter((eff) => eff.id !== effectId));
+      }, 600);
+
+      setExplosionFlash(true);
+      setTimeout(() => setExplosionFlash(false), BOMB_EXPLOSION_FLASH_MS);
+
+      const nextLives = livesRef.current - 1;
+      setLives(nextLives);
+      livesRef.current = nextLives;
+      setMissedShots(0);
+      missedShotsRef.current = 0;
+      if (nextLives <= 0) {
+        endGame();
+      }
       return;
     }
 
@@ -528,9 +594,6 @@ export default function CrosshairChallengePage() {
       score: prev.score + GOLDEN_CHICKEN_BONUS,
     }));
     const effectId = chicken.id + 10000;
-    const areaRect = gameAreaRef.current?.getBoundingClientRect();
-    const x = areaRect ? e.clientX - areaRect.left : chicken.fromX;
-    const y = areaRect ? e.clientY - areaRect.top : chicken.fromY;
     setHitEffects((prev) => [
       ...prev,
       { id: effectId, x, y, variant: "gold" },
@@ -617,9 +680,11 @@ export default function CrosshairChallengePage() {
               <p className="text-sm text-text-secondary mb-6">
                 Shoot terrorists as fast as you can! You have{" "}
                 <span className="text-blue-light font-bold">30 seconds</span>.
-                Golden chickens give bonus points, regular chickens end the run,
-                every 10 missed shots costs one life, and flashbangs must be
-                dodged with Space or right click.
+                Watch out for the <span className="text-red font-bold">C4</span>{" "}
+                — it spawns where a terrorist would <em>and</em> sometimes flies across the
+                screen like a chicken; clicking it costs one life.
+                Golden chickens give bonus points, every 10 missed shots costs one
+                life, and flashbangs must be dodged with Space or right click.
               </p>
               <button
                 onClick={startGame}
@@ -731,14 +796,18 @@ export default function CrosshairChallengePage() {
                     height: target.size,
                     cursor: "crosshair",
                   }}
-                  aria-label="Shoot terrorist"
+                  aria-label={target.kind === "bomb" ? "C4 — do not shoot" : "Shoot terrorist"}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={TERRORIST_IMAGE}
+                    src={target.kind === "bomb" ? BOMB_IMAGE : TERRORIST_IMAGE}
                     alt=""
                     draggable={false}
-                    className="h-full w-full object-contain drop-shadow-[0_0_12px_rgba(239,68,68,0.45)]"
+                    className={`h-full w-full object-contain ${
+                      target.kind === "bomb"
+                        ? "drop-shadow-[0_0_16px_rgba(239,68,68,0.85)] animate-bomb-pulse"
+                        : "drop-shadow-[0_0_12px_rgba(239,68,68,0.45)]"
+                    }`}
                   />
                 </button>
               ))}
@@ -758,17 +827,17 @@ export default function CrosshairChallengePage() {
                     animationDuration: `${chicken.duration}ms`,
                     cursor: "crosshair",
                   } as React.CSSProperties}
-                  aria-label={chicken.type === "golden" ? "Shoot golden chicken" : "Do not shoot chicken"}
+                  aria-label={chicken.kind === "bomb" ? "Flying C4 — do not shoot" : "Shoot golden chicken"}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={chicken.type === "golden" ? GOLDEN_CHICKEN_IMAGE : BAD_CHICKEN_IMAGE}
+                    src={chicken.kind === "bomb" ? BOMB_IMAGE : GOLDEN_CHICKEN_IMAGE}
                     alt=""
                     draggable={false}
                     className={`h-full w-full object-contain ${
-                      chicken.type === "golden"
-                        ? "drop-shadow-[0_0_16px_rgba(234,179,8,0.95)] saturate-150"
-                        : "drop-shadow-[0_0_10px_rgba(0,0,0,0.55)]"
+                      chicken.kind === "bomb"
+                        ? "drop-shadow-[0_0_16px_rgba(239,68,68,0.85)] animate-bomb-pulse"
+                        : "drop-shadow-[0_0_16px_rgba(234,179,8,0.95)] saturate-150"
                     }`}
                     style={{ transform: chicken.flip ? "scaleX(-1)" : undefined }}
                   />
@@ -777,22 +846,19 @@ export default function CrosshairChallengePage() {
 
               {flashbang && (
                 <div
-                  className="absolute z-20 flex h-14 w-14 items-center justify-center rounded-full border border-yellow/60 bg-yellow/15 text-yellow shadow-[0_0_24px_rgba(234,179,8,0.45)] animate-flashbang-warning pointer-events-none"
+                  className="absolute z-20 flex h-16 w-16 items-center justify-center animate-flashbang-warning pointer-events-none"
                   style={{
-                    left: flashbang.x - 28,
-                    top: flashbang.y - 28,
+                    left: flashbang.x - 32,
+                    top: flashbang.y - 32,
                   }}
                 >
-                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 4l6 6" />
-                    <path d="M17 7l-9 9" />
-                    <path d="M7 15l2 2" />
-                    <path d="M5 19l4-4" />
-                    <path d="M3 21l2-2" />
-                    <path d="M12 2l1 3" />
-                    <path d="M22 12l-3-1" />
-                    <path d="M18 2l-1 3" />
-                  </svg>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={FLASHBANG_IMAGE}
+                    alt=""
+                    draggable={false}
+                    className="h-full w-full object-contain drop-shadow-[0_0_18px_rgba(234,179,8,0.85)]"
+                  />
                 </div>
               )}
 
@@ -805,21 +871,45 @@ export default function CrosshairChallengePage() {
               )}
 
               {/* Hit effects */}
-              {hitEffects.map((eff) => (
-                <div
-                  key={eff.id}
-                  className="absolute pointer-events-none animate-target-hit"
-                  style={{
-                    left: eff.x - 15,
-                    top: eff.y - 15,
-                    width: 30,
-                    height: 30,
-                    borderRadius: "50%",
-                    border: eff.variant === "gold" ? "2px solid rgba(234, 179, 8, 0.95)" : "2px solid rgba(34, 197, 94, 0.8)",
-                    boxShadow: eff.variant === "gold" ? "0 0 20px rgba(234, 179, 8, 0.7)" : "0 0 16px rgba(34, 197, 94, 0.4)",
-                  }}
-                />
-              ))}
+              {hitEffects.map((eff) => {
+                if (eff.variant === "boom") {
+                  return (
+                    <div
+                      key={eff.id}
+                      className="absolute pointer-events-none animate-bomb-boom z-30"
+                      style={{
+                        left: eff.x - 50,
+                        top: eff.y - 50,
+                        width: 100,
+                        height: 100,
+                        borderRadius: "50%",
+                        background:
+                          "radial-gradient(circle, rgba(254,215,170,0.95) 0%, rgba(239,68,68,0.85) 35%, rgba(120,20,20,0) 75%)",
+                        boxShadow: "0 0 60px rgba(239,68,68,0.85)",
+                      }}
+                    />
+                  );
+                }
+                return (
+                  <div
+                    key={eff.id}
+                    className="absolute pointer-events-none animate-target-hit"
+                    style={{
+                      left: eff.x - 15,
+                      top: eff.y - 15,
+                      width: 30,
+                      height: 30,
+                      borderRadius: "50%",
+                      border: eff.variant === "gold" ? "2px solid rgba(234, 179, 8, 0.95)" : "2px solid rgba(34, 197, 94, 0.8)",
+                      boxShadow: eff.variant === "gold" ? "0 0 20px rgba(234, 179, 8, 0.7)" : "0 0 16px rgba(34, 197, 94, 0.4)",
+                    }}
+                  />
+                );
+              })}
+
+              {explosionFlash && (
+                <div className="absolute inset-0 z-30 pointer-events-none animate-explosion-flash" />
+              )}
 
               {/* Center crosshair watermark */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
@@ -877,6 +967,28 @@ export default function CrosshairChallengePage() {
                 animation: chickenPath linear forwards;
                 left: 0;
                 top: 0;
+              }
+              @keyframes bombPulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.15); }
+              }
+              .animate-bomb-pulse {
+                animation: bombPulse 700ms ease-in-out infinite;
+              }
+              @keyframes bombBoom {
+                0% { transform: scale(0.4); opacity: 0.95; }
+                60% { transform: scale(1.4); opacity: 0.85; }
+                100% { transform: scale(1.8); opacity: 0; }
+              }
+              .animate-bomb-boom {
+                animation: bombBoom 600ms ease-out forwards;
+              }
+              @keyframes explosionFlash {
+                0% { background-color: rgba(239, 68, 68, 0.65); }
+                100% { background-color: rgba(239, 68, 68, 0); }
+              }
+              .animate-explosion-flash {
+                animation: explosionFlash ${BOMB_EXPLOSION_FLASH_MS}ms ease-out forwards;
               }
             `}</style>
           </div>
