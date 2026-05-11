@@ -29,7 +29,7 @@ function PlayerOfTheWeek({
   const profile = playerProfiles.find((p) => p.nickname === player.name);
   const achievements = profile?.achievements.slice(0, 4) ?? [
     "IEM Katowice 2026 MVP",
-    "HLTV #1 Player 2025",
+    "WikiHowl #1 Player 2025",
     "BLAST Premier Champion 2025",
   ];
   const recentForm = profile?.recentMatches.slice(0, 3) ?? [];
@@ -61,9 +61,9 @@ function PlayerOfTheWeek({
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
-          Latest HLTV MVP
+          Latest WikiHowl MVP
         </h2>
-        <span className="text-[11px] font-bold uppercase tracking-wider text-yellow bg-yellow/15 px-2.5 py-1 rounded-full">HLTV MVP · {event}</span>
+        <span className="text-[11px] font-bold uppercase tracking-wider text-yellow bg-yellow/15 px-2.5 py-1 rounded-full">WikiHowl MVP · {event}</span>
       </div>
       <Link href="/rankings/players" className="block rounded-xl border border-border bg-bg-card overflow-hidden card-glow group">
         <div className="relative md:grid md:grid-cols-[240px_1fr]">
@@ -83,7 +83,7 @@ function PlayerOfTheWeek({
             {/* Mobile bottom gradient */}
             <div className="absolute inset-x-0 bottom-0 h-32 z-20 md:hidden bg-gradient-to-t from-bg-card via-bg-card/80 to-transparent" />
             {/* Desktop side gradient */}
-            <div className="absolute inset-0 z-20 hidden md:block md:bg-gradient-to-r md:from-transparent md:to-bg-card" />
+            <div className="absolute inset-0 z-20 hidden md:block md:bg-gradient-to-r md:from-transparent md:via-transparent md:to-bg-card/70" />
             {/* MVP badge */}
             <div className="absolute top-3 left-3 z-30 flex items-center gap-0.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -153,7 +153,7 @@ function PlayerOfTheWeek({
               </div>
 
               <div>
-                <p className="mb-1.5 md:mb-2 text-[10px] font-black uppercase tracking-widest text-text-muted">HLTV awards and trophies</p>
+                <p className="mb-1.5 md:mb-2 text-[10px] font-black uppercase tracking-widest text-text-muted">WikiHowl awards and trophies</p>
                 <div className="grid gap-1.5 md:gap-2 grid-cols-1 sm:grid-cols-2">
                   {achievements.map((achievement, i) => {
                     const trophyRating = ratingForAchievement(achievement);

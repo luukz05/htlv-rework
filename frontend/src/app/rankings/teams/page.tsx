@@ -5,7 +5,7 @@ import TeamsClient from "./TeamsClient";
 import RankingsNavTabs from "../NavTabs";
 
 export const metadata = {
-  title: "Rankings - World Top Teams | HLTV Rework",
+  title: "Rankings - World Top Teams | WikiHowl",
   description: "Comprehensive performance data and rankings for professional CS2 teams",
 };
 

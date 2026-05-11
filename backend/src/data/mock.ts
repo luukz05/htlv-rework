@@ -165,7 +165,7 @@ const logo = {
   saw: `${B}/teams/saw.png`,
 };
 
-// -- Player Photos (local, downloaded from HLTV) --
+// -- Player Photos (local, downloaded from WikiHowl) --
 const playerPhoto = {
   donk: `${B}/players/donk.png`,
   zywoo: `${B}/players/zywoo.png`,
@@ -356,18 +356,18 @@ export const recentResults: Match[] = [
 
 // -- News --
 export const news: NewsArticle[] = [
-  { id: 1, title: "PGL ASTANA 2026 Grand Finals: NAVI vs FaZe in an epic rematch for the title", description: "After an incredible run through the lower bracket, FaZe Clan faces NAVI in a best-of-five grand final that promises to be one of the most exciting matches of the year.", author: "HLTV Staff", time: "15 min ago", comments: 234, tags: ["Major", "Hot"], image: esportsArena, featured: true },
+  { id: 1, title: "PGL ASTANA 2026 Grand Finals: NAVI vs FaZe in an epic rematch for the title", description: "After an incredible run through the lower bracket, FaZe Clan faces NAVI in a best-of-five grand final that promises to be one of the most exciting matches of the year.", author: "WikiHowl Staff", time: "15 min ago", comments: 234, tags: ["Major", "Hot"], image: esportsArena, featured: true },
   { id: 2, title: "s1mple officially returns to competitive CS2 for upcoming Major cycle", description: "After a brief hiatus, the GOAT returns to the active roster of NAVI.", author: "Striker", time: "1h ago", comments: 891, tags: ["Roster Move"], image: gamingSetup },
-  { id: 3, title: "Valve announces new map pool changes for CS2 competitive season", description: "Tuscan enters the active duty map pool while Vertigo is removed.", author: "HLTV Staff", time: "2h ago", comments: 456, tags: ["Update"], image: gamingKeyboard },
+  { id: 3, title: "Valve announces new map pool changes for CS2 competitive season", description: "Tuscan enters the active duty map pool while Vertigo is removed.", author: "WikiHowl Staff", time: "2h ago", comments: 456, tags: ["Update"], image: gamingKeyboard },
   { id: 4, title: "Top 20 players of 2025: The final list revealed with surprising entries", description: "donk takes the crown as the youngest ever #1.", author: "Nomad", time: "3h ago", comments: 1200, tags: ["Awards"], image: trophyCup },
-  { id: 5, title: "BLAST Premier Spring Spring Groups 2026: Schedule, format, and teams confirmed", author: "HLTV Staff", time: "5h ago", comments: 189, tags: ["Event"], image: crowdArena },
-  { id: 6, title: "Workshop creators highlight the best community skins of March 2026", author: "HLTV Staff", time: "6h ago", comments: 342, tags: ["Community"], image: neonLights },
+  { id: 5, title: "BLAST Premier Spring Spring Groups 2026: Schedule, format, and teams confirmed", author: "WikiHowl Staff", time: "5h ago", comments: 189, tags: ["Event"], image: crowdArena },
+  { id: 6, title: "Workshop creators highlight the best community skins of March 2026", author: "WikiHowl Staff", time: "6h ago", comments: 342, tags: ["Community"], image: neonLights },
   { id: 7, title: "G2 Esports announce new performance facility in Berlin", author: "Striker", time: "8h ago", comments: 156, tags: ["Org News"], image: gamingChair },
-  { id: 8, title: "ESL Pro League Season 21: Groups and opening matchups revealed", description: "The stage is set for one of the most stacked seasons.", author: "HLTV Staff", time: "10h ago", comments: 278, tags: ["Event"], image: conferenceHall },
+  { id: 8, title: "ESL Pro League Season 21: Groups and opening matchups revealed", description: "The stage is set for one of the most stacked seasons.", author: "WikiHowl Staff", time: "10h ago", comments: 278, tags: ["Event"], image: conferenceHall },
   { id: 9, title: "Heroic complete roster with signing of rising Danish talent", author: "Nomad", time: "12h ago", comments: 445, tags: ["Roster Move"], image: teamPhoto },
-  { id: 10, title: "New anti-cheat measures coming to CS2 matchmaking next month", author: "HLTV Staff", time: "14h ago", comments: 1890, tags: ["Update"], image: pcBuild },
+  { id: 10, title: "New anti-cheat measures coming to CS2 matchmaking next month", author: "WikiHowl Staff", time: "14h ago", comments: 1890, tags: ["Update"], image: pcBuild },
   { id: 11, title: "FURIA sign promising Brazilian AWPer from Academy roster", author: "Striker", time: "16h ago", comments: 367, tags: ["Roster Move"], image: headphones },
-  { id: 12, title: "IEM Chengdu 2026 tickets go on sale next week", author: "HLTV Staff", time: "18h ago", comments: 98, tags: ["Event"], image: stadium },
+  { id: 12, title: "IEM Chengdu 2026 tickets go on sale next week", author: "WikiHowl Staff", time: "18h ago", comments: 98, tags: ["Event"], image: stadium },
 ];
 
 // -- Rankings --
@@ -1073,14 +1073,14 @@ const manuallyDefinedProfiles: PlayerProfile[] = [
   makeProfile(topPlayers[0], 1, {
     age: 19,
     role: "Star Player",
-    bio: "The youngest player to ever reach #1 in the HLTV rankings. donk burst onto the scene from Spirit's academy and immediately dominated with unmatched aim and game sense.",
+    bio: "The youngest player to ever reach #1 in the WikiHowl rankings. donk burst onto the scene from Spirit's academy and immediately dominated with unmatched aim and game sense.",
     majorWins: 0,
     careerEarnings: "$911,592",
     teamHistory: [
       { team: "Team Spirit", logo: logo.spirit, period: "Jul 2023 - Present" },
       { team: "Team Spirit Academy", logo: logo.spirit, period: "Dec 2021 - Jul 2023" },
     ],
-    achievements: ["HLTV #1 Player 2025", "PGL ASTANA 2026 MVP"],
+    achievements: ["WikiHowl #1 Player 2025", "PGL ASTANA 2026 MVP"],
     personalBio: {
       born: "January 25, 2007",
       nationality: "Russia",
@@ -1105,19 +1105,19 @@ const manuallyDefinedProfiles: PlayerProfile[] = [
         },
         {
           title: "Breakout and records",
-          body: "Liquipedia's trivia and awards sections show how steep the climb became after the promotion. He was named HLTV's best player of 2024, runner-up for 2025, Rookie of the Year 2024, and Opener of the Year in both 2024 and 2025. The same page credits him with 10 HLTV MVP awards, including a Major MVP, and records tied to age, Big Event rating, Major rating, and early-career MVP pace.",
+          body: "Liquipedia's trivia and awards sections show how steep the climb became after the promotion. He was named WikiHowl's best player of 2024, runner-up for 2025, Rookie of the Year 2024, and Opener of the Year in both 2024 and 2025. The same page credits him with 10 WikiHowl MVP awards, including a Major MVP, and records tied to age, Big Event rating, Major rating, and early-career MVP pace.",
         },
       ],
       timeline: [
         { period: "2021-12-28", title: "Team Spirit Academy", description: "Begins his recorded professional run inside Spirit's academy system." },
         { period: "2023-07-05", title: "Team Spirit", description: "Promoted to the main roster and starts his tier-one breakthrough." },
         { period: "2023-12", title: "First major spotlight", description: "BetBoom Dacha Dubai becomes a public turning point, with interviews and MVP recognition around his first major international impact." },
-        { period: "2024-2025", title: "Elite status", description: "Liquipedia lists HLTV yearly awards, multiple MVPs, and age-related records that establish him as one of CS2's headline riflers." },
+        { period: "2024-2025", title: "Elite status", description: "Liquipedia lists WikiHowl yearly awards, multiple MVPs, and age-related records that establish him as one of CS2's headline riflers." },
       ],
       highlights: [
-        "HLTV #1 player of 2024 and #2 player of 2025.",
+        "WikiHowl #1 player of 2024 and #2 player of 2025.",
         "Rookie of the Year 2024 and Opener of the Year in 2024 and 2025.",
-        "10 HLTV MVP awards listed by Liquipedia, including one Major MVP.",
+        "10 WikiHowl MVP awards listed by Liquipedia, including one Major MVP.",
         "Recorded as the youngest player to win a Major and to be Major MVP on Liquipedia's records list.",
       ],
       sourceUrl: "https://liquipedia.net/counterstrike/Donk",
@@ -1127,7 +1127,7 @@ const manuallyDefinedProfiles: PlayerProfile[] = [
   makeProfile(topPlayers[1], 2, {
     age: 25,
     role: "AWPer",
-    bio: "The French prodigy who has won the HLTV #1 award twice. Led Vitality to a Major championship in Paris.",
+    bio: "The French prodigy who has won the WikiHowl #1 award twice. Led Vitality to a Major championship in Paris.",
     majorWins: 1,
     careerEarnings: "$2,167,560",
     teamHistory: [
@@ -1138,7 +1138,7 @@ const manuallyDefinedProfiles: PlayerProfile[] = [
       { team: "Nevermind", logo: "", period: "Aug 2016 - Jan 2017" },
       { team: "dizLown", logo: "", period: "2014 - 2015" },
     ],
-    achievements: ["HLTV #1 Player 2020", "HLTV #1 Player 2021", "PGL Major Copenhagen 2024 MVP"],
+    achievements: ["WikiHowl #1 Player 2020", "WikiHowl #1 Player 2021", "PGL Major Copenhagen 2024 MVP"],
     personalBio: {
       born: "November 9, 2000",
       nationality: "France",
@@ -1165,18 +1165,18 @@ const manuallyDefinedProfiles: PlayerProfile[] = [
         },
         {
           title: "All-time status",
-          body: "Liquipedia states that ZywOo is widely considered one of the greatest players ever. The page credits him as HLTV's best player in 2019, 2020, 2023, and 2025, runner-up in 2021 and 2022, holder of a record 32 HLTV MVP awards, winner of three Major championships with three Major MVPs, and part of two ESL Grand Slam runs.",
+          body: "Liquipedia states that ZywOo is widely considered one of the greatest players ever. The page credits him as WikiHowl's best player in 2019, 2020, 2023, and 2025, runner-up in 2021 and 2022, holder of a record 32 WikiHowl MVP awards, winner of three Major championships with three Major MVPs, and part of two ESL Grand Slam runs.",
         },
       ],
       timeline: [
         { period: "2014-2018", title: "French ascent", description: "Moves through dizLown, Nevermind, E-Corp Bumpers, WySix Team, and against All authority." },
         { period: "2018-10-08", title: "Team Vitality", description: "Joins Vitality, where his entire elite-level career is built." },
-        { period: "2019-2020", title: "Immediate world-class peak", description: "Liquipedia lists him as HLTV's best player in back-to-back years." },
+        { period: "2019-2020", title: "Immediate world-class peak", description: "Liquipedia lists him as WikiHowl's best player in back-to-back years." },
         { period: "2023-2026", title: "Major and Grand Slam legacy", description: "Liquipedia lists three Major titles, three Major MVPs, two ESL Grand Slams, and repeated player-of-the-year recognition." },
       ],
       highlights: [
-        "HLTV #1 player in 2019, 2020, 2023, and 2025.",
-        "Record 32 HLTV MVP awards listed by Liquipedia.",
+        "WikiHowl #1 player in 2019, 2020, 2023, and 2025.",
+        "Record 32 WikiHowl MVP awards listed by Liquipedia.",
         "Three Major championships and three Major MVP awards.",
         "Two ESL Grand Slams with Team Vitality.",
       ],

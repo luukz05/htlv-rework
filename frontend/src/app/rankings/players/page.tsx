@@ -6,7 +6,7 @@ import StatsClient from "./StatsClient";
 import RankingsNavTabs from "../NavTabs";
 
 export const metadata = {
-  title: "Players - Stats and Profiles | HLTV Rework",
+  title: "Players - Stats and Profiles | WikiHowl",
   description: "Comprehensive performance data for professional CS2 players",
 };
 

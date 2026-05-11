@@ -145,7 +145,7 @@ export default function PlayerDetailClient({ player: p }: { player: PlayerProfil
       </div>
 
       {/* Tab Bar */}
-      <div className="border-b border-border bg-bg-surface/80 backdrop-blur-xl sticky top-14 z-40">
+      <div className="border-b border-border bg-bg-surface/80 backdrop-blur-xl sticky top-16 z-40">
         <div className="mx-auto max-w-[1380px] px-4 flex gap-1 overflow-x-auto scrollbar-thin scroll-fade-right">
           {tabs.map((tab) => (
             <button

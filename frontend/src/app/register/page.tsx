@@ -12,15 +12,18 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <div className="flex items-center gap-2">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <path d="M6 8h5v16H6zM13 14h5v10h-5zM20 10h5v14h-5z" fill="#2563eb"/>
-            </svg>
-            <span className="text-xl font-bold text-text-primary">HLTV</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://steamcommunity-a.akamaihd.net/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJai0ki7VeTHjMmuOHaC619h7delpVHoVhH4kJHf-SNM4bz9bKY_dPWQWDCUkLxy57g_H3DgkB5w42uAzIv4I3meOAQlApdwFO5YrFDmxUNp_lL7/256fx256f"
+              alt="WikiHowl"
+              className="h-16 w-16 object-contain"
+            />
+            <span className="text-4xl font-normal tracking-wide text-text-primary leading-none [font-family:var(--font-display)]">WikiHowl</span>
           </div>
         </div>
 
         <h1 className="text-xl font-bold text-center mb-1">Create an account</h1>
-        <p className="text-sm text-text-muted text-center mb-6">Join the HLTV community</p>
+        <p className="text-sm text-text-muted text-center mb-6">Join the WikiHowl community</p>
 
         {/* Social signup */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">

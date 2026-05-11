@@ -145,7 +145,7 @@ export default function GamesHubPage() {
           </svg>
           <span className="text-xs font-bold uppercase tracking-wider text-blue-light">Game Zone</span>
         </div>
-        <h1 className="text-3xl md:text-4xl font-black mb-3">HLTV Game Zone</h1>
+        <h1 className="text-3xl md:text-4xl font-black mb-3">WikiHowl Game Zone</h1>
         <p className="text-text-secondary max-w-lg mx-auto mb-6">
           Test your CS knowledge, train your aim, and compete for XP
         </p>

@@ -31,7 +31,7 @@ export default async function FantasyPage() {
           </svg>
           <span className="text-xs font-bold uppercase tracking-wider text-blue-light">Season 2026</span>
         </div>
-        <h1 className="text-3xl md:text-4xl font-black mb-3">HLTV Fantasy League</h1>
+        <h1 className="text-3xl md:text-4xl font-black mb-3">WikiHowl Fantasy League</h1>
         <p className="text-text-secondary max-w-lg mx-auto mb-6">
           Build your dream CS2 roster, compete against thousands of players, and climb the global leaderboard.
         </p>

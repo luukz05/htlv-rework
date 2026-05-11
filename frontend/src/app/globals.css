@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-bg-body: #0d1117;
-  --color-bg-surface: #161b22;
-  --color-bg-card: #1a2332;
-  --color-bg-card-hover: #1f2b3d;
-  --color-bg-input: #0d1117;
-  --color-border: #1e3a5f33;
-  --color-border-hover: #1e3a5f66;
-  --color-border-active: #2563eb;
+  --color-bg-body: #0a0d1c;
+  --color-bg-surface: #12162a;
+  --color-bg-card: #181d36;
+  --color-bg-card-hover: #212747;
+  --color-bg-input: #0a0d1c;
+  --color-border: #3b5bdb33;
+  --color-border-hover: #3b5bdb66;
+  --color-border-active: #5c7cfa;
 
-  --color-text-primary: #e2e8f0;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #475569;
+  --color-text-primary: #e4e7f5;
+  --color-text-secondary: #9da4c4;
+  --color-text-muted: #535b80;
 
-  --color-blue: #2563eb;
-  --color-blue-light: #3b82f6;
+  --color-blue: #3b5bdb;
+  --color-blue-light: #5c7cfa;
   --color-blue-glow: transparent;
   --color-green: #22c55e;
   --color-red: #ef4444;
@@ -32,10 +32,10 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   background:
-    radial-gradient(circle at 12% 4%, rgba(37, 99, 235, 0.18), transparent 30rem),
-    radial-gradient(circle at 88% 12%, rgba(34, 197, 94, 0.12), transparent 32rem),
-    radial-gradient(circle at 48% 100%, rgba(249, 115, 22, 0.08), transparent 34rem),
-    linear-gradient(135deg, #05070b 0%, #0a1019 28%, #0d1117 52%, #111722 76%, #070a0f 100%);
+    radial-gradient(circle at 12% 4%, rgba(59, 91, 219, 0.22), transparent 30rem),
+    radial-gradient(circle at 88% 12%, rgba(92, 124, 250, 0.14), transparent 32rem),
+    radial-gradient(circle at 48% 100%, rgba(99, 102, 241, 0.08), transparent 34rem),
+    linear-gradient(135deg, #040714 0%, #0a0e22 28%, #0a0d1c 52%, #121835 76%, #050816 100%);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -76,13 +76,13 @@ body::after {
   margin-inline: auto;
   overflow: clip;
   background:
-    radial-gradient(circle at 22% 0%, rgba(37, 99, 235, 0.12), transparent 34rem),
-    radial-gradient(circle at 78% 8%, rgba(34, 197, 94, 0.07), transparent 28rem),
-    linear-gradient(180deg, rgba(22, 27, 34, 0.96) 0%, rgba(15, 22, 32, 0.98) 28%, rgba(13, 17, 23, 0.99) 62%, rgba(9, 13, 20, 1) 100%),
+    radial-gradient(circle at 22% 0%, rgba(59, 91, 219, 0.14), transparent 34rem),
+    radial-gradient(circle at 78% 8%, rgba(92, 124, 250, 0.08), transparent 28rem),
+    linear-gradient(180deg, rgba(18, 22, 42, 0.96) 0%, rgba(14, 18, 35, 0.98) 28%, rgba(11, 14, 28, 0.99) 62%, rgba(8, 11, 24, 1) 100%),
     var(--color-bg-body);
-  border-inline: 1px solid rgba(148, 163, 184, 0.11);
+  border-inline: 1px solid rgba(92, 124, 250, 0.12);
   box-shadow:
-    0 0 0 1px rgba(13, 17, 23, 0.78),
+    0 0 0 1px rgba(10, 13, 28, 0.78),
     0 28px 90px rgba(0, 0, 0, 0.45);
 }
 
@@ -92,7 +92,7 @@ body::after {
   inset: 0;
   z-index: -1;
   background:
-    linear-gradient(90deg, rgba(37, 99, 235, 0.08), transparent 18%, transparent 82%, rgba(34, 197, 94, 0.06)),
+    linear-gradient(90deg, rgba(59, 91, 219, 0.08), transparent 18%, transparent 82%, rgba(92, 124, 250, 0.07)),
     repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 14px);
   pointer-events: none;
 }
@@ -228,7 +228,7 @@ body::after {
 .animate-slide-in { animation: slide-in-right 0.4s ease both }
 .animate-scale-in { animation: scale-in 0.35s ease both }
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(37,99,235,0.06) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(92,124,250,0.06) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
@@ -253,7 +253,7 @@ body::after {
   isolation: isolate;
   background-color: var(--color-bg-card);
   background:
-    radial-gradient(circle at 50% 18%, rgba(59, 130, 246, 0.16), transparent 44%),
+    radial-gradient(circle at 50% 22%, rgba(92, 124, 250, 0.28), transparent 52%),
     linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-card));
   background-blend-mode: screen, normal;
 }

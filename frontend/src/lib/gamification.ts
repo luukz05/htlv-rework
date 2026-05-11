@@ -40,7 +40,7 @@ const LEVEL_NAMES: Record<number, string> = {
   28: "Supreme Master First Class",
   31: "The Global Elite",
   35: "Pro Player",
-  40: "HLTV Legend",
+  40: "WikiHowl Legend",
 };
 
 export function getLevelName(level: number): string {
@@ -139,7 +139,7 @@ export function checkNewAchievements(profile: UserProfile): string[] {
   return newAchievements;
 }
 
-const STORAGE_KEY = "hltv-games-profile";
+const STORAGE_KEY = "wikihowl-games-profile";
 
 export function getDefaultProfile(): UserProfile {
   return {

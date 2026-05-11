@@ -10,7 +10,7 @@ import type { UserProfile } from "@/lib/gamification";
 import { usePageTitle } from "@/lib/use-page-title";
 
 /* ---------- helpers ---------- */
-const HL_STREAK_KEY = "hltv-hl-best-streak";
+const HL_STREAK_KEY = "wikihowl-hl-best-streak";
 
 function pickTwo(players: Player[], exclude?: number): [Player, Player] {
   const pool = [...players];
@@ -194,7 +194,7 @@ export default function HigherLowerPage() {
             </span>
             Higher or Lower
           </h1>
-          <p className="text-sm text-text-muted mt-1">Does this player have a higher or lower HLTV rating?</p>
+          <p className="text-sm text-text-muted mt-1">Does this player have a higher or lower WikiHowl rating?</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="rounded-xl border border-border bg-bg-card px-4 py-2 text-center">

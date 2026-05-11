@@ -33,7 +33,7 @@ interface SavedState {
 
 /* ---------- helpers ---------- */
 const MAX_GUESSES = 8;
-const STORAGE_KEY = "hltv-csdle-state";
+const STORAGE_KEY = "wikihowl-csdle-state";
 const REGIONS: Record<string, string> = {
   RU: "Europe", UA: "Europe", FR: "Europe", BA: "Europe", EE: "Europe",
   LV: "Europe", IL: "Europe", SK: "Europe", NO: "Europe", BR: "Americas",

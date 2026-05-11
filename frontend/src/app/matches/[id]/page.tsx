@@ -209,7 +209,7 @@ function ConsolidatedMatchView({ match }: { match: Match }) {
   const bettingRows = [
     { book: "CSGOLUCK", left: 1.88, right: 1.92, bonus: "+100% bonus", movement: "+0.04" },
     { book: "SkinClub", left: 1.94, right: 1.86, bonus: "Best return", movement: "-0.03" },
-    { book: "HLTV Bet", left: 1.91, right: 1.89, bonus: "Most balanced", movement: "+0.01" },
+    { book: "WikiHowl Bet", left: 1.91, right: 1.89, bonus: "Most balanced", movement: "+0.01" },
   ];
   const pastMatches = [
     { date: "Mar 5", event: match.event, left: match.team1.shortname, right: match.team2.shortname, score: "13-11", map: match.map || "Mirage", winner: match.team1.shortname, type: "LAN" },

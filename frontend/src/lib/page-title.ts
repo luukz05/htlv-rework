@@ -1,6 +1,6 @@
 import type { Match } from "@/services/types";
 
-export const SITE_NAME = "HLTV";
+export const SITE_NAME = "WikiHowl";
 export const DEFAULT_TITLE = "Counter-Strike Coverage";
 
 export function compactTitle(value: string, maxLength = 64) {

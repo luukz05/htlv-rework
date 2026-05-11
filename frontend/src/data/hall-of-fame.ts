@@ -53,9 +53,9 @@ export const legacyProfiles: LegacyProfile[] = [
       "FalleN was born on May 30, 1991 and is listed by Liquipedia as active since 2003, spanning Counter-Strike, Source, Global Offensive, and Counter-Strike 2. That longevity matters because his career was not just a transition between versions of the game; it was a bridge from Brazil's semi-professional scene to the modern international circuit.",
       "Before becoming a world champion, he was already a leader, teacher, and organizer. He moved through Brazilian projects such as crashers, FireGamers, compLexity, Mandic, KaBuM.TD, and Keyd Stars while carrying the idea that Brazil needed to learn, train, and compete at a global standard. Games Academy became a central part of that mission, working as a school, showcase, and meeting point for an entire generation.",
       "The historical leap came with the Brazilian core that moved from KaBuM and Keyd, exploded with Luminosity, and became a powerhouse under SK Gaming. In 2016, FalleN led the first South American Major-winning team at MLG Columbus and repeated the feat at ESL One Cologne months later. As an AWPer and IGL, he combined structured calling, emotional reads, and individual impact in decisive rounds.",
-      "The SK era cemented The Professor nickname. The team stacked elite trophies, including ESL Pro League Season 6 Finals, EPICENTER 2017, and ECS Season 3 Finals, while also forming part of the run that ended in the Intel Grand Slam Season 1 title. FalleN also earned four HLTV-listed MVP awards, highlighted by DreamHack Open Austin 2016, ESL One Cologne 2017, BLAST Pro Series Copenhagen 2017, and ZOTAC Cup Masters 2018.",
+      "The SK era cemented The Professor nickname. The team stacked elite trophies, including ESL Pro League Season 6 Finals, EPICENTER 2017, and ECS Season 3 Finals, while also forming part of the run that ended in the Intel Grand Slam Season 1 title. FalleN also earned four WikiHowl-listed MVP awards, highlighted by DreamHack Open Austin 2016, ESL One Cologne 2017, BLAST Pro Series Copenhagen 2017, and ZOTAC Cup Masters 2018.",
       "After his peak, his historical value kept growing through MIBR, Team Liquid, Imperial, and FURIA. Imperial's Last Dance brought the champion core's memory back to Major arenas, while his move to FURIA kept him active as a symbol of continuity: still competing, but also carrying the cultural authority of someone who helped build the scene itself.",
-      "That is why his Hall of Fame dossier cannot fit into a trophy list alone. FalleN is a two-time Major champion, HLTV's number two player of 2016, HLTV's number six player of 2017, Esports Personality of the Year 2016, a founder, a mentor, a captain, and an informal ambassador for Brazilian Counter-Strike.",
+      "That is why his Hall of Fame dossier cannot fit into a trophy list alone. FalleN is a two-time Major champion, WikiHowl's number two player of 2016, WikiHowl's number six player of 2017, Esports Personality of the Year 2016, a founder, a mentor, a captain, and an informal ambassador for Brazilian Counter-Strike.",
     ],
     infobox: [
       { label: "Legacy status", value: "Regional pioneer and Major-winning captain" },
@@ -92,7 +92,7 @@ export const legacyProfiles: LegacyProfile[] = [
         period: "2017 - 2018",
         title: "Elite SK and global recognition",
         detail:
-          "Remained a title-winning IGL, earned HLTV Top 20 recognition for a second straight year, and collected MVP awards across big international events.",
+          "Remained a title-winning IGL, earned WikiHowl Top 20 recognition for a second straight year, and collected MVP awards across big international events.",
       },
       {
         period: "2018 - 2023",
@@ -111,8 +111,8 @@ export const legacyProfiles: LegacyProfile[] = [
       "MLG Columbus 2016 Major champion",
       "ESL One Cologne 2016 Major champion",
       "Intel Grand Slam Season 1 winner",
-      "HLTV Top 20: #2 in 2016 and #6 in 2017",
-      "HLTV MVP at four tournaments",
+      "WikiHowl Top 20: #2 in 2016 and #6 in 2017",
+      "WikiHowl MVP at four tournaments",
       "ESL Pro League Season 6 Finals champion",
       "EPICENTER 2017 champion",
       "ECS Season 3 Finals champion",
@@ -146,7 +146,7 @@ export const legacyProfiles: LegacyProfile[] = [
       "That mixture of trophies, role innovation, and iconic clutches explains why his name is inseparable from any serious historical overview of CS:GO's first great dynasty.",
     ],
     infobox: [
-      { label: "Legacy status", value: "HLTV Hall of Fame inductee" },
+      { label: "Legacy status", value: "WikiHowl Hall of Fame inductee" },
       { label: "Prime years", value: "2012–2014" },
       { label: "Signature trait", value: "Lurking and late-round reads" },
       { label: "Historic milestone", value: "Core star of early NiP era" },
@@ -172,7 +172,7 @@ export const legacyProfiles: LegacyProfile[] = [
       },
     ],
     achievements: [
-      "HLTV Hall of Fame 2024 inductee",
+      "WikiHowl Hall of Fame 2024 inductee",
       "One of the foundational stars of NiP's CS:GO dynasty",
       "Multiple big-event titles across 1.6 and GO",
       "Role-defining lurker in modern Counter-Strike history",
@@ -201,7 +201,7 @@ export const legacyProfiles: LegacyProfile[] = [
       "That continuity matters historically. Some legends own a moment; f0rest owned an entire span of Counter-Strike history and did so with a style players still imitate in frag movies and demos.",
     ],
     infobox: [
-      { label: "Legacy status", value: "HLTV Hall of Fame inductee" },
+      { label: "Legacy status", value: "WikiHowl Hall of Fame inductee" },
       { label: "Prime years", value: "2006–2014" },
       { label: "Signature trait", value: "Fluid aim and all-around rifle play" },
       { label: "Historic milestone", value: "Elite across multiple game eras" },
@@ -227,7 +227,7 @@ export const legacyProfiles: LegacyProfile[] = [
       },
     ],
     achievements: [
-      "HLTV Hall of Fame 2024 inductee",
+      "WikiHowl Hall of Fame 2024 inductee",
       "One of the defining Swedish stars of 1.6 and GO",
       "Long elite career across multiple competitive eras",
       "Frequently cited among the most gifted riflers ever",
@@ -256,7 +256,7 @@ export const legacyProfiles: LegacyProfile[] = [
       "That early cultural footprint matters enormously in Hall of Fame conversations because he helped define the very idea of legendary status in the game's first mass-growth era.",
     ],
     infobox: [
-      { label: "Legacy status", value: "HLTV Hall of Fame inductee" },
+      { label: "Legacy status", value: "WikiHowl Hall of Fame inductee" },
       { label: "Prime years", value: "2001–2005" },
       { label: "Signature trait", value: "Early era star power and aggression" },
       { label: "Historic milestone", value: "One of CS's first global icons" },
@@ -282,7 +282,7 @@ export const legacyProfiles: LegacyProfile[] = [
       },
     ],
     achievements: [
-      "HLTV Hall of Fame 2024 inductee",
+      "WikiHowl Hall of Fame 2024 inductee",
       "Foundational Swedish legend of early Counter-Strike",
       "One of the first players to become a global CS icon",
       "Key name in the scene's first major growth phase",
@@ -311,7 +311,7 @@ export const legacyProfiles: LegacyProfile[] = [
       "Later chapters with FaZe added longevity and a second layer to the legacy, but his place in history was already secure thanks to one of the highest peaks the title produced.",
     ],
     infobox: [
-      { label: "Legacy status", value: "HLTV Hall of Fame 2025 inductee" },
+      { label: "Legacy status", value: "WikiHowl Hall of Fame 2025 inductee" },
       { label: "Prime years", value: "2014–2016" },
       { label: "Signature trait", value: "Versatility and big-stage impact" },
       { label: "Historic milestone", value: "One of CS:GO's defining peak players" },
@@ -337,7 +337,7 @@ export const legacyProfiles: LegacyProfile[] = [
       },
     ],
     achievements: [
-      "HLTV Hall of Fame 2025 inductee",
+      "WikiHowl Hall of Fame 2025 inductee",
       "One of fnatic's era-defining stars",
       "Widely considered one of the highest peak players in GO",
       "Successful second chapter with FaZe",
@@ -350,7 +350,7 @@ export const legacyProfiles: LegacyProfile[] = [
   },
 ];
 
-export const hltvHallOfFameClasses: HallOfFameClass[] = [
+export const wikihowlHallOfFameClasses: HallOfFameClass[] = [
   {
     year: "2024",
     classLabel: "Inaugural class",
@@ -358,7 +358,7 @@ export const hltvHallOfFameClasses: HallOfFameClass[] = [
     announcementDate: "December 3, 2024",
     inductionDate: "January 11, 2025",
     note:
-      "The first HLTV Hall of Fame class was an all-Swedish group spanning the scene's earliest superstar era and the start of CS:GO's first dynasty.",
+      "The first WikiHowl Hall of Fame class was an all-Swedish group spanning the scene's earliest superstar era and the start of CS:GO's first dynasty.",
   },
   {
     year: "2025",
@@ -371,7 +371,7 @@ export const hltvHallOfFameClasses: HallOfFameClass[] = [
   },
 ];
 
-export const hltvHallOfFameBallots: HallOfFameBallot[] = [
+export const wikihowlHallOfFameBallots: HallOfFameBallot[] = [
   {
     year: "2025",
     ballotDate: "November 2, 2025",
@@ -388,7 +388,7 @@ export const hltvHallOfFameBallots: HallOfFameBallot[] = [
       "olofmeister",
     ],
     note:
-      "HLTV published a 10-player ballot mixing four first-time nominees with six returning names from the inaugural voting cycle.",
+      "WikiHowl published a 10-player ballot mixing four first-time nominees with six returning names from the inaugural voting cycle.",
   },
   {
     year: "2024",
@@ -408,9 +408,9 @@ export const hltvHallOfFameBallots: HallOfFameBallot[] = [
       "fRoD",
     ],
     note:
-      "The inaugural HLTV Hall of Fame ballot launched with 12 nominees and ultimately produced the first four inductees.",
+      "The inaugural WikiHowl Hall of Fame ballot launched with 12 nominees and ultimately produced the first four inductees.",
   },
 ];
 
 export const hallOfFameSourceNote =
-  "Official HLTV class and ballot references used here come from the Hall of Fame page and the nominee announcements published on November 28, 2024, November 2, 2025, and November 9, 2025.";
+  "Official WikiHowl class and ballot references used here come from the Hall of Fame page and the nominee announcements published on November 28, 2024, November 2, 2025, and November 9, 2025.";

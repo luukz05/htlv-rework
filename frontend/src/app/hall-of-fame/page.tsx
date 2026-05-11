@@ -1,8 +1,8 @@
 import Link from "next/link";
 import {
   hallOfFameSourceNote,
-  hltvHallOfFameBallots,
-  hltvHallOfFameClasses,
+  wikihowlHallOfFameBallots,
+  wikihowlHallOfFameClasses,
   legacyProfiles,
 } from "@/data/hall-of-fame";
 import CountryFlag from "@/components/CountryFlag";
@@ -62,7 +62,7 @@ export default function HallOfFamePage() {
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-text-secondary sm:mt-3 md:text-base">
                 A library of Counter-Strike legends with biographical profiles, career
-                timelines, and a dedicated section for official HLTV Hall of Fame classes and
+                timelines, and a dedicated section for official WikiHowl Hall of Fame classes and
                 nominee ballots.
               </p>
 
@@ -128,10 +128,10 @@ export default function HallOfFamePage() {
                 Featured Timeline
               </p>
               <Link
-                href="#hltv-hall"
+                href="#wikihowl-hall"
                 className="text-xs font-semibold text-text-secondary transition-colors hover:text-text-primary"
               >
-                Jump to HLTV Hall
+                Jump to WikiHowl Hall
               </Link>
             </div>
             <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-6">
@@ -291,21 +291,21 @@ export default function HallOfFamePage() {
         </div>
       </section>
 
-      <section id="hltv-hall" className="border-t border-border bg-bg-surface/20">
+      <section id="wikihowl-hall" className="border-t border-border bg-bg-surface/20">
         <div className="mx-auto max-w-[1460px] px-4 py-6 sm:px-5 sm:py-8">
           <div className="max-w-3xl">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted sm:text-[11px] sm:tracking-[0.25em]">
-              Official HLTV Hall
+              Official WikiHowl Hall
             </p>
             <h2 className="mt-1.5 text-lg font-black sm:mt-2 sm:text-xl md:text-2xl">Classes and nominee ballots</h2>
             <p className="mt-2 text-sm leading-6 text-text-secondary">
-              A separate section for HLTV's official process, covering inducted classes and
+              A separate section for WikiHowl's official process, covering inducted classes and
               nominee lists published in each recent cycle.
             </p>
           </div>
 
           <div className="mt-5 grid gap-x-8 gap-y-5 sm:mt-6 sm:gap-y-6 xl:grid-cols-2">
-            {hltvHallOfFameClasses.map((hallClass) => (
+            {wikihowlHallOfFameClasses.map((hallClass) => (
               <article key={hallClass.year} className="border-t border-border pt-4 sm:pt-5">
                 <div className="flex items-center justify-between gap-3 sm:gap-4">
                   <div>
@@ -351,7 +351,7 @@ export default function HallOfFamePage() {
           </div>
 
           <div className="mt-5 grid gap-x-8 gap-y-5 sm:mt-7 sm:gap-y-6 xl:grid-cols-2">
-            {hltvHallOfFameBallots.map((ballot) => (
+            {wikihowlHallOfFameBallots.map((ballot) => (
               <article key={ballot.year} className="border-t border-border pt-4 sm:pt-5">
                 <div className="flex items-center justify-between gap-3 sm:gap-4">
                   <div>

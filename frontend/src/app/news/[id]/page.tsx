@@ -59,8 +59,8 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
         <div className="prose prose-invert max-w-none space-y-4 text-sm text-text-secondary leading-relaxed">
           <p>The CS2 competitive scene continues to deliver thrilling moments as we head into the second quarter of 2026. With teams battling for rankings points and Major qualification spots, every match carries significant weight.</p>
           <p>Industry experts have weighed in on the implications of this development, noting that it could reshape the competitive landscape for months to come. Teams are already adjusting their strategies in preparation.</p>
-          <p>Community reaction has been overwhelmingly positive, with fans taking to social media and the HLTV forums to share their excitement. The comment section below this article has already seen hundreds of passionate discussions.</p>
-          <p>Stay tuned to HLTV for continued coverage and analysis as this story develops. We will be providing live updates and expert commentary throughout the upcoming events.</p>
+          <p>Community reaction has been overwhelmingly positive, with fans taking to social media and the WikiHowl forums to share their excitement. The comment section below this article has already seen hundreds of passionate discussions.</p>
+          <p>Stay tuned to WikiHowl for continued coverage and analysis as this story develops. We will be providing live updates and expert commentary throughout the upcoming events.</p>
         </div>
       </article>
 

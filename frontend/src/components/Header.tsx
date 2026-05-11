@@ -47,7 +47,13 @@ const navLinks = [
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
-function NavDropdown({ link, isActive }: { link: any; isActive: (href: string) => boolean }) {
+function NavDropdown({
+  link,
+  isActive,
+}: {
+  link: any;
+  isActive: (href: string) => boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -59,7 +65,8 @@ function NavDropdown({ link, isActive }: { link: any; isActive: (href: string) =
       <Link
         href={link.href}
         className={`flex h-full items-center gap-1.5 px-3 text-[13px] font-medium transition-colors ${
-          isActive(link.href) || link.children?.some((c: any) => isActive(c.href))
+          isActive(link.href) ||
+          link.children?.some((c: any) => isActive(c.href))
             ? "text-blue-light"
             : "text-text-secondary hover:text-text-primary"
         }`}
@@ -76,7 +83,8 @@ function NavDropdown({ link, isActive }: { link: any; isActive: (href: string) =
         >
           <path d="m6 9 6 6 6-6" />
         </svg>
-        {(isActive(link.href) || link.children?.some((c: any) => isActive(c.href))) && (
+        {(isActive(link.href) ||
+          link.children?.some((c: any) => isActive(c.href))) && (
           <span className="absolute bottom-0 left-0 h-0.5 w-full bg-blue-light rounded-full" />
         )}
       </Link>
@@ -117,7 +125,9 @@ function RibbonGroup({
 }) {
   const content = (
     <>
-      <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">{label}</span>
+      <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">
+        {label}
+      </span>
       {children}
     </>
   );
@@ -126,7 +136,10 @@ function RibbonGroup({
 
   if (href) {
     return (
-      <Link href={href} className={`${classes} transition-all hover:border-border-hover hover:bg-bg-card`}>
+      <Link
+        href={href}
+        className={`${classes} transition-all hover:border-border-hover hover:bg-bg-card`}
+      >
         {content}
       </Link>
     );
@@ -146,7 +159,12 @@ function DataRibbon() {
   useEffect(() => {
     let ignore = false;
 
-    Promise.all([api.liveMatches(), api.topPlayers(), api.rankings(), api.events()])
+    Promise.all([
+      api.liveMatches(),
+      api.topPlayers(),
+      api.rankings(),
+      api.events(),
+    ])
       .then(([liveData, playerData, rankingData, eventData]) => {
         if (ignore) return;
         setLiveMatches(liveData);
@@ -172,7 +190,8 @@ function DataRibbon() {
   const featuredPlayers = topPlayers.slice(0, 5);
   const featuredTeams = ranking.slice(0, 5);
   const mainEvent = events[0];
-  const currentLiveMatch = liveMatches[liveIndex % liveMatches.length] ?? featuredMatch;
+  const currentLiveMatch =
+    liveMatches[liveIndex % liveMatches.length] ?? featuredMatch;
 
   useEffect(() => {
     if (liveMatches.length <= 1) {
@@ -190,7 +209,12 @@ function DataRibbon() {
     return () => window.clearInterval(interval);
   }, [liveMatches.length]);
 
-  if (!featuredMatch || !featuredPlayer || !mainEvent || featuredTeams.length === 0) {
+  if (
+    !featuredMatch ||
+    !featuredPlayer ||
+    !mainEvent ||
+    featuredTeams.length === 0
+  ) {
     return null;
   }
 
@@ -198,7 +222,9 @@ function DataRibbon() {
     <div className="border-t border-border/70 bg-bg-body/80 backdrop-blur-md">
       <div className="data-ribbon-scroll scroll-fade-right mx-auto flex h-[60px] max-w-[1460px] items-center gap-3 overflow-x-auto px-4 py-2 sm:px-5">
         <div className="flex h-11 min-w-max shrink-0 items-center gap-2">
-          <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Top 5 global</span>
+          <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">
+            Top 5 global
+          </span>
           {featuredTeams.map((team) => (
             <Link
               key={team.name}
@@ -206,8 +232,15 @@ function DataRibbon() {
               title={`${team.rank}. ${team.name}`}
               className="group flex items-center gap-1 transition-colors"
             >
-              <span className="text-[10px] font-black tabular-nums text-text-muted">{team.rank}</span>
-              <TeamLogo src={team.logo} name={team.name} size={22} className="transition-transform group-hover:scale-110" />
+              <span className="text-[10px] font-black tabular-nums text-text-muted">
+                {team.rank}
+              </span>
+              <TeamLogo
+                src={team.logo}
+                name={team.name}
+                size={22}
+                className="transition-transform group-hover:scale-110"
+              />
             </Link>
           ))}
         </div>
@@ -220,29 +253,65 @@ function DataRibbon() {
           }`}
         >
           <StatusPill status="live" />
-          <TeamLogo src={currentLiveMatch.team1.logo} name={currentLiveMatch.team1.name} size={20} />
-          <span className="w-5 text-center text-xs font-bold tabular-nums text-text-primary">{currentLiveMatch.score1}</span>
+          <TeamLogo
+            src={currentLiveMatch.team1.logo}
+            name={currentLiveMatch.team1.name}
+            size={20}
+          />
+          <span className="w-5 text-center text-xs font-bold tabular-nums text-text-primary">
+            {currentLiveMatch.score1}
+          </span>
           <span className="w-2 text-center text-[10px] text-text-muted">:</span>
-          <span className="w-5 text-center text-xs font-bold tabular-nums text-text-primary">{currentLiveMatch.score2}</span>
-          <TeamLogo src={currentLiveMatch.team2.logo} name={currentLiveMatch.team2.name} size={20} />
-          <span className="min-w-0 flex-1 truncate text-[10px] font-bold uppercase tracking-wider text-text-muted">{currentLiveMatch.event}</span>
+          <span className="w-5 text-center text-xs font-bold tabular-nums text-text-primary">
+            {currentLiveMatch.score2}
+          </span>
+          <TeamLogo
+            src={currentLiveMatch.team2.logo}
+            name={currentLiveMatch.team2.name}
+            size={20}
+          />
+          <span className="min-w-0 flex-1 truncate text-[10px] font-bold uppercase tracking-wider text-text-muted">
+            {currentLiveMatch.event}
+          </span>
         </RibbonGroup>
 
         <div className="grid h-11 min-w-[360px] shrink-0 grid-cols-[auto_repeat(5,minmax(44px,1fr))] items-center gap-2">
-          <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Top 5 players</span>
+          <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">
+            Top 5 players
+          </span>
           {featuredPlayers.map((player) => (
-            <Link key={player.rank} href="/rankings/players" title={`${player.rank}. ${player.name}`} className="group flex min-w-0 items-center justify-center gap-1">
-              <span className="text-[10px] font-black tabular-nums text-text-muted">{player.rank}</span>
-              <span className="truncate text-xs font-bold text-text-primary group-hover:text-blue-light transition-colors">{player.name}</span>
+            <Link
+              key={player.rank}
+              href="/rankings/players"
+              title={`${player.rank}. ${player.name}`}
+              className="group flex min-w-0 items-center justify-center gap-1"
+            >
+              <span className="text-[10px] font-black tabular-nums text-text-muted">
+                {player.rank}
+              </span>
+              <span className="truncate text-xs font-bold text-text-primary group-hover:text-blue-light transition-colors">
+                {player.name}
+              </span>
             </Link>
           ))}
         </div>
 
-        <Link href={`/events/${mainEvent.id}`} className="flex h-11 min-w-max flex-1 items-center justify-end gap-2 transition-colors hover:text-text-primary">
-          <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">Evento do mes</span>
-          <span className="max-w-40 truncate text-xs font-bold text-text-primary">{mainEvent.name}</span>
-          <span className="rounded bg-yellow/15 px-1.5 py-0.5 text-[10px] font-black uppercase text-yellow">{mainEvent.tier}-Tier</span>
-          <span className="hidden text-[10px] font-bold uppercase tracking-wider text-text-muted lg:inline">{mainEvent.location}</span>
+        <Link
+          href={`/events/${mainEvent.id}`}
+          className="flex h-11 min-w-max flex-1 items-center justify-end gap-2 transition-colors hover:text-text-primary"
+        >
+          <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">
+            Evento do mes
+          </span>
+          <span className="max-w-40 truncate text-xs font-bold text-text-primary">
+            {mainEvent.name}
+          </span>
+          <span className="rounded bg-yellow/15 px-1.5 py-0.5 text-[10px] font-black uppercase text-yellow">
+            {mainEvent.tier}-Tier
+          </span>
+          <span className="hidden text-[10px] font-bold uppercase tracking-wider text-text-muted lg:inline">
+            {mainEvent.location}
+          </span>
         </Link>
       </div>
     </div>
@@ -288,21 +357,36 @@ export default function Header() {
         <div className="mx-auto flex h-14 max-w-[1460px] items-center gap-1 px-4 sm:px-5">
           <Link href="/" className="mr-3 flex items-center gap-2 shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`${B}/hltv-logo.png`} alt="HLTV" className="h-8 w-8 rounded-md" />
-            <span className="text-lg font-bold text-text-primary">HLTV</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://steamcommunity-a.akamaihd.net/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJai0ki7VeTHjMmuOHaC619h7delpVHoVhH4kJHf-SNM4bz9bKY_dPWQWDCUkLxy57g_H3DgkB5w42uAzIv4I3meOAQlApdwFO5YrFDmxUNp_lL7/256fx256f"
+              alt="WikiHowl"
+              className="h-15 w-15 object-contain"
+            />
+            <span className="text-3xl font-normal tracking-wide text-text-primary leading-none [font-family:var(--font-display)]">
+              WikiHowl
+            </span>
           </Link>
 
-          <nav className="hidden h-14 items-center lg:flex">
+          <nav className="hidden h-15 items-center lg:flex">
             {navLinks.map((link) => {
               if (link.children) {
-                return <NavDropdown key={link.label} link={link} isActive={isActive} />;
+                return (
+                  <NavDropdown
+                    key={link.label}
+                    link={link}
+                    isActive={isActive}
+                  />
+                );
               }
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={`relative flex h-full items-center px-2.5 text-[13px] font-medium transition-colors ${
-                    isActive(link.href) ? "text-blue-light" : "text-text-secondary hover:text-text-primary"
+                    isActive(link.href)
+                      ? "text-blue-light"
+                      : "text-text-secondary hover:text-text-primary"
                   }`}
                 >
                   {link.label}
@@ -341,7 +425,14 @@ export default function Header() {
               aria-expanded={mobileOpen}
               aria-controls="mobile-nav-drawer"
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 {mobileOpen ? (
                   <path d="M18 6 6 18M6 6l12 12" />
                 ) : (
@@ -356,95 +447,105 @@ export default function Header() {
         </div>
       </header>
 
-      {portalTarget && createPortal(
-        <div
-          id="mobile-nav-drawer"
-          role="dialog"
-          aria-modal="true"
-          aria-hidden={!mobileOpen}
-          className={`fixed inset-0 z-[250] lg:hidden ${mobileOpen ? "pointer-events-auto" : "pointer-events-none"}`}
-          style={{ height: "100dvh" }}
-        >
-          <button
-            type="button"
-            aria-label="Close menu"
-            tabIndex={mobileOpen ? 0 : -1}
-            onClick={() => setMobileOpen(false)}
-            className={`absolute inset-0 cursor-default bg-black/60 backdrop-blur-sm transition-opacity duration-200 ${
-              mobileOpen ? "opacity-100" : "opacity-0"
-            }`}
-          />
+      {portalTarget &&
+        createPortal(
           <div
-            className={`absolute right-0 top-0 bottom-0 flex w-72 max-w-[85vw] flex-col bg-bg-surface border-l border-border shadow-2xl shadow-black/50 transition-transform duration-200 ease-out ${
-              mobileOpen ? "translate-x-0" : "translate-x-full"
-            }`}
+            id="mobile-nav-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-hidden={!mobileOpen}
+            className={`fixed inset-0 z-[250] lg:hidden ${mobileOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+            style={{ height: "100dvh" }}
           >
-            <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <span className="text-[11px] font-black uppercase tracking-widest text-text-muted">Menu</span>
-              <button
-                type="button"
-                onClick={() => setMobileOpen(false)}
-                aria-label="Close menu"
-                className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-card transition-colors"
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6 6 18M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
-              {navLinks.map((link) => {
-                if (link.children) {
-                  return (
-                    <div key={link.label} className="space-y-1 mt-2">
-                      <div className="text-[10px] font-black uppercase tracking-widest text-text-muted px-3 mb-2">
-                        {link.label}
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        {link.children.map((child: any) => (
-                          <Link
-                            key={child.href}
-                            href={child.href}
-                            onClick={() => setMobileOpen(false)}
-                            className={`rounded-lg px-3 py-2.5 text-sm font-medium ${
-                              isActive(child.href)
-                                ? "text-blue-light bg-blue/10"
-                                : "text-text-secondary hover:text-text-primary hover:bg-bg-card"
-                            }`}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={`rounded-lg px-3 py-2.5 text-sm font-medium flex items-center gap-2 ${
-                      isActive(link.href)
-                        ? "text-blue-light bg-blue/10"
-                        : "text-text-primary hover:bg-bg-card"
-                    }`}
+            <button
+              type="button"
+              aria-label="Close menu"
+              tabIndex={mobileOpen ? 0 : -1}
+              onClick={() => setMobileOpen(false)}
+              className={`absolute inset-0 cursor-default bg-black/60 backdrop-blur-sm transition-opacity duration-200 ${
+                mobileOpen ? "opacity-100" : "opacity-0"
+              }`}
+            />
+            <div
+              className={`absolute right-0 top-0 bottom-0 flex w-72 max-w-[85vw] flex-col bg-bg-surface border-l border-border shadow-2xl shadow-black/50 transition-transform duration-200 ease-out ${
+                mobileOpen ? "translate-x-0" : "translate-x-full"
+              }`}
+            >
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <span className="text-[11px] font-black uppercase tracking-widest text-text-muted">
+                  Menu
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setMobileOpen(false)}
+                  aria-label="Close menu"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-card transition-colors"
+                >
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
                   >
-                    {link.label}
-                    {link.isNew && (
-                      <span className="text-[10px] sm:text-[8px] font-black uppercase bg-red text-white px-1.5 py-0.5 rounded-full leading-none">
-                        NEW
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-          </nav>
-        </div>
-      </div>,
-      portalTarget,
-      )}
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
+                {navLinks.map((link) => {
+                  if (link.children) {
+                    return (
+                      <div key={link.label} className="space-y-1 mt-2">
+                        <div className="text-[10px] font-black uppercase tracking-widest text-text-muted px-3 mb-2">
+                          {link.label}
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          {link.children.map((child: any) => (
+                            <Link
+                              key={child.href}
+                              href={child.href}
+                              onClick={() => setMobileOpen(false)}
+                              className={`rounded-lg px-3 py-2.5 text-sm font-medium ${
+                                isActive(child.href)
+                                  ? "text-blue-light bg-blue/10"
+                                  : "text-text-secondary hover:text-text-primary hover:bg-bg-card"
+                              }`}
+                            >
+                              {child.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={link.label}
+                      href={link.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={`rounded-lg px-3 py-2.5 text-sm font-medium flex items-center gap-2 ${
+                        isActive(link.href)
+                          ? "text-blue-light bg-blue/10"
+                          : "text-text-primary hover:bg-bg-card"
+                      }`}
+                    >
+                      {link.label}
+                      {link.isNew && (
+                        <span className="text-[10px] sm:text-[8px] font-black uppercase bg-red text-white px-1.5 py-0.5 rounded-full leading-none">
+                          NEW
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          </div>,
+          portalTarget,
+        )}
     </>
   );
 }

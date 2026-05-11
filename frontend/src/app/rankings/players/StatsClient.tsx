@@ -35,7 +35,7 @@ function Tooltip({ children, content, position = "top" }: { children: React.Reac
 
 const STAT_DEFINITIONS = {
   rank: "Player's position in the current ranking based on performance metrics.",
-  rating: "HLTV Rating 2.0 - A comprehensive metric of player performance based on all aspects of the game.",
+  rating: "WikiHowl Rating 2.0 - A comprehensive metric of player performance based on all aspects of the game.",
   kd: "Kill to Death ratio - Total kills divided by total deaths.",
   adr: "Average Damage per Round - Raw impact in terms of damage dealt.",
   kast: "Percentage of rounds with a Kill, Assist, Survival or Traded death.",

@@ -41,10 +41,13 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-3 sm:col-span-2 lg:col-span-1">
             <Link href="/" className="mb-2 flex items-center gap-2 sm:mb-3">
-              <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
-                <path d="M6 8h5v16H6zM13 14h5v10h-5zM20 10h5v14h-5z" fill="#2563eb" />
-              </svg>
-              <span className="text-base font-bold">HLTV.org</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://steamcommunity-a.akamaihd.net/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJai0ki7VeTHjMmuOHaC619h7delpVHoVhH4kJHf-SNM4bz9bKY_dPWQWDCUkLxy57g_H3DgkB5w42uAzIv4I3meOAQlApdwFO5YrFDmxUNp_lL7/256fx256f"
+                alt="WikiHowl"
+                className="h-12 w-12 object-contain"
+              />
+              <span className="text-2xl font-normal tracking-wide leading-none [font-family:var(--font-display)]">WikiHowl</span>
             </Link>
             <p className="text-[13px] leading-snug text-text-muted sm:text-sm sm:leading-relaxed">
               The leading CS2 news and coverage site in the world, providing depth and passion to esports since 2002.
@@ -70,7 +73,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col items-center justify-between gap-3 border-t border-border pt-4 text-center text-[11px] text-text-muted sm:flex-row sm:gap-3 sm:pt-5 sm:text-left sm:text-xs">
-          <span>&copy; 2026 HLTV.org. All rights reserved.</span>
+          <span>&copy; 2026 WikiHowl. All rights reserved.</span>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
             <Link href="/privacy" className="hover:text-text-secondary transition-colors">
               Privacy Policy
