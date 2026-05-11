@@ -23,14 +23,11 @@ import {
 import {
   getAcademyGuide,
   getEvent,
-  getForum,
-  getForumReplies,
   getMap,
   getNews,
   getRoundHighlight,
   listAcademy,
   listEvents,
-  listForums,
   listGalleries,
   listHighlights,
   listMapCalloutQuizzes,
@@ -39,7 +36,6 @@ import {
   listStreams,
 } from "../controllers/contentController.js";
 import {
-  getNewsComments,
   listAchievements,
   listBettingOdds,
   listBookmakers,
@@ -50,8 +46,24 @@ import {
   listNavigation,
 } from "../controllers/platformController.js";
 import {
+  createForumReply,
+  createForumThread,
+  getForum,
+  getForumReplies,
+  listForums,
+  toggleForumReplyLike,
+} from "../controllers/forumsController.js";
+import {
+  createMatchComment,
+  createNewsComment,
+  listMatchComments,
+  listNewsComments,
+  toggleCommentLike,
+} from "../controllers/commentsController.js";
+import {
   getMe,
   login,
+  logout,
   recordGameResult,
   register,
   updateMe,
@@ -67,6 +79,7 @@ export function createRouter() {
 
   router.post("/auth/register", register);
   router.post("/auth/login", login);
+  router.post("/auth/logout", logout);
   router.get("/users/me", getMe);
   router.patch("/users/me/profile", updateMe);
   router.post("/users/me/games/:gameId/result", recordGameResult);
@@ -97,16 +110,25 @@ export function createRouter() {
   router.get("/matches/:id", getMatch);
   router.get("/matches", listMatches);
 
-  router.get("/news/:id/comments", getNewsComments);
+  router.get("/news/:id/comments", listNewsComments);
+  router.post("/news/:id/comments", createNewsComment);
   router.get("/news/:id", getNews);
   router.get("/news", listNews);
+
+  router.get("/matches/:id/comments", listMatchComments);
+  router.post("/matches/:id/comments", createMatchComment);
+
+  router.post("/comments/:id/like", toggleCommentLike);
 
   router.get("/events/:id", getEvent);
   router.get("/events", listEvents);
 
   router.get("/forums/:id/replies", getForumReplies);
+  router.post("/forums/:id/replies", createForumReply);
   router.get("/forums/:id", getForum);
   router.get("/forums", listForums);
+  router.post("/forums", createForumThread);
+  router.post("/forum-replies/:id/like", toggleForumReplyLike);
 
   router.get("/maps/:slug", getMap);
   router.get("/maps", listMaps);

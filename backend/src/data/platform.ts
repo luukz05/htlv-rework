@@ -79,12 +79,6 @@ export const bettingOdds = upcomingMatches.map((match, index) => ({
   })),
 }));
 
-export const newsComments = [
-  { user: "CSFanatic", rank: "Global Elite", time: "10 min ago", text: "Incredible news! This is going to change everything for the scene.", likes: 45 },
-  { user: "TacticsMaster", rank: "Legendary Eagle", time: "25 min ago", text: "I saw this coming. The writing was on the wall after last month's results.", likes: 23 },
-  { user: "NewPlayer2026", rank: "Gold Nova", time: "1h ago", text: "Can someone explain what this means for the upcoming Major? I'm new to following the pro scene.", likes: 8 },
-];
-
 export const galleries = [
   { id: 1, title: "IEM Katowice 2026 - Grand Final", category: "Events", images: 48, image: news[0]?.image, date: "Mar 3, 2026" },
   { id: 2, title: "BLAST Premier Spring - Opening Day", category: "Events", images: 32, image: news[4]?.image, date: "Mar 1, 2026" },

@@ -13,3 +13,11 @@ export function notFound(res: ServerResponse, message = "Not found") {
 export function badRequest(res: ServerResponse, message = "Bad request") {
   json(res, { error: message }, 400);
 }
+
+export function unauthorized(res: ServerResponse, message = "Unauthorized") {
+  json(res, { error: message }, 401);
+}
+
+export function conflict(res: ServerResponse, message = "Conflict") {
+  json(res, { error: message }, 409);
+}
