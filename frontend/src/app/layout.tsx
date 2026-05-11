@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Roboto, Passion_One } from "next/font/google";
 import { DEFAULT_TITLE, SITE_NAME } from "@/lib/page-title";
+import { AuthProvider } from "@/lib/auth-context";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import "./globals.css";
@@ -52,11 +53,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${roboto.variable} ${passionOne.variable}`}>
-        <div className="site-page-frame">
-          <Header />
-          {children}
-          <Footer />
-        </div>
+        <AuthProvider>
+          <div className="site-page-frame">
+            <Header />
+            {children}
+            <Footer />
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -93,7 +93,7 @@ export interface Player {
 }
 
 export interface ForumThread {
-  id: number;
+  id: string;
   title: string;
   author: string;
   authorRank: string;
@@ -102,6 +102,30 @@ export interface ForumThread {
   lastReply: string;
   category: string;
   pinned?: boolean;
+  body?: string;
+  createdAt?: string;
+}
+
+export interface ForumReply {
+  id: string;
+  user: string;
+  rank: string;
+  text: string;
+  time: string;
+  likes: number;
+  likedByMe: boolean;
+  canDelete: boolean;
+}
+
+export interface Comment {
+  id: string;
+  user: string;
+  rank: string;
+  text: string;
+  time: string;
+  likes: number;
+  likedByMe: boolean;
+  canDelete: boolean;
 }
 
 export interface Stream {
@@ -320,4 +344,35 @@ export interface GlobalSearchResult {
   teams: Array<{ id: string; name: string; logo: string; region: string }>;
   players: Array<{ id: number; nickname: string; realName: string; image: string; team: string }>;
   events: Array<{ id: number; name: string; image: string; date: string }>;
+}
+
+export interface GameStats {
+  csdle: { played: number; won: number; streak: number; maxStreak: number; distribution: number[] };
+  guessLineup: { played: number; perfectRounds: number };
+  higherLower: { played: number; highStreak: number; totalCorrect: number };
+  mapGuesser: { played: number; perfectRounds: number; totalCorrect: number };
+  crosshair: { played: number; highScore: number; bestAccuracy: number };
+  transferTrivia: { played: number; perfectAnswers: number; totalCorrect: number };
+}
+
+export interface UserProfileData {
+  level: number;
+  xp: number;
+  totalXpEarned: number;
+  gamesPlayed: number;
+  dailyStreak: number;
+  lastPlayedDate: string;
+  achievements: string[];
+  gameStats: GameStats;
+}
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  email: string;
+  profile: UserProfileData;
+}
+
+export interface AuthResponse {
+  user: AuthUser;
 }

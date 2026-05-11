@@ -2,14 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import {
-  loadProfile,
-  saveProfile,
-  addXP,
-  updateDailyStreak,
-  checkNewAchievements,
-  ACHIEVEMENTS,
-} from "@/lib/gamification";
+import { ACHIEVEMENTS } from "@/lib/gamification";
+import { useAuth } from "@/lib/auth-context";
+import SignInWall from "@/components/SignInWall";
 import { usePageTitle } from "@/lib/use-page-title";
 
 /* ── types ─────────────────────────────────────────────── */
@@ -150,6 +145,7 @@ function buildChickenPath(width: number, height: number, entityWidth: number) {
 
 export default function CrosshairChallengePage() {
   usePageTitle("Crosshair Challenge - Aim Speed");
+  const { user, loading: authLoading, recordGameResult } = useAuth();
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [timeLeft, setTimeLeft] = useState(ROUND_DURATION);
@@ -442,26 +438,21 @@ export default function CrosshairChallengePage() {
         s.score * 3 + (accuracy >= 90 ? 40 : accuracy >= 70 ? 20 : 0);
       setXpEarned(xp);
 
-      let profile = loadProfile();
-      profile = updateDailyStreak(profile);
-      profile.gamesPlayed += 1;
-      profile.gameStats.crosshair.played += 1;
-      if (s.score > profile.gameStats.crosshair.highScore) {
-        profile.gameStats.crosshair.highScore = s.score;
+      if (user) {
+        const prev = user.profile.gameStats.crosshair;
+        const nextStats = {
+          played: prev.played + 1,
+          highScore: Math.max(prev.highScore, s.score),
+          bestAccuracy: Math.max(prev.bestAccuracy, accuracy),
+        };
+        recordGameResult("crosshair", { xp, stats: { crosshair: nextStats } })
+          .then(({ newAchievements: achs }) => {
+            if (achs.length) setNewAchievements(achs);
+          })
+          .catch((err) => console.error("Failed to record Crosshair result", err));
       }
-      if (accuracy > profile.gameStats.crosshair.bestAccuracy) {
-        profile.gameStats.crosshair.bestAccuracy = accuracy;
-      }
-
-      const { profile: updated } = addXP(profile, xp);
-      const achs = checkNewAchievements(updated);
-      if (achs.length) {
-        updated.achievements = [...updated.achievements, ...achs];
-        setNewAchievements(achs);
-      }
-      saveProfile(updated);
     }, 50);
-  }, []);
+  }, [user, recordGameResult]);
 
   /* ── cleanup ─────────────────────────────────────────── */
 
@@ -640,6 +631,18 @@ export default function CrosshairChallengePage() {
     timerPct > 50 ? "text-green" : timerPct > 25 ? "text-yellow" : "text-red";
 
   /* ── render ──────────────────────────────────────────── */
+
+  if (authLoading) {
+    return (
+      <main className="mx-auto max-w-[900px] px-5 py-16 text-center">
+        <div className="animate-pulse text-text-muted">Loading...</div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return <SignInWall gameName="Crosshair Challenge" />;
+  }
 
   return (
     <main className="mx-auto max-w-[900px] px-5 py-8">

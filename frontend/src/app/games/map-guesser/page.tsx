@@ -4,14 +4,9 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { api } from "@/services/api";
 import type { GameMap, MapCalloutQuiz } from "@/services/types";
-import {
-  loadProfile,
-  saveProfile,
-  addXP,
-  updateDailyStreak,
-  checkNewAchievements,
-  ACHIEVEMENTS,
-} from "@/lib/gamification";
+import { ACHIEVEMENTS } from "@/lib/gamification";
+import { useAuth } from "@/lib/auth-context";
+import SignInWall from "@/components/SignInWall";
 import { usePageTitle } from "@/lib/use-page-title";
 
 /* ── helpers ───────────────────────────────────────────── */
@@ -76,6 +71,7 @@ function buildQuestions(mapCalloutQuizzes: MapCalloutQuiz[], gameMaps: GameMap[]
 
 export default function MapGuesserPage() {
   usePageTitle("Map Guesser - Daily Callouts");
+  const { user, loading: authLoading, recordGameResult } = useAuth();
 
   const [mapCalloutQuizzes, setMapCalloutQuizzes] = useState<MapCalloutQuiz[]>([]);
   const [gameMaps, setGameMaps] = useState<GameMap[]>([]);
@@ -154,26 +150,23 @@ export default function MapGuesserPage() {
 
   /* ── finish & XP ─────────────────────────────────────── */
 
-  const finishGame = (finalScore: number, allAnswers: (string | null)[]) => {
+  const finishGame = (finalScore: number, _allAnswers: (string | null)[]) => {
     const xp = finalScore * 12 + (finalScore === TOTAL_QUESTIONS ? 80 : 0);
     setXpEarned(xp);
 
-    let profile = loadProfile();
-    profile = updateDailyStreak(profile);
-    profile.gamesPlayed += 1;
-    profile.gameStats.mapGuesser.played += 1;
-    profile.gameStats.mapGuesser.totalCorrect += finalScore;
-    if (finalScore === TOTAL_QUESTIONS) {
-      profile.gameStats.mapGuesser.perfectRounds += 1;
+    if (user) {
+      const prev = user.profile.gameStats.mapGuesser;
+      const nextStats = {
+        played: prev.played + 1,
+        totalCorrect: prev.totalCorrect + finalScore,
+        perfectRounds: finalScore === TOTAL_QUESTIONS ? prev.perfectRounds + 1 : prev.perfectRounds,
+      };
+      recordGameResult("mapGuesser", { xp, stats: { mapGuesser: nextStats } })
+        .then(({ newAchievements: achs }) => {
+          if (achs.length) setNewAchievements(achs);
+        })
+        .catch((err) => console.error("Failed to record Map Guesser result", err));
     }
-
-    const { profile: updated } = addXP(profile, xp);
-    const achs = checkNewAchievements(updated);
-    if (achs.length) {
-      updated.achievements = [...updated.achievements, ...achs];
-      setNewAchievements(achs);
-    }
-    saveProfile(updated);
 
     setPhase("results");
   };
@@ -183,6 +176,18 @@ export default function MapGuesserPage() {
   const currentQ = game ? game.questions[game.current] : null;
 
   /* ── render ──────────────────────────────────────────── */
+
+  if (authLoading) {
+    return (
+      <main className="mx-auto max-w-[800px] px-5 py-16 text-center">
+        <div className="animate-pulse text-text-muted">Loading...</div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return <SignInWall gameName="Map Guesser" />;
+  }
 
   return (
     <main className="mx-auto max-w-[800px] px-3 py-5 sm:px-5 sm:py-8">

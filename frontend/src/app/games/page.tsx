@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { loadProfile, getLevelName, getXpForNextLevel, ACHIEVEMENTS } from "@/lib/gamification";
-import type { UserProfile } from "@/lib/gamification";
+import { getLevelName, getXpForNextLevel, ACHIEVEMENTS } from "@/lib/gamification";
+import { useAuth } from "@/lib/auth-context";
 import { usePageTitle } from "@/lib/use-page-title";
 
 const games = [
@@ -113,11 +112,8 @@ const dailyChallenges = [
 export default function GamesHubPage() {
   usePageTitle("Games - Daily CS Challenges");
 
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-
-  useEffect(() => {
-    setProfile(loadProfile());
-  }, []);
+  const { user } = useAuth();
+  const profile = user?.profile ?? null;
 
   const level = profile?.level ?? 1;
   const xp = profile?.xp ?? 0;
@@ -267,13 +263,13 @@ export default function GamesHubPage() {
           </svg>
           Achievements
         </h2>
-        <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-thin">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {ACHIEVEMENTS.map((a) => {
             const unlocked = profile?.achievements.includes(a.id) ?? false;
             return (
               <div
                 key={a.id}
-                className={`shrink-0 w-36 rounded-xl border p-4 text-center transition-all ${
+                className={`rounded-xl border p-4 text-center transition-all ${
                   unlocked
                     ? "border-yellow/40 bg-yellow/5"
                     : "border-border bg-bg-card opacity-50"

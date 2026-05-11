@@ -9,6 +9,7 @@ import { compactTitle, matchTitle } from "@/lib/page-title";
 import MatchHeadToHeadClient from "./MatchHeadToHeadClient";
 import { getMapBackground, getMapIcon } from "@/lib/maps";
 import { notFound } from "next/navigation";
+import CommentList from "@/components/CommentList";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CT_ICON = "https://static.wikia.nocookie.net/cswikia/images/2/2a/Ct_logo.svg/revision/latest/scale-to-width-down/250?cb=20250307112005";
@@ -31,7 +32,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 export default async function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { topPlayers, teamProfiles, teamRosters, events, teams, liveMatches, upcomingMatches, recentResults } = await resolvePageData({
+  const { id } = await params;
+  const { topPlayers, teamProfiles, teamRosters, events, teams, liveMatches, upcomingMatches, recentResults, comments } = await resolvePageData({
     liveMatches: api.liveMatches(),
     upcomingMatches: api.upcomingMatches(),
     recentResults: api.results(),
@@ -40,9 +42,9 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
     teamRosters: api.teamRosters(),
     events: api.events(),
     teams: api.teamCards(),
+    comments: api.matchComments(id),
   });
 
-  const { id } = await params;
   const generatedEventMatches = buildListedEventMatches(events, teams, [...liveMatches, ...upcomingMatches, ...recentResults]);
   const allMatches = [...liveMatches, ...upcomingMatches, ...recentResults, ...generatedEventMatches];
   const match = allMatches.find((m) => m.id.toString() === id);
@@ -139,6 +141,12 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
 
         <MatchHeadToHeadClient team1={match.team1} team2={match.team2} team1Rank={team1Rank} team2Rank={team2Rank} team1Lineup={team1Lineup} team2Lineup={team2Lineup} />
         <ConsolidatedMatchView match={match} />
+        <CommentList
+          source="match"
+          targetId={match.id}
+          initialComments={comments}
+          title={`${comments.length} ${comments.length === 1 ? "Comment" : "Comments"}`}
+        />
       </main>
     </div>
   );

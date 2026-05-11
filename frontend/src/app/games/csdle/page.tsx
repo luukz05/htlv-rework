@@ -7,8 +7,8 @@ import CountryFlag, { CountryLabel } from "@/components/CountryFlag";
 import { api } from "@/services/api";
 import type { PlayerProfile } from "@/services/types";
 import { getDailySeed, getTimeUntilMidnight } from "@/lib/daily-seed";
-import { loadProfile, saveProfile, addXP, updateDailyStreak, checkNewAchievements } from "@/lib/gamification";
-import type { UserProfile } from "@/lib/gamification";
+import { useAuth } from "@/lib/auth-context";
+import SignInWall from "@/components/SignInWall";
 import { usePageTitle } from "@/lib/use-page-title";
 
 /* ---------- types ---------- */
@@ -96,9 +96,10 @@ function emojiFor(s: "green" | "yellow" | "red"): string {
 /* ---------- component ---------- */
 export default function CsdlePage() {
   usePageTitle("CS-dle - Daily Player Guess");
+  const { user, loading: authLoading, recordGameResult } = useAuth();
+  const profile = user?.profile ?? null;
 
   const [playerProfiles, setPlayerProfiles] = useState<PlayerProfile[]>([]);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [guesses, setGuesses] = useState<GuessRow[]>([]);
   const [solved, setSolved] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -136,8 +137,6 @@ export default function CsdlePage() {
   // Load saved state
   useEffect(() => {
     if (!answer) return;
-    const p = loadProfile();
-    setProfile(p);
 
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -216,28 +215,23 @@ export default function CsdlePage() {
         setXpEarned(earned);
 
         if (profile) {
-          let p = updateDailyStreak(profile);
-          p = { ...p, gamesPlayed: p.gamesPlayed + 1 };
-          const stats = { ...p.gameStats.csdle };
-          stats.played++;
-          if (isSolved) {
-            stats.won++;
-            stats.streak++;
-            if (stats.streak > stats.maxStreak) stats.maxStreak = stats.streak;
-            const distIdx = Math.min(newGuesses.length - 1, 7);
-            stats.distribution = [...stats.distribution];
-            stats.distribution[distIdx]++;
-          } else {
-            stats.streak = 0;
-          }
-          p = { ...p, gameStats: { ...p.gameStats, csdle: stats } };
-          const result = addXP(p, earned);
-          const achievements = checkNewAchievements(result.profile);
-          const updated = achievements.length > 0
-            ? { ...result.profile, achievements: [...result.profile.achievements, ...achievements] }
-            : result.profile;
-          setProfile(updated);
-          saveProfile(updated);
+          const prev = profile.gameStats.csdle;
+          const nextStats = {
+            played: prev.played + 1,
+            won: isSolved ? prev.won + 1 : prev.won,
+            streak: isSolved ? prev.streak + 1 : 0,
+            maxStreak: isSolved ? Math.max(prev.maxStreak, prev.streak + 1) : prev.maxStreak,
+            distribution: (() => {
+              if (!isSolved) return prev.distribution;
+              const dist = [...prev.distribution];
+              const idx = Math.min(newGuesses.length - 1, 7);
+              dist[idx]++;
+              return dist;
+            })(),
+          };
+          recordGameResult("csdle", { xp: earned, stats: { csdle: nextStats } }).catch((err) => {
+            console.error("Failed to record CS-dle result", err);
+          });
         }
 
         setTimeout(() => setShowModal(true), 1200);
@@ -256,6 +250,18 @@ export default function CsdlePage() {
   }, [guesses, solved]);
 
   const gameOver = solved || failed;
+
+  if (authLoading) {
+    return (
+      <main className="mx-auto max-w-[900px] px-5 py-16 text-center">
+        <div className="animate-pulse text-text-muted">Loading...</div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return <SignInWall gameName="CS-dle" />;
+  }
 
   if (!answer) {
     return (

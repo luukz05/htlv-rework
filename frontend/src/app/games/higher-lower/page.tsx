@@ -5,8 +5,8 @@ import Link from "next/link";
 import { api } from "@/services/api";
 import type { Player } from "@/services/types";
 import CountryFlag from "@/components/CountryFlag";
-import { loadProfile, saveProfile, addXP, updateDailyStreak, checkNewAchievements } from "@/lib/gamification";
-import type { UserProfile } from "@/lib/gamification";
+import { useAuth } from "@/lib/auth-context";
+import SignInWall from "@/components/SignInWall";
 import { usePageTitle } from "@/lib/use-page-title";
 
 /* ---------- helpers ---------- */
@@ -29,8 +29,9 @@ type Phase = "playing" | "revealing" | "gameover";
 /* ---------- component ---------- */
 export default function HigherLowerPage() {
   usePageTitle("Higher or Lower - Player Ratings");
+  const { user, loading: authLoading, recordGameResult } = useAuth();
+  const profile = user?.profile ?? null;
 
-  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [topPlayers, setTopPlayers] = useState<Player[]>([]);
   const [leftPlayer, setLeftPlayer] = useState<Player | null>(null);
   const [rightPlayer, setRightPlayer] = useState<Player | null>(null);
@@ -44,8 +45,6 @@ export default function HigherLowerPage() {
   // Init
   useEffect(() => {
     let ignore = false;
-    const p = loadProfile();
-    setProfile(p);
 
     try {
       const stored = localStorage.getItem(HL_STREAK_KEY);
@@ -124,29 +123,23 @@ export default function HigherLowerPage() {
           if (streak >= 15) earned = 100;
           setXpEarned(earned);
 
-          // Update profile
           if (profile) {
-            let p = updateDailyStreak(profile);
-            p = { ...p, gamesPlayed: p.gamesPlayed + 1 };
-            const stats = { ...p.gameStats.higherLower };
-            stats.played++;
-            stats.totalCorrect += streak;
-            if (streak > stats.highStreak) stats.highStreak = streak;
-            p = { ...p, gameStats: { ...p.gameStats, higherLower: stats } };
-            const result = addXP(p, earned);
-            const achievements = checkNewAchievements(result.profile);
-            const updated = achievements.length > 0
-              ? { ...result.profile, achievements: [...result.profile.achievements, ...achievements] }
-              : result.profile;
-            setProfile(updated);
-            saveProfile(updated);
+            const prev = profile.gameStats.higherLower;
+            const nextStats = {
+              played: prev.played + 1,
+              totalCorrect: prev.totalCorrect + streak,
+              highStreak: Math.max(prev.highStreak, streak),
+            };
+            recordGameResult("higherLower", { xp: earned, stats: { higherLower: nextStats } }).catch((err) => {
+              console.error("Failed to record Higher-Lower result", err);
+            });
           }
 
           setPhase("gameover");
         }, 1200);
       }
     },
-    [phase, leftPlayer, rightPlayer, topPlayers, streak, bestStreak, profile],
+    [phase, leftPlayer, rightPlayer, topPlayers, streak, bestStreak, profile, recordGameResult],
   );
 
   const playAgain = useCallback(() => {
@@ -162,6 +155,18 @@ export default function HigherLowerPage() {
   }, [topPlayers]);
 
   const isRevealing = phase === "revealing" || phase === "gameover";
+
+  if (authLoading) {
+    return (
+      <main className="mx-auto max-w-[1100px] px-5 py-16 text-center">
+        <div className="animate-pulse text-text-muted">Loading...</div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return <SignInWall gameName="Higher or Lower" />;
+  }
 
   if (!leftPlayer || !rightPlayer) {
     return (

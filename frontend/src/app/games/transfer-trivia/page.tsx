@@ -6,15 +6,9 @@ import TeamLogo from "@/components/TeamLogo";
 import { api } from "@/services/api";
 import type { PlayerProfile, Team } from "@/services/types";
 import CountryFlag from "@/components/CountryFlag";
-import {
-  loadProfile,
-  saveProfile,
-  addXP,
-  updateDailyStreak,
-  checkNewAchievements,
-  ACHIEVEMENTS,
-  type UserProfile,
-} from "@/lib/gamification";
+import { ACHIEVEMENTS } from "@/lib/gamification";
+import { useAuth } from "@/lib/auth-context";
+import SignInWall from "@/components/SignInWall";
 import { usePageTitle } from "@/lib/use-page-title";
 
 const TOTAL_ROUNDS = 5;
@@ -70,10 +64,10 @@ function buildRound(playerProfiles: PlayerProfile[], teams: Team[], usedPlayerId
 
 export default function TransferTriviaPage() {
   usePageTitle("Transfer Trivia - Career Paths");
+  const { user, loading: authLoading, recordGameResult } = useAuth();
 
   const [playerProfiles, setPlayerProfiles] = useState<PlayerProfile[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [round, setRound] = useState(0);
   const [roundData, setRoundData] = useState<RoundData | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -107,7 +101,6 @@ export default function TransferTriviaPage() {
   /* Load game data on mount */
   useEffect(() => {
     setMounted(true);
-    setProfile(loadProfile());
   }, []);
 
   /* Start first round */
@@ -177,28 +170,16 @@ export default function TransferTriviaPage() {
         return s >= POINTS_PERFECT_BONUS;
       }).length;
 
-      if (profile) {
-        let updated = updateDailyStreak(profile);
-        updated = {
-          ...updated,
-          gamesPlayed: updated.gamesPlayed + 1,
-          gameStats: {
-            ...updated.gameStats,
-            transferTrivia: {
-              played: updated.gameStats.transferTrivia.played + 1,
-              perfectAnswers: updated.gameStats.transferTrivia.perfectAnswers + perfectCount,
-              totalCorrect: updated.gameStats.transferTrivia.totalCorrect + scores.filter((s) => s > 0).length,
-            },
-          },
+      if (user) {
+        const prev = user.profile.gameStats.transferTrivia;
+        const nextStats = {
+          played: prev.played + 1,
+          perfectAnswers: prev.perfectAnswers + perfectCount,
+          totalCorrect: prev.totalCorrect + scores.filter((s) => s > 0).length,
         };
-        const result = addXP(updated, totalXP);
-        const achievements = checkNewAchievements(result.profile);
-        setNewAchievements(achievements);
-        if (achievements.length > 0) {
-          result.profile.achievements = [...result.profile.achievements, ...achievements];
-        }
-        saveProfile(result.profile);
-        setProfile(result.profile);
+        recordGameResult("transferTrivia", { xp: totalXP, stats: { transferTrivia: nextStats } })
+          .then(({ newAchievements: achs }) => setNewAchievements(achs))
+          .catch((err) => console.error("Failed to record Transfer Trivia result", err));
       }
 
       setGameFinished(true);
@@ -211,7 +192,7 @@ export default function TransferTriviaPage() {
       setRoundData(rd);
       setUsedPlayerIds((prev) => new Set(prev).add(rd.player.id));
     }
-  }, [round, scores, profile, usedPlayerIds, playerProfiles, teams]);
+  }, [round, scores, user, recordGameResult, usedPlayerIds, playerProfiles, teams]);
 
   const handlePlayAgain = useCallback(() => {
     setRound(0);
@@ -228,6 +209,18 @@ export default function TransferTriviaPage() {
   }, [playerProfiles, teams]);
 
   const totalScore = scores.reduce((s, v) => s + v, 0);
+
+  if (authLoading) {
+    return (
+      <main className="mx-auto max-w-[900px] px-5 py-16 text-center">
+        <div className="animate-pulse text-text-muted">Loading...</div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return <SignInWall gameName="Transfer Trivia" />;
+  }
 
   if (!mounted || !roundData) {
     return (

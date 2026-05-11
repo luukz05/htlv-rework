@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { api } from "@/services/api";
 import { resolvePageData } from "@/lib/resolve-page-data";
+import NewThreadDialog from "@/components/NewThreadDialog";
 
 export const metadata = {
   title: "Forums - Active Discussions",
@@ -38,9 +39,7 @@ export default async function ForumsPage() {
           <h1 className="text-2xl font-bold">Forums</h1>
           <p className="text-sm text-text-muted">Join the discussion with the CS2 community</p>
         </div>
-        <button className="rounded-lg bg-blue px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-light shrink-0">
-          + New Thread
-        </button>
+        <NewThreadDialog />
       </div>
 
       {/* Categories */}

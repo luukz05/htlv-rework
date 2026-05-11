@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import TeamLogo from "./TeamLogo";
 import StatusPill from "./StatusPill";
 import SearchBar from "./SearchBar";
+import UserMenu from "./UserMenu";
 import { api } from "@/services/api";
 import type { Event, Match, Player, RankedTeam } from "@/services/types";
 
@@ -405,18 +406,7 @@ export default function Header() {
 
           <div className="flex items-center gap-2 sm:gap-3 ml-auto">
             <SearchBar />
-            <Link
-              href="/login"
-              className="rounded-lg bg-blue px-3 sm:px-3.5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-light"
-            >
-              Login
-            </Link>
-            <Link
-              href="/register"
-              className="hidden sm:block rounded-lg border border-border px-3.5 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary hover:border-border-hover"
-            >
-              Sign Up
-            </Link>
+            <UserMenu />
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}

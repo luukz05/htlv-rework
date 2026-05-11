@@ -4,14 +4,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { api } from "@/services/api";
 import type { TeamRoster } from "@/services/types";
-import {
-  loadProfile,
-  saveProfile,
-  addXP,
-  updateDailyStreak,
-  checkNewAchievements,
-  ACHIEVEMENTS,
-} from "@/lib/gamification";
+import { ACHIEVEMENTS } from "@/lib/gamification";
+import { useAuth } from "@/lib/auth-context";
+import SignInWall from "@/components/SignInWall";
 import { usePageTitle } from "@/lib/use-page-title";
 
 /* ── helpers ───────────────────────────────────────────── */
@@ -38,6 +33,7 @@ const ROUND_SECONDS = 60;
 
 export default function GuessLineupPage() {
   usePageTitle("Guess the Lineup - Daily Roster");
+  const { user, loading: authLoading, recordGameResult } = useAuth();
 
   const [teamRosters, setTeamRosters] = useState<TeamRoster[]>([]);
   const [game, setGame] = useState<GameState | null>(null);
@@ -117,24 +113,20 @@ export default function GuessLineupPage() {
 
     setXpEarned(total);
 
-    let profile = loadProfile();
-    profile = updateDailyStreak(profile);
-    profile.gamesPlayed += 1;
-    profile.gameStats.guessLineup.played += 1;
+    if (!user) return;
 
     const elapsedMs = Date.now() - startTimeRef.current;
-    if (correctCount === 5 && elapsedMs < 20_000) {
-      profile.gameStats.guessLineup.perfectRounds += 1;
-    }
-
-    const { profile: updated } = addXP(profile, total);
-    const achs = checkNewAchievements(updated);
-    if (achs.length) {
-      updated.achievements = [...updated.achievements, ...achs];
-      setNewAchievements(achs);
-    }
-    saveProfile(updated);
-  }, [game?.phase, game?.found, game?.timeLeft]);
+    const prev = user.profile.gameStats.guessLineup;
+    const nextStats = {
+      played: prev.played + 1,
+      perfectRounds: correctCount === 5 && elapsedMs < 20_000 ? prev.perfectRounds + 1 : prev.perfectRounds,
+    };
+    recordGameResult("guessLineup", { xp: total, stats: { guessLineup: nextStats } })
+      .then(({ newAchievements: achs }) => {
+        if (achs.length) setNewAchievements(achs);
+      })
+      .catch((err) => console.error("Failed to record Guess Lineup result", err));
+  }, [game?.phase, game?.found, game?.timeLeft, user, recordGameResult]);
 
   /* ── autocomplete ────────────────────────────────────── */
 
@@ -194,6 +186,18 @@ export default function GuessLineupPage() {
   const roster = game ? teamRosters[game.teamIndex] : null;
 
   /* ── render ──────────────────────────────────────────── */
+
+  if (authLoading) {
+    return (
+      <main className="mx-auto max-w-[900px] px-5 py-16 text-center">
+        <div className="animate-pulse text-text-muted">Loading...</div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return <SignInWall gameName="Guess the Lineup" />;
+  }
 
   return (
     <main className="mx-auto max-w-[900px] px-3 py-5 sm:px-5 sm:py-8">

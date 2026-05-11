@@ -3,6 +3,7 @@ import { api } from "@/services/api";
 import { resolvePageData } from "@/lib/resolve-page-data";
 import { compactTitle } from "@/lib/page-title";
 import { notFound } from "next/navigation";
+import CommentList from "@/components/CommentList";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,11 +17,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 export default async function NewsDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { news } = await resolvePageData({
+  const { id } = await params;
+  const { news, comments } = await resolvePageData({
     news: api.news(),
+    comments: api.newsComments(id),
   });
 
-  const { id } = await params;
   const article = news.find((n) => n.id.toString() === id);
   if (!article) {
     notFound();
@@ -64,28 +66,12 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
         </div>
       </article>
 
-      {/* Comments section */}
-      <div className="mt-8 rounded-xl border border-border bg-bg-card p-5 card-glow">
-        <h3 className="text-base font-bold mb-4">{article.comments} Comments</h3>
-        {[
-          { user: "CSFanatic", rank: "Global Elite", time: "10 min ago", text: "Incredible news! This is going to change everything for the scene.", likes: 45 },
-          { user: "TacticsMaster", rank: "Legendary Eagle", time: "25 min ago", text: "I saw this coming. The writing was on the wall after last month's results.", likes: 23 },
-          { user: "NewPlayer2026", rank: "Gold Nova", time: "1h ago", text: "Can someone explain what this means for the upcoming Major? I'm new to following the pro scene.", likes: 8 },
-        ].map((c, i) => (
-          <div key={i} className="flex gap-3 py-3 border-t border-border first:border-0">
-            <div className="w-8 h-8 rounded-full bg-blue/20 flex items-center justify-center text-xs font-bold text-blue-light shrink-0">{c.user[0]}</div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm font-semibold">{c.user}</span>
-                <span className="text-[10px] text-text-muted bg-bg-surface px-1.5 py-0.5 rounded">{c.rank}</span>
-                <span className="text-[10px] text-text-muted">{c.time}</span>
-              </div>
-              <p className="text-xs text-text-secondary">{c.text}</p>
-              <span className="text-[10px] text-text-muted mt-1 inline-block">{c.likes} likes</span>
-            </div>
-          </div>
-        ))}
-      </div>
+      <CommentList
+        source="news"
+        targetId={article.id}
+        initialComments={comments}
+        title={`${comments.length} ${comments.length === 1 ? "Comment" : "Comments"}`}
+      />
 
       {/* Related */}
       <div className="mt-8">

@@ -1,5 +1,7 @@
 import type {
+  Comment,
   Event,
+  ForumReply,
   ForumThread,
   GameMap,
   Guide,
@@ -17,17 +19,36 @@ import type {
   TeamProfile,
   TeamRoster,
   GlobalSearchResult,
+  AuthUser,
+  AuthResponse,
+  GameStats,
 } from "./types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-async function apiGet<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, { cache: "no-store" });
-
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+export class ApiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
   }
+}
 
+async function parseError(response: Response): Promise<never> {
+  let message = `${response.status} ${response.statusText}`;
+  try {
+    const body = await response.json();
+    if (body && typeof body.error === "string") message = body.error;
+  } catch {
+    /* ignore */
+  }
+  throw new ApiError(response.status, message);
+}
+
+async function apiGet<T>(path: string): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    cache: "no-store",
+    credentials: "include",
+  });
+  if (!response.ok) return parseError(response);
   return response.json() as Promise<T>;
 }
 
@@ -35,14 +56,11 @@ async function apiSend<T>(path: string, method: "POST" | "PATCH", body?: unknown
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
     cache: "no-store",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body || {}),
   });
-
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-  }
-
+  if (!response.ok) return parseError(response);
   return response.json() as Promise<T>;
 }
 
@@ -51,11 +69,18 @@ export const api = {
   navigation: () => apiGet<Array<{ label: string; href: string; badge?: string }>>("/navigation"),
   search: (q: string) => apiGet<GlobalSearchResult>(`/search?q=${encodeURIComponent(q)}`),
 
-  register: (body: { username?: string; email?: string; password?: string }) => apiSend("/auth/register", "POST", body),
-  login: (body: { username?: string; email?: string; password?: string }) => apiSend("/auth/login", "POST", body),
-  me: () => apiGet<unknown>("/users/me"),
-  updateMe: (body: unknown) => apiSend("/users/me/profile", "PATCH", body),
-  recordGameResult: (gameId: string, body: unknown) => apiSend(`/users/me/games/${gameId}/result`, "POST", body),
+  register: (body: { username: string; email: string; password: string }) =>
+    apiSend<AuthResponse>("/auth/register", "POST", body),
+  login: (body: { email: string; password: string }) =>
+    apiSend<AuthResponse>("/auth/login", "POST", body),
+  logout: () => apiSend<{ ok: true }>("/auth/logout", "POST"),
+  me: () => apiGet<AuthResponse>("/users/me"),
+  updateMe: (body: { username?: string }) => apiSend<AuthResponse>("/users/me/profile", "PATCH", body),
+  recordGameResult: (
+    gameId: string,
+    body: { xp?: number; stats?: Partial<Record<keyof GameStats, Record<string, number | number[]>>> },
+  ) =>
+    apiSend<{ user: AuthUser; newAchievements: string[] }>(`/users/me/games/${gameId}/result`, "POST", body),
 
   achievements: () => apiGet<unknown[]>("/achievements"),
   dailyChallenges: () => apiGet<unknown[]>("/daily-challenges"),
@@ -79,14 +104,26 @@ export const api = {
 
   news: () => apiGet<NewsArticle[]>("/news"),
   newsArticle: (id: number | string) => apiGet<NewsArticle>(`/news/${id}`),
-  newsComments: (id: number | string) => apiGet<unknown[]>(`/news/${id}/comments`),
+  newsComments: (id: number | string) => apiGet<Comment[]>(`/news/${id}/comments`),
+  postNewsComment: (id: number | string, body: string) =>
+    apiSend<Comment>(`/news/${id}/comments`, "POST", { body }),
+  matchComments: (id: number | string) => apiGet<Comment[]>(`/matches/${id}/comments`),
+  postMatchComment: (id: number | string, body: string) =>
+    apiSend<Comment>(`/matches/${id}/comments`, "POST", { body }),
+  toggleCommentLike: (id: string) => apiSend<Comment>(`/comments/${id}/like`, "POST"),
 
   events: () => apiGet<Event[]>("/events"),
   event: (id: number | string) => apiGet<Event>(`/events/${id}`),
 
   forums: () => apiGet<ForumThread[]>("/forums"),
   forum: (id: number | string) => apiGet<ForumThread>(`/forums/${id}`),
-  forumReplies: (id: number | string) => apiGet<unknown[]>(`/forums/${id}/replies`),
+  forumReplies: (id: number | string) => apiGet<ForumReply[]>(`/forums/${id}/replies`),
+  createForumThread: (body: { title: string; category: string; body: string }) =>
+    apiSend<ForumThread>("/forums", "POST", body),
+  postForumReply: (id: number | string, body: string) =>
+    apiSend<ForumReply>(`/forums/${id}/replies`, "POST", { body }),
+  toggleForumReplyLike: (id: string) =>
+    apiSend<ForumReply>(`/forum-replies/${id}/like`, "POST"),
 
   maps: () => apiGet<GameMap[]>("/maps"),
   map: (slug: string) => apiGet<GameMap>(`/maps/${slug}`),

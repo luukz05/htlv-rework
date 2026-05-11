@@ -1,24 +1,3 @@
-export interface GameStats {
-  csdle: { played: number; won: number; streak: number; maxStreak: number; distribution: number[] };
-  guessLineup: { played: number; perfectRounds: number };
-  higherLower: { played: number; highStreak: number; totalCorrect: number };
-  mapGuesser: { played: number; perfectRounds: number; totalCorrect: number };
-  crosshair: { played: number; highScore: number; bestAccuracy: number };
-  transferTrivia: { played: number; perfectAnswers: number; totalCorrect: number };
-}
-
-export interface UserProfile {
-  username: string;
-  level: number;
-  xp: number;
-  totalXpEarned: number;
-  gamesPlayed: number;
-  dailyStreak: number;
-  lastPlayedDate: string;
-  achievements: string[];
-  gameStats: GameStats;
-}
-
 const LEVEL_THRESHOLDS = [
   0, 100, 250, 450, 700, 1000, 1400, 1900, 2500, 3200,
   4000, 5000, 6200, 7600, 9200, 11000, 13000, 15500, 18500, 22000,
@@ -51,7 +30,7 @@ export function getLevelName(level: number): string {
   return "Silver I";
 }
 
-export function getXpForLevel(level: number): number {
+function getXpForLevel(level: number): number {
   if (level <= 0) return 0;
   if (level <= LEVEL_THRESHOLDS.length) return LEVEL_THRESHOLDS[level - 1];
   return LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1] + (level - LEVEL_THRESHOLDS.length) * 25000;
@@ -59,25 +38,6 @@ export function getXpForLevel(level: number): number {
 
 export function getXpForNextLevel(level: number): number {
   return getXpForLevel(level + 1) - getXpForLevel(level);
-}
-
-export function addXP(profile: UserProfile, amount: number): { profile: UserProfile; leveledUp: boolean } {
-  let newXP = profile.xp + amount;
-  let newLevel = profile.level;
-  let leveledUp = false;
-  let needed = getXpForNextLevel(newLevel);
-
-  while (newXP >= needed) {
-    newXP -= needed;
-    newLevel++;
-    leveledUp = true;
-    needed = getXpForNextLevel(newLevel);
-  }
-
-  return {
-    profile: { ...profile, xp: newXP, level: newLevel, totalXpEarned: profile.totalXpEarned + amount },
-    leveledUp,
-  };
 }
 
 export interface Achievement {
@@ -92,119 +52,17 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: "first-blood", name: "First Blood", description: "Win your first CS-dle game", icon: "\u{1F3AF}", xpReward: 25 },
   { id: "one-tap", name: "One Tap", description: "Guess the CS-dle player on first try", icon: "\u{1F4A5}", xpReward: 75 },
   { id: "weekly-warrior", name: "Weekly Warrior", description: "7-day CS-dle win streak", icon: "\u{1F525}", xpReward: 100 },
-  { id: "hot-streak", name: "Hot Streak", description: "5 correct in Higher or Lower", icon: "\u2668\uFE0F", xpReward: 25 },
+  { id: "hot-streak", name: "Hot Streak", description: "5 correct in Higher or Lower", icon: "♨️", xpReward: 25 },
   { id: "on-fire", name: "On Fire", description: "10 correct in Higher or Lower", icon: "\u{1F525}", xpReward: 50 },
-  { id: "unstoppable", name: "Unstoppable", description: "15 correct in Higher or Lower", icon: "\u26A1", xpReward: 100 },
+  { id: "unstoppable", name: "Unstoppable", description: "15 correct in Higher or Lower", icon: "⚡", xpReward: 100 },
   { id: "sharpshooter", name: "Sharpshooter", description: "Hit 20+ targets in Crosshair Challenge", icon: "\u{1F3AF}", xpReward: 20 },
   { id: "aimbot", name: "Aimbot", description: "Hit 30+ targets in Crosshair Challenge", icon: "\u{1F916}", xpReward: 40 },
   { id: "precision", name: "Precision", description: "90%+ accuracy in Crosshair Challenge", icon: "\u{1F3F9}", xpReward: 30 },
-  { id: "callout-master", name: "Callout Master", description: "Perfect round in Map Guesser", icon: "\u{1F5FA}\uFE0F", xpReward: 50 },
+  { id: "callout-master", name: "Callout Master", description: "Perfect round in Map Guesser", icon: "\u{1F5FA}️", xpReward: 50 },
   { id: "lineup-legend", name: "Lineup Legend", description: "Name all 5 players in under 20s", icon: "\u{1F465}", xpReward: 50 },
   { id: "agent", name: "Agent", description: "5 perfect answers in Transfer Trivia", icon: "\u{1F4BC}", xpReward: 75 },
   { id: "jack-of-all-trades", name: "Jack of All Trades", description: "Play every minigame at least once", icon: "\u{1F0CF}", xpReward: 100 },
-  { id: "gold-nova", name: "Gold Nova", description: "Reach level 10", icon: "\u2B50", xpReward: 50 },
-  { id: "master-guardian", name: "Master Guardian", description: "Reach level 20", icon: "\u{1F6E1}\uFE0F", xpReward: 100 },
-  { id: "veteran", name: "Veteran", description: "Play 100 total games", icon: "\u{1F396}\uFE0F", xpReward: 150 },
+  { id: "gold-nova", name: "Gold Nova", description: "Reach level 10", icon: "⭐", xpReward: 50 },
+  { id: "master-guardian", name: "Master Guardian", description: "Reach level 20", icon: "\u{1F6E1}️", xpReward: 100 },
+  { id: "veteran", name: "Veteran", description: "Play 100 total games", icon: "\u{1F396}️", xpReward: 150 },
 ];
-
-export function checkNewAchievements(profile: UserProfile): string[] {
-  const newAchievements: string[] = [];
-  const s = profile.gameStats;
-
-  const checks: [string, boolean][] = [
-    ["first-blood", s.csdle.won >= 1],
-    ["one-tap", s.csdle.distribution[0] >= 1],
-    ["weekly-warrior", s.csdle.streak >= 7],
-    ["hot-streak", s.higherLower.highStreak >= 5],
-    ["on-fire", s.higherLower.highStreak >= 10],
-    ["unstoppable", s.higherLower.highStreak >= 15],
-    ["sharpshooter", s.crosshair.highScore >= 20],
-    ["aimbot", s.crosshair.highScore >= 30],
-    ["precision", s.crosshair.bestAccuracy >= 90],
-    ["callout-master", s.mapGuesser.perfectRounds >= 1],
-    ["lineup-legend", s.guessLineup.perfectRounds >= 1],
-    ["agent", s.transferTrivia.perfectAnswers >= 5],
-    ["jack-of-all-trades", s.csdle.played > 0 && s.guessLineup.played > 0 && s.higherLower.played > 0 && s.mapGuesser.played > 0 && s.crosshair.played > 0 && s.transferTrivia.played > 0],
-    ["gold-nova", profile.level >= 10],
-    ["master-guardian", profile.level >= 20],
-    ["veteran", profile.gamesPlayed >= 100],
-  ];
-
-  for (const [id, condition] of checks) {
-    if (condition && !profile.achievements.includes(id)) {
-      newAchievements.push(id);
-    }
-  }
-
-  return newAchievements;
-}
-
-const STORAGE_KEY = "wikihowl-games-profile";
-
-export function getDefaultProfile(): UserProfile {
-  return {
-    username: "Player",
-    level: 1,
-    xp: 0,
-    totalXpEarned: 0,
-    gamesPlayed: 0,
-    dailyStreak: 0,
-    lastPlayedDate: "",
-    achievements: [],
-    gameStats: {
-      csdle: { played: 0, won: 0, streak: 0, maxStreak: 0, distribution: [0, 0, 0, 0, 0, 0, 0, 0] },
-      guessLineup: { played: 0, perfectRounds: 0 },
-      higherLower: { played: 0, highStreak: 0, totalCorrect: 0 },
-      mapGuesser: { played: 0, perfectRounds: 0, totalCorrect: 0 },
-      crosshair: { played: 0, highScore: 0, bestAccuracy: 0 },
-      transferTrivia: { played: 0, perfectAnswers: 0, totalCorrect: 0 },
-    },
-  };
-}
-
-function mergeProfile(defaultProfile: UserProfile, stored: Partial<UserProfile>): UserProfile {
-  return {
-    ...defaultProfile,
-    ...stored,
-    gameStats: {
-      ...defaultProfile.gameStats,
-      ...stored.gameStats,
-      csdle: { ...defaultProfile.gameStats.csdle, ...stored.gameStats?.csdle },
-      guessLineup: { ...defaultProfile.gameStats.guessLineup, ...stored.gameStats?.guessLineup },
-      higherLower: { ...defaultProfile.gameStats.higherLower, ...stored.gameStats?.higherLower },
-      mapGuesser: { ...defaultProfile.gameStats.mapGuesser, ...stored.gameStats?.mapGuesser },
-      crosshair: { ...defaultProfile.gameStats.crosshair, ...stored.gameStats?.crosshair },
-      transferTrivia: { ...defaultProfile.gameStats.transferTrivia, ...stored.gameStats?.transferTrivia },
-    },
-    achievements: stored.achievements ?? defaultProfile.achievements,
-  };
-}
-
-export function loadProfile(): UserProfile {
-  if (typeof window === "undefined") return getDefaultProfile();
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return mergeProfile(getDefaultProfile(), JSON.parse(stored) as Partial<UserProfile>);
-  } catch { /* ignore */ }
-  return getDefaultProfile();
-}
-
-export function saveProfile(profile: UserProfile): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-  } catch { /* ignore */ }
-}
-
-export function updateDailyStreak(profile: UserProfile): UserProfile {
-  const today = new Date().toISOString().split("T")[0];
-  if (profile.lastPlayedDate === today) return profile;
-
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split("T")[0];
-
-  const newStreak = profile.lastPlayedDate === yesterdayStr ? profile.dailyStreak + 1 : 1;
-
-  return { ...profile, dailyStreak: newStreak, lastPlayedDate: today };
-}
