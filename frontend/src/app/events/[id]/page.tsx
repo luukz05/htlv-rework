@@ -1,9 +1,9 @@
-import Footer from "@/components/Footer";
 import TeamLogo from "@/components/TeamLogo";
 import StatusPill from "@/components/StatusPill";
 import Link from "next/link";
 import { api } from "@/services/api";
 import type { Event, Match, Team } from "@/services/types";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -62,12 +62,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const { id } = await params;
   const event = events.find((item) => item.id.toString() === id);
   if (!event) {
-    return (
-      <main className="mx-auto max-w-[800px] px-5 py-16 text-center">
-        <h1 className="mb-4 text-2xl font-bold">Event not found</h1>
-        <Link href="/events" className="text-blue-light">Back to Events</Link>
-      </main>
-    );
+    notFound();
   }
 
   // Ensure we have exactly the number of teams the event expects (filling with TBD if needed)
@@ -439,7 +434,6 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             </section>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

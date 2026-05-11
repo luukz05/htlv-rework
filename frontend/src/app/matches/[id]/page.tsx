@@ -7,6 +7,7 @@ import type { Event, Match, Player, Team, TeamProfile, TeamRoster } from "@/serv
 import { compactTitle, matchTitle } from "@/lib/page-title";
 import MatchHeadToHeadClient from "./MatchHeadToHeadClient";
 import { getMapBackground, getMapIcon } from "@/lib/maps";
+import { notFound } from "next/navigation";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CT_ICON = "https://static.wikia.nocookie.net/cswikia/images/2/2a/Ct_logo.svg/revision/latest/scale-to-width-down/250?cb=20250307112005";
@@ -45,7 +46,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
   const allMatches = [...liveMatches, ...upcomingMatches, ...recentResults, ...generatedEventMatches];
   const match = allMatches.find((m) => m.id.toString() === id);
   if (!match) {
-    return (<main className="mx-auto max-w-[800px] px-5 py-16 text-center"><h1 className="text-2xl font-bold mb-4">Match not found</h1><Link href="/matches" className="text-blue-light">Back to Matches</Link></main>);
+    notFound();
   }
 
   const isLive = match.status === "live";

@@ -33,7 +33,7 @@ export default async function RankingsPage() {
         {/* Title - Standardized */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-2">
           <div>
-            <h1 className="text-2xl font-bold">CS2 World Ranking</h1>
+            <h1 className="text-2xl font-bold">Team Global Ranking</h1>
             <p className="text-sm text-text-muted">Last updated: Monday, March 3rd, 2026</p>
           </div>
         </div>

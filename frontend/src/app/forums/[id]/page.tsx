@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { api } from "@/services/api";
 import { compactTitle } from "@/lib/page-title";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -30,7 +31,7 @@ export default async function ForumThreadPage({ params }: { params: Promise<{ id
   const { id } = await params;
   const thread = forumThreads.find((t) => t.id.toString() === id);
   if (!thread) {
-    return (<main className="mx-auto max-w-[800px] px-5 py-16 text-center"><h1 className="text-2xl font-bold mb-4">Thread not found</h1><Link href="/forums" className="text-blue-light">Back to Forums</Link></main>);
+    notFound();
   }
 
   return (

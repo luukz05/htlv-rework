@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { api } from "@/services/api";
 import { compactTitle } from "@/lib/page-title";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -37,12 +38,7 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ id
   const guide = academyGuides.find((g) => g.id.toString() === id);
 
   if (!guide) {
-    return (
-      <main className="mx-auto max-w-[800px] px-5 py-16 text-center">
-        <h1 className="text-2xl font-bold mb-4">Guide not found</h1>
-        <Link href="/academy" className="text-blue-light hover:text-blue">Back to Academy</Link>
-      </main>
-    );
+    notFound();
   }
 
   const cat = categoryColors[guide.category];

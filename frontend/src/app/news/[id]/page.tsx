@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { api } from "@/services/api";
 import { compactTitle } from "@/lib/page-title";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,7 +22,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
   const { id } = await params;
   const article = news.find((n) => n.id.toString() === id);
   if (!article) {
-    return (<main className="mx-auto max-w-[800px] px-5 py-16 text-center"><h1 className="text-2xl font-bold mb-4">Article not found</h1><Link href="/news" className="text-blue-light">Back to News</Link></main>);
+    notFound();
   }
   const related = news.filter((n) => n.id !== article.id).slice(0, 3);
 

@@ -27,7 +27,7 @@ export default async function PlayersPage() {
         {/* Title - Standardized */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-2">
           <div>
-            <h1 className="text-2xl font-bold">Player Database</h1>
+            <h1 className="text-2xl font-bold">Player Global Ranking</h1>
             <p className="text-sm text-text-muted">Top CS2 players by performance</p>
           </div>
         </div>

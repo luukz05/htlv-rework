@@ -3,6 +3,7 @@ import CountryFlag, { CountryLabel } from "@/components/CountryFlag";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { api } from "@/services/api";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -25,14 +26,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
   const team = teamProfiles.find((t) => t.id === id);
 
   if (!team) {
-    return (
-      <main className="mx-auto max-w-[800px] px-5 py-16 text-center">
-        <h1 className="mb-4 text-2xl font-bold">Team not found</h1>
-        <Link href="/rankings" className="text-blue-light">
-          Back to Rankings
-        </Link>
-      </main>
-    );
+    notFound();
   }
 
   const winCount = team.last10Results.filter((r) => r === "W").length;

@@ -225,11 +225,11 @@ function PodiumCard({ player, rank, delay, isHero }: {
   isHero?: boolean;
 }) {
   const bgColor = rank === 1 ? 'bg-yellow/5' : 'bg-bg-card';
-  const portraitSize = isHero ? 'h-32 w-32 md:h-36 md:w-36' : 'h-28 w-28 md:h-48 md:w-32';
+  const portraitSize = isHero ? 'h-32 w-32 md:h-40 md:w-40' : 'h-28 w-28 md:h-48 md:w-32';
   
   return (
-    <div className={`rounded-xl border border-border ${bgColor} overflow-hidden card-glow flex flex-col items-center p-4 relative transition-all hover:border-border-hover animate-fade-in-up ${delay}`}>
-      <div className={`relative mb-1 flex h-32 w-32 items-center justify-center md:h-36 md:w-36 ${isHero ? 'scale-105' : ''}`}>
+    <div className={`rounded-xl border border-border ${bgColor} overflow-hidden card-glow flex h-full flex-col items-center p-4 relative transition-all hover:border-border-hover animate-fade-in-up ${delay}`}>
+      <div className={`relative mb-1 flex h-32 w-32 items-center justify-center md:h-48 md:w-40 ${isHero ? 'scale-105' : ''}`}>
         <TeamLogo
           src={player.teamLogo}
           name={player.team}
@@ -248,7 +248,7 @@ function PodiumCard({ player, rank, delay, isHero }: {
       <div className="text-center w-full">
         <div className="flex items-center justify-center gap-1.5 mb-0.5">
           <CountryFlag countryCode={player.country} preferredFlag={player.countryFlag} className="text-[10px]" />
-          <span className={`text-base font-black tracking-tight ${rank === 1 ? 'text-white' : 'text-text-secondary'}`}>{player.name}</span>
+          <span className="text-base font-black tracking-tight text-text-primary">{player.name}</span>
         </div>
         <div className="flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wider text-text-muted mb-3">
           <TeamLogo src={player.teamLogo} name={player.team} size={12} />
