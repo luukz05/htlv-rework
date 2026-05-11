@@ -28,7 +28,7 @@ const games = [
     description: "Name all 5 players",
     accent: "#22c55e",
     accentBg: "rgba(34,197,94,0.12)",
-    href: "/games",
+    href: "/games/guess-lineup",
     icon: (
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -58,7 +58,7 @@ const games = [
     description: "Identify maps by callouts",
     accent: "#3b82f6",
     accentBg: "rgba(59,130,246,0.12)",
-    href: "/games",
+    href: "/games/map-guesser",
     icon: (
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
@@ -73,7 +73,7 @@ const games = [
     description: "Test your aim speed",
     accent: "#ef4444",
     accentBg: "rgba(239,68,68,0.12)",
-    href: "/games",
+    href: "/games/crosshair-challenge",
     icon: (
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
@@ -92,7 +92,7 @@ const games = [
     description: "Guess player careers",
     accent: "#eab308",
     accentBg: "rgba(234,179,8,0.12)",
-    href: "/games",
+    href: "/games/transfer-trivia",
     icon: (
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="15 3 21 3 21 9" />
@@ -105,9 +105,9 @@ const games = [
 ];
 
 const dailyChallenges = [
-  { title: "Win today's CS-dle", xp: 50, progress: 0, total: 1, icon: "🎯" },
-  { title: "Get a 3-streak in Higher or Lower", xp: 30, progress: 0, total: 3, icon: "🔥" },
-  { title: "Play any 2 games", xp: 20, progress: 0, total: 2, icon: "🎮" },
+  { title: "Win today's CS-dle", xp: 50, progress: 0, total: 1, icon: "\u{1F3AF}" },
+  { title: "Get a 3-streak in Higher or Lower", xp: 30, progress: 0, total: 3, icon: "\u{1F525}" },
+  { title: "Play any 2 games", xp: 20, progress: 0, total: 2, icon: "\u{1F3AE}" },
 ];
 
 export default function GamesHubPage() {
@@ -153,7 +153,7 @@ export default function GamesHubPage() {
         {/* XP Bar */}
         <div className="max-w-md mx-auto">
           <div className="flex items-center justify-between text-xs mb-1.5">
-            <span className="font-bold text-blue-light">Lv. {level} &mdash; {levelName}</span>
+            <span className="font-bold text-blue-light">Lv. {level} - {levelName}</span>
             <span className="text-text-muted tabular-nums">{xp} / {needed} XP</span>
           </div>
           <div className="h-3 rounded-full bg-bg-surface overflow-hidden border border-border">

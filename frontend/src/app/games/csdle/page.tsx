@@ -7,7 +7,7 @@ import CountryFlag, { CountryLabel } from "@/components/CountryFlag";
 import { api } from "@/services/api";
 import type { PlayerProfile } from "@/services/types";
 import { getDailySeed, getTimeUntilMidnight } from "@/lib/daily-seed";
-import { loadProfile, saveProfile, addXP, updateDailyStreak } from "@/lib/gamification";
+import { loadProfile, saveProfile, addXP, updateDailyStreak, checkNewAchievements } from "@/lib/gamification";
 import type { UserProfile } from "@/lib/gamification";
 import { usePageTitle } from "@/lib/use-page-title";
 
@@ -231,7 +231,11 @@ export default function CsdlePage() {
             stats.streak = 0;
           }
           p = { ...p, gameStats: { ...p.gameStats, csdle: stats } };
-          const { profile: updated } = addXP(p, earned);
+          const result = addXP(p, earned);
+          const achievements = checkNewAchievements(result.profile);
+          const updated = achievements.length > 0
+            ? { ...result.profile, achievements: [...result.profile.achievements, ...achievements] }
+            : result.profile;
           setProfile(updated);
           saveProfile(updated);
         }

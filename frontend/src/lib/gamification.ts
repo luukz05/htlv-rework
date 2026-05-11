@@ -89,22 +89,22 @@ export interface Achievement {
 }
 
 export const ACHIEVEMENTS: Achievement[] = [
-  { id: "first-blood", name: "First Blood", description: "Win your first CS-dle game", icon: "🎯", xpReward: 25 },
-  { id: "one-tap", name: "One Tap", description: "Guess the CS-dle player on first try", icon: "💥", xpReward: 75 },
-  { id: "weekly-warrior", name: "Weekly Warrior", description: "7-day CS-dle win streak", icon: "🔥", xpReward: 100 },
-  { id: "hot-streak", name: "Hot Streak", description: "5 correct in Higher or Lower", icon: "♨️", xpReward: 25 },
-  { id: "on-fire", name: "On Fire", description: "10 correct in Higher or Lower", icon: "🔥", xpReward: 50 },
-  { id: "unstoppable", name: "Unstoppable", description: "15 correct in Higher or Lower", icon: "⚡", xpReward: 100 },
-  { id: "sharpshooter", name: "Sharpshooter", description: "Hit 20+ targets in Crosshair Challenge", icon: "🎯", xpReward: 20 },
-  { id: "aimbot", name: "Aimbot", description: "Hit 30+ targets in Crosshair Challenge", icon: "🤖", xpReward: 40 },
-  { id: "precision", name: "Precision", description: "90%+ accuracy in Crosshair Challenge", icon: "🏹", xpReward: 30 },
-  { id: "callout-master", name: "Callout Master", description: "Perfect round in Map Guesser", icon: "🗺️", xpReward: 50 },
-  { id: "lineup-legend", name: "Lineup Legend", description: "Name all 5 players in under 20s", icon: "👥", xpReward: 50 },
-  { id: "agent", name: "Agent", description: "5 perfect answers in Transfer Trivia", icon: "💼", xpReward: 75 },
-  { id: "jack-of-all-trades", name: "Jack of All Trades", description: "Play every minigame at least once", icon: "🃏", xpReward: 100 },
-  { id: "gold-nova", name: "Gold Nova", description: "Reach level 10", icon: "⭐", xpReward: 50 },
-  { id: "master-guardian", name: "Master Guardian", description: "Reach level 20", icon: "🛡️", xpReward: 100 },
-  { id: "veteran", name: "Veteran", description: "Play 100 total games", icon: "🎖️", xpReward: 150 },
+  { id: "first-blood", name: "First Blood", description: "Win your first CS-dle game", icon: "\u{1F3AF}", xpReward: 25 },
+  { id: "one-tap", name: "One Tap", description: "Guess the CS-dle player on first try", icon: "\u{1F4A5}", xpReward: 75 },
+  { id: "weekly-warrior", name: "Weekly Warrior", description: "7-day CS-dle win streak", icon: "\u{1F525}", xpReward: 100 },
+  { id: "hot-streak", name: "Hot Streak", description: "5 correct in Higher or Lower", icon: "\u2668\uFE0F", xpReward: 25 },
+  { id: "on-fire", name: "On Fire", description: "10 correct in Higher or Lower", icon: "\u{1F525}", xpReward: 50 },
+  { id: "unstoppable", name: "Unstoppable", description: "15 correct in Higher or Lower", icon: "\u26A1", xpReward: 100 },
+  { id: "sharpshooter", name: "Sharpshooter", description: "Hit 20+ targets in Crosshair Challenge", icon: "\u{1F3AF}", xpReward: 20 },
+  { id: "aimbot", name: "Aimbot", description: "Hit 30+ targets in Crosshair Challenge", icon: "\u{1F916}", xpReward: 40 },
+  { id: "precision", name: "Precision", description: "90%+ accuracy in Crosshair Challenge", icon: "\u{1F3F9}", xpReward: 30 },
+  { id: "callout-master", name: "Callout Master", description: "Perfect round in Map Guesser", icon: "\u{1F5FA}\uFE0F", xpReward: 50 },
+  { id: "lineup-legend", name: "Lineup Legend", description: "Name all 5 players in under 20s", icon: "\u{1F465}", xpReward: 50 },
+  { id: "agent", name: "Agent", description: "5 perfect answers in Transfer Trivia", icon: "\u{1F4BC}", xpReward: 75 },
+  { id: "jack-of-all-trades", name: "Jack of All Trades", description: "Play every minigame at least once", icon: "\u{1F0CF}", xpReward: 100 },
+  { id: "gold-nova", name: "Gold Nova", description: "Reach level 10", icon: "\u2B50", xpReward: 50 },
+  { id: "master-guardian", name: "Master Guardian", description: "Reach level 20", icon: "\u{1F6E1}\uFE0F", xpReward: 100 },
+  { id: "veteran", name: "Veteran", description: "Play 100 total games", icon: "\u{1F396}\uFE0F", xpReward: 150 },
 ];
 
 export function checkNewAchievements(profile: UserProfile): string[] {
@@ -162,11 +162,29 @@ export function getDefaultProfile(): UserProfile {
   };
 }
 
+function mergeProfile(defaultProfile: UserProfile, stored: Partial<UserProfile>): UserProfile {
+  return {
+    ...defaultProfile,
+    ...stored,
+    gameStats: {
+      ...defaultProfile.gameStats,
+      ...stored.gameStats,
+      csdle: { ...defaultProfile.gameStats.csdle, ...stored.gameStats?.csdle },
+      guessLineup: { ...defaultProfile.gameStats.guessLineup, ...stored.gameStats?.guessLineup },
+      higherLower: { ...defaultProfile.gameStats.higherLower, ...stored.gameStats?.higherLower },
+      mapGuesser: { ...defaultProfile.gameStats.mapGuesser, ...stored.gameStats?.mapGuesser },
+      crosshair: { ...defaultProfile.gameStats.crosshair, ...stored.gameStats?.crosshair },
+      transferTrivia: { ...defaultProfile.gameStats.transferTrivia, ...stored.gameStats?.transferTrivia },
+    },
+    achievements: stored.achievements ?? defaultProfile.achievements,
+  };
+}
+
 export function loadProfile(): UserProfile {
   if (typeof window === "undefined") return getDefaultProfile();
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
+    if (stored) return mergeProfile(getDefaultProfile(), JSON.parse(stored) as Partial<UserProfile>);
   } catch { /* ignore */ }
   return getDefaultProfile();
 }

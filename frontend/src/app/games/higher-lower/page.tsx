@@ -5,7 +5,7 @@ import Link from "next/link";
 import { api } from "@/services/api";
 import type { Player } from "@/services/types";
 import CountryFlag from "@/components/CountryFlag";
-import { loadProfile, saveProfile, addXP, updateDailyStreak } from "@/lib/gamification";
+import { loadProfile, saveProfile, addXP, updateDailyStreak, checkNewAchievements } from "@/lib/gamification";
 import type { UserProfile } from "@/lib/gamification";
 import { usePageTitle } from "@/lib/use-page-title";
 
@@ -133,7 +133,11 @@ export default function HigherLowerPage() {
             stats.totalCorrect += streak;
             if (streak > stats.highStreak) stats.highStreak = streak;
             p = { ...p, gameStats: { ...p.gameStats, higherLower: stats } };
-            const { profile: updated } = addXP(p, earned);
+            const result = addXP(p, earned);
+            const achievements = checkNewAchievements(result.profile);
+            const updated = achievements.length > 0
+              ? { ...result.profile, achievements: [...result.profile.achievements, ...achievements] }
+              : result.profile;
             setProfile(updated);
             saveProfile(updated);
           }

@@ -23,6 +23,28 @@ interface Target {
   lifetime: number;
 }
 
+interface Chicken {
+  id: number;
+  type: "bad" | "golden";
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+  width: number;
+  height: number;
+  flip: boolean;
+  duration: number;
+}
+
+interface Flashbang {
+  id: number;
+  x: number;
+  y: number;
+  detonateAt: number;
+  dodgeStart: number;
+  dodgeEnd: number;
+}
+
 type Phase = "idle" | "playing" | "results";
 
 interface Stats {
@@ -33,6 +55,89 @@ interface Stats {
 }
 
 const ROUND_DURATION = 30; // seconds
+const STARTING_LIVES = 3;
+const MISSES_PER_LIFE = 10;
+const GOLDEN_CHICKEN_BONUS = 5;
+const FLASH_WARNING_MS = 1000;
+const FLASH_DODGE_BEFORE_MS = 450;
+const FLASH_DODGE_AFTER_MS = 150;
+const FLASH_BLIND_MS = 1800;
+const FLASH_SPAWN_MIN_MS = 5200;
+const FLASH_SPAWN_MAX_MS = 8800;
+const TERRORIST_IMAGE =
+  "https://static.wikia.nocookie.net/cswikia/images/1/18/Terrorist_large.png/revision/latest/scale-to-width-down/250?cb=20210528221152";
+const BAD_CHICKEN_IMAGE =
+  "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJai0ki7VeTHjMmyZyvY5kUnpLj3vmbhUxT0kJKuqHUJvav3a_dscPORXGOWxbog5LdvGH7jxBhxt2zUz92hcHOQb1cpCIwwG7BrDvzu4w/330x192?allow_animated=1";
+const GOLDEN_CHICKEN_IMAGE =
+  "https://community.fastly.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJai0ki7VeTHjNquOmmb_Glx5obj5BbkSRTylZPus3NatqT9MaFrIfXGWzfGkrcvseM7F3zmwxsi5T-Hzo6sJynDagIhWJFuBblddS7UA_M/330x192?allow_animated=1";
+
+function randomBetween(min: number, max: number): number {
+  return min + Math.random() * (max - min);
+}
+
+function buildChickenPath(width: number, height: number, entityWidth: number) {
+  const pad = entityWidth + 32;
+  const paths = [
+    {
+      fromX: -pad,
+      fromY: randomBetween(50, height - 90),
+      toX: width + pad,
+      toY: randomBetween(50, height - 90),
+      flip: false,
+    },
+    {
+      fromX: width + pad,
+      fromY: randomBetween(50, height - 90),
+      toX: -pad,
+      toY: randomBetween(50, height - 90),
+      flip: true,
+    },
+    {
+      fromX: randomBetween(40, width - 40),
+      fromY: -pad,
+      toX: randomBetween(40, width - 40),
+      toY: height + pad,
+      flip: false,
+    },
+    {
+      fromX: randomBetween(40, width - 40),
+      fromY: height + pad,
+      toX: randomBetween(40, width - 40),
+      toY: -pad,
+      flip: true,
+    },
+    {
+      fromX: -pad,
+      fromY: -pad,
+      toX: width + pad,
+      toY: height + pad,
+      flip: false,
+    },
+    {
+      fromX: width + pad,
+      fromY: -pad,
+      toX: -pad,
+      toY: height + pad,
+      flip: true,
+    },
+    {
+      fromX: -pad,
+      fromY: height + pad,
+      toX: width + pad,
+      toY: -pad,
+      flip: false,
+    },
+    {
+      fromX: width + pad,
+      fromY: height + pad,
+      toX: -pad,
+      toY: -pad,
+      flip: true,
+    },
+  ];
+
+  return paths[Math.floor(Math.random() * paths.length)];
+}
 
 /* ── component ─────────────────────────────────────────── */
 
@@ -48,19 +153,36 @@ export default function CrosshairChallengePage() {
     score: 0,
   });
   const [targets, setTargets] = useState<Target[]>([]);
+  const [chickens, setChickens] = useState<Chicken[]>([]);
+  const [lives, setLives] = useState(STARTING_LIVES);
+  const [missedShots, setMissedShots] = useState(0);
+  const [missFlash, setMissFlash] = useState(false);
+  const [flashbang, setFlashbang] = useState<Flashbang | null>(null);
+  const [isBlinded, setIsBlinded] = useState(false);
+  const [flashFeedback, setFlashFeedback] = useState<"dodged" | "blinded" | null>(null);
   const [hitEffects, setHitEffects] = useState<
-    { id: number; x: number; y: number }[]
+    { id: number; x: number; y: number; variant: "hit" | "gold" }[]
   >([]);
   const [xpEarned, setXpEarned] = useState(0);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
 
   const gameAreaRef = useRef<HTMLDivElement>(null);
   const targetIdRef = useRef(0);
+  const chickenIdRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const spawnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const chickenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flashDetonateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const blindTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rafRef = useRef<number | null>(null);
   const statsRef = useRef(stats);
   const targetsRef = useRef(targets);
+  const livesRef = useRef(lives);
+  const missedShotsRef = useRef(missedShots);
+  const flashbangRef = useRef<Flashbang | null>(null);
+  const flashDodgedRef = useRef(false);
   const phaseRef = useRef(phase);
   const timeLeftRef = useRef(timeLeft);
 
@@ -72,6 +194,15 @@ export default function CrosshairChallengePage() {
     targetsRef.current = targets;
   }, [targets]);
   useEffect(() => {
+    livesRef.current = lives;
+  }, [lives]);
+  useEffect(() => {
+    missedShotsRef.current = missedShots;
+  }, [missedShots]);
+  useEffect(() => {
+    flashbangRef.current = flashbang;
+  }, [flashbang]);
+  useEffect(() => {
     phaseRef.current = phase;
   }, [phase]);
   useEffect(() => {
@@ -81,7 +212,7 @@ export default function CrosshairChallengePage() {
   /* ── difficulty scaling ──────────────────────────────── */
 
   const getTargetSize = useCallback(
-    (score: number) => Math.max(20, 35 - Math.floor(score / 5) * 2),
+    (score: number) => Math.max(46, 72 - Math.floor(score / 5) * 4),
     [],
   );
   const getTargetLifetime = useCallback(
@@ -98,7 +229,8 @@ export default function CrosshairChallengePage() {
     if (!area) return;
 
     const rect = area.getBoundingClientRect();
-    const size = getTargetSize(statsRef.current.score);
+    const baseSize = getTargetSize(statsRef.current.score);
+    const size = Math.round(baseSize * randomBetween(0.78, 1.28));
     const padding = size + 10;
     const x = padding + Math.random() * (rect.width - padding * 2);
     const y = padding + Math.random() * (rect.height - padding * 2);
@@ -118,10 +250,6 @@ export default function CrosshairChallengePage() {
     /* auto-remove expired target */
     setTimeout(() => {
       setTargets((prev) => {
-        const exists = prev.find((t) => t.id === newTarget.id);
-        if (exists && phaseRef.current === "playing") {
-          setStats((s) => ({ ...s, misses: s.misses + 1 }));
-        }
         return prev.filter((t) => t.id !== newTarget.id);
       });
     }, lifetime);
@@ -134,13 +262,110 @@ export default function CrosshairChallengePage() {
     spawnTimerRef.current = setTimeout(spawnTarget, nextDelay);
   }, [getTargetSize, getTargetLifetime]);
 
+  const spawnChicken = useCallback(() => {
+    if (phaseRef.current !== "playing") return;
+
+    const area = gameAreaRef.current;
+    if (!area) return;
+
+    const rect = area.getBoundingClientRect();
+    const isGolden = Math.random() < 0.28;
+    const chickenWidth = Math.round(randomBetween(isGolden ? 78 : 70, isGolden ? 122 : 112));
+    const chickenHeight = Math.round(chickenWidth * 0.59);
+    const path = buildChickenPath(rect.width, rect.height, chickenWidth);
+    const chicken: Chicken = {
+      id: ++chickenIdRef.current,
+      type: isGolden ? "golden" : "bad",
+      ...path,
+      width: chickenWidth,
+      height: chickenHeight,
+      duration: 3600 + Math.random() * 1900,
+    };
+
+    setChickens((prev) => [...prev, chicken]);
+    setTimeout(() => {
+      setChickens((prev) => prev.filter((c) => c.id !== chicken.id));
+    }, chicken.duration);
+
+    chickenTimerRef.current = setTimeout(spawnChicken, 1800 + Math.random() * 1200);
+  }, []);
+
+  const clearFlashTimers = useCallback(() => {
+    if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+    if (flashDetonateTimerRef.current) clearTimeout(flashDetonateTimerRef.current);
+    if (blindTimerRef.current) clearTimeout(blindTimerRef.current);
+    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+  }, []);
+
+  const showFlashFeedback = useCallback((feedback: "dodged" | "blinded") => {
+    setFlashFeedback(feedback);
+    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+    feedbackTimerRef.current = setTimeout(() => setFlashFeedback(null), 700);
+  }, []);
+
+  const scheduleFlashbang = useCallback(() => {
+    if (phaseRef.current !== "playing") return;
+
+    const delay = randomBetween(FLASH_SPAWN_MIN_MS, FLASH_SPAWN_MAX_MS);
+    flashTimerRef.current = setTimeout(() => {
+      if (phaseRef.current !== "playing") return;
+
+      const area = gameAreaRef.current;
+      if (!area) return;
+
+      const rect = area.getBoundingClientRect();
+      const now = performance.now();
+      const detonateAt = now + FLASH_WARNING_MS;
+      const nextFlashbang: Flashbang = {
+        id: now,
+        x: randomBetween(70, rect.width - 70),
+        y: randomBetween(70, rect.height - 70),
+        detonateAt,
+        dodgeStart: detonateAt - FLASH_DODGE_BEFORE_MS,
+        dodgeEnd: detonateAt + FLASH_DODGE_AFTER_MS,
+      };
+
+      flashDodgedRef.current = false;
+      setFlashbang(nextFlashbang);
+      flashbangRef.current = nextFlashbang;
+
+      flashDetonateTimerRef.current = setTimeout(() => {
+        const current = flashbangRef.current;
+        if (phaseRef.current !== "playing" || !current || current.id !== nextFlashbang.id) return;
+
+        setFlashbang(null);
+        flashbangRef.current = null;
+
+        if (flashDodgedRef.current) {
+          scheduleFlashbang();
+          return;
+        }
+
+        setIsBlinded(true);
+        blindTimerRef.current = setTimeout(() => setIsBlinded(false), FLASH_BLIND_MS);
+        scheduleFlashbang();
+      }, FLASH_WARNING_MS);
+    }, delay);
+  }, [showFlashFeedback]);
+
   /* ── start game ──────────────────────────────────────── */
 
   const startGame = useCallback(() => {
+    phaseRef.current = "playing";
     setPhase("playing");
     setTimeLeft(ROUND_DURATION);
     setStats({ hits: 0, misses: 0, totalReactionMs: 0, score: 0 });
     setTargets([]);
+    setChickens([]);
+    setLives(STARTING_LIVES);
+    setMissedShots(0);
+    setMissFlash(false);
+    setFlashbang(null);
+    setIsBlinded(false);
+    setFlashFeedback(null);
+    flashbangRef.current = null;
+    flashDodgedRef.current = false;
+    clearFlashTimers();
     setHitEffects([]);
     setXpEarned(0);
     setNewAchievements([]);
@@ -148,7 +373,9 @@ export default function CrosshairChallengePage() {
 
     /* small delay then first spawn */
     setTimeout(() => spawnTarget(), 400);
-  }, [spawnTarget]);
+    setTimeout(() => spawnChicken(), 900);
+    scheduleFlashbang();
+  }, [clearFlashTimers, scheduleFlashbang, spawnChicken, spawnTarget]);
 
   /* ── countdown timer ─────────────────────────────────── */
 
@@ -173,10 +400,17 @@ export default function CrosshairChallengePage() {
   /* ── end game ────────────────────────────────────────── */
 
   const endGame = useCallback(() => {
+    if (phaseRef.current !== "playing") return;
+    phaseRef.current = "results";
     setPhase("results");
     setTargets([]);
+    setChickens([]);
+    setFlashbang(null);
+    setIsBlinded(false);
     if (timerRef.current) clearInterval(timerRef.current);
     if (spawnTimerRef.current) clearTimeout(spawnTimerRef.current);
+    if (chickenTimerRef.current) clearTimeout(chickenTimerRef.current);
+    clearFlashTimers();
 
     /* XP calculation (use ref for latest stats) */
     setTimeout(() => {
@@ -216,11 +450,41 @@ export default function CrosshairChallengePage() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
       if (spawnTimerRef.current) clearTimeout(spawnTimerRef.current);
+      if (chickenTimerRef.current) clearTimeout(chickenTimerRef.current);
+      clearFlashTimers();
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [clearFlashTimers]);
 
   /* ── hit target ──────────────────────────────────────── */
+
+  const dodgeFlashbang = useCallback(() => {
+    const current = flashbangRef.current;
+    if (phaseRef.current !== "playing" || !current) return;
+
+    const now = performance.now();
+    if (now < current.dodgeStart || now > current.dodgeEnd) return;
+
+    flashDodgedRef.current = true;
+    setFlashbang(null);
+    flashbangRef.current = null;
+    if (flashDetonateTimerRef.current) clearTimeout(flashDetonateTimerRef.current);
+    showFlashFeedback("dodged");
+    scheduleFlashbang();
+  }, [scheduleFlashbang, showFlashFeedback]);
+
+  useEffect(() => {
+    if (phase !== "playing") return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.code !== "Space") return;
+      event.preventDefault();
+      dodgeFlashbang();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [dodgeFlashbang, phase]);
 
   const hitTarget = (target: Target, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -241,18 +505,62 @@ export default function CrosshairChallengePage() {
     const effectId = target.id;
     setHitEffects((prev) => [
       ...prev,
-      { id: effectId, x: target.x, y: target.y },
+      { id: effectId, x: target.x, y: target.y, variant: "hit" },
     ]);
     setTimeout(() => {
       setHitEffects((prev) => prev.filter((e) => e.id !== effectId));
     }, 400);
   };
 
+  const hitChicken = (chicken: Chicken, e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (phase !== "playing") return;
+
+    setChickens((prev) => prev.filter((c) => c.id !== chicken.id));
+
+    if (chicken.type === "bad") {
+      endGame();
+      return;
+    }
+
+    setStats((prev) => ({
+      ...prev,
+      score: prev.score + GOLDEN_CHICKEN_BONUS,
+    }));
+    const effectId = chicken.id + 10000;
+    const areaRect = gameAreaRef.current?.getBoundingClientRect();
+    const x = areaRect ? e.clientX - areaRect.left : chicken.fromX;
+    const y = areaRect ? e.clientY - areaRect.top : chicken.fromY;
+    setHitEffects((prev) => [
+      ...prev,
+      { id: effectId, x, y, variant: "gold" },
+    ]);
+    setTimeout(() => {
+      setHitEffects((prev) => prev.filter((effect) => effect.id !== effectId));
+    }, 500);
+  };
+
   /* ── miss click (empty area) ─────────────────────────── */
 
   const handleAreaClick = () => {
     if (phase !== "playing") return;
+    setMissFlash(true);
+    setTimeout(() => setMissFlash(false), 160);
     setStats((prev) => ({ ...prev, misses: prev.misses + 1 }));
+    const nextMissedShots = missedShotsRef.current + 1;
+    if (nextMissedShots >= MISSES_PER_LIFE) {
+      setMissedShots(0);
+      missedShotsRef.current = 0;
+      const nextLives = livesRef.current - 1;
+      setLives(nextLives);
+      livesRef.current = nextLives;
+      if (nextLives <= 0) {
+        endGame();
+      }
+      return;
+    }
+    setMissedShots(nextMissedShots);
+    missedShotsRef.current = nextMissedShots;
   };
 
   /* ── derived stats ───────────────────────────────────── */
@@ -307,10 +615,11 @@ export default function CrosshairChallengePage() {
               </svg>
               <h2 className="text-lg font-bold mb-2">How to Play</h2>
               <p className="text-sm text-text-secondary mb-6">
-                Click on red targets as fast as you can! You have{" "}
+                Shoot terrorists as fast as you can! You have{" "}
                 <span className="text-blue-light font-bold">30 seconds</span>.
-                Targets get smaller and faster as your score increases. Clicking
-                empty space counts as a miss!
+                Golden chickens give bonus points, regular chickens end the run,
+                every 10 missed shots costs one life, and flashbangs must be
+                dodged with Space or right click.
               </p>
               <button
                 onClick={startGame}
@@ -350,13 +659,24 @@ export default function CrosshairChallengePage() {
                 <span className="text-2xl font-black text-blue-light tabular-nums animate-score-pop">
                   {stats.score}
                 </span>
-                <span className="text-xs text-text-muted ml-1">hits</span>
+                <span className="text-xs text-text-muted ml-1">pts</span>
               </div>
               <div className="text-right">
-                <span className="text-sm font-bold tabular-nums">
-                  {accuracy}%
+                <span className="inline-flex items-center gap-1 text-sm font-bold text-red tabular-nums">
+                  {Array.from({ length: STARTING_LIVES }).map((_, i) => (
+                    <span
+                      key={i}
+                      className={`transition-all duration-300 ${
+                        i < lives ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                      }`}
+                    >
+                      ♥
+                    </span>
+                  ))}
                 </span>
-                <span className="text-xs text-text-muted ml-1">accuracy</span>
+                <span className="text-xs text-text-muted ml-2 tabular-nums">
+                  {missedShots}/{MISSES_PER_LIFE} misses
+                </span>
               </div>
             </div>
 
@@ -378,7 +698,18 @@ export default function CrosshairChallengePage() {
             <div
               ref={gameAreaRef}
               onClick={handleAreaClick}
-              className="relative w-full rounded-xl border border-border bg-bg-card overflow-hidden select-none"
+              onMouseDown={(e) => {
+                if (e.button === 2) {
+                  e.preventDefault();
+                  dodgeFlashbang();
+                }
+              }}
+              onContextMenu={(e) => {
+                e.preventDefault();
+              }}
+              className={`relative w-full rounded-xl border border-border bg-bg-card overflow-hidden select-none ${
+                missFlash ? "miss-flash" : ""
+              }`}
               style={{
                 height: "500px",
                 cursor: "crosshair",
@@ -389,24 +720,89 @@ export default function CrosshairChallengePage() {
             >
               {/* Targets */}
               {targets.map((target) => (
-                <div
+                <button
                   key={target.id}
                   onClick={(e) => hitTarget(target, e)}
-                  className="absolute animate-target-spawn"
+                  className="absolute animate-target-spawn border-0 bg-transparent p-0"
                   style={{
                     left: target.x - target.size / 2,
                     top: target.y - target.size / 2,
                     width: target.size,
                     height: target.size,
-                    borderRadius: "50%",
-                    background:
-                      "radial-gradient(circle at 35% 35%, #ff6b6b, #ef4444, #b91c1c)",
-                    boxShadow:
-                      "0 0 12px rgba(239, 68, 68, 0.5), inset 0 -2px 4px rgba(0,0,0,0.3)",
                     cursor: "crosshair",
                   }}
-                />
+                  aria-label="Shoot terrorist"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={TERRORIST_IMAGE}
+                    alt=""
+                    draggable={false}
+                    className="h-full w-full object-contain drop-shadow-[0_0_12px_rgba(239,68,68,0.45)]"
+                  />
+                </button>
               ))}
+
+              {chickens.map((chicken) => (
+                <button
+                  key={chicken.id}
+                  onClick={(e) => hitChicken(chicken, e)}
+                  className="absolute border-0 bg-transparent p-0 animate-chicken-path"
+                  style={{
+                    "--from-x": `${chicken.fromX}px`,
+                    "--from-y": `${chicken.fromY}px`,
+                    "--to-x": `${chicken.toX}px`,
+                    "--to-y": `${chicken.toY}px`,
+                    width: chicken.width,
+                    height: chicken.height,
+                    animationDuration: `${chicken.duration}ms`,
+                    cursor: "crosshair",
+                  } as React.CSSProperties}
+                  aria-label={chicken.type === "golden" ? "Shoot golden chicken" : "Do not shoot chicken"}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={chicken.type === "golden" ? GOLDEN_CHICKEN_IMAGE : BAD_CHICKEN_IMAGE}
+                    alt=""
+                    draggable={false}
+                    className={`h-full w-full object-contain ${
+                      chicken.type === "golden"
+                        ? "drop-shadow-[0_0_16px_rgba(234,179,8,0.95)] saturate-150"
+                        : "drop-shadow-[0_0_10px_rgba(0,0,0,0.55)]"
+                    }`}
+                    style={{ transform: chicken.flip ? "scaleX(-1)" : undefined }}
+                  />
+                </button>
+              ))}
+
+              {flashbang && (
+                <div
+                  className="absolute z-20 flex h-14 w-14 items-center justify-center rounded-full border border-yellow/60 bg-yellow/15 text-yellow shadow-[0_0_24px_rgba(234,179,8,0.45)] animate-flashbang-warning pointer-events-none"
+                  style={{
+                    left: flashbang.x - 28,
+                    top: flashbang.y - 28,
+                  }}
+                >
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 4l6 6" />
+                    <path d="M17 7l-9 9" />
+                    <path d="M7 15l2 2" />
+                    <path d="M5 19l4-4" />
+                    <path d="M3 21l2-2" />
+                    <path d="M12 2l1 3" />
+                    <path d="M22 12l-3-1" />
+                    <path d="M18 2l-1 3" />
+                  </svg>
+                </div>
+              )}
+
+              {flashFeedback === "dodged" && (
+                <div
+                  className="absolute left-1/2 top-5 z-40 -translate-x-1/2 rounded-lg border border-green/40 bg-green/15 px-4 py-2 text-xs font-black uppercase tracking-wider text-green shadow-lg"
+                >
+                  Flash avoided
+                </div>
+              )}
 
               {/* Hit effects */}
               {hitEffects.map((eff) => (
@@ -419,8 +815,8 @@ export default function CrosshairChallengePage() {
                     width: 30,
                     height: 30,
                     borderRadius: "50%",
-                    border: "2px solid rgba(34, 197, 94, 0.8)",
-                    boxShadow: "0 0 16px rgba(34, 197, 94, 0.4)",
+                    border: eff.variant === "gold" ? "2px solid rgba(234, 179, 8, 0.95)" : "2px solid rgba(34, 197, 94, 0.8)",
+                    boxShadow: eff.variant === "gold" ? "0 0 20px rgba(234, 179, 8, 0.7)" : "0 0 16px rgba(34, 197, 94, 0.4)",
                   }}
                 />
               ))}
@@ -443,7 +839,51 @@ export default function CrosshairChallengePage() {
                 </svg>
               </div>
             </div>
+            <style jsx>{`
+              .miss-flash::after {
+                animation: missFlash 160ms ease-out;
+                background: rgba(239, 68, 68, 0.18);
+                content: "";
+                inset: 0;
+                pointer-events: none;
+                position: absolute;
+                z-index: 30;
+              }
+              @keyframes missFlash {
+                from { opacity: 1; }
+                to { opacity: 0; }
+              }
+              @keyframes flashbangWarning {
+                0% { opacity: 0.55; transform: scale(0.85); }
+                50% { opacity: 1; transform: scale(1.08); }
+                100% { opacity: 0.7; transform: scale(0.95); }
+              }
+              .animate-flashbang-warning {
+                animation: flashbangWarning 380ms ease-in-out infinite;
+              }
+              @keyframes blindFade {
+                0% { opacity: 1; }
+                65% { opacity: 0.96; }
+                100% { opacity: 0; }
+              }
+              .animate-blind-fade {
+                animation: blindFade ${FLASH_BLIND_MS}ms ease-out forwards;
+              }
+              @keyframes chickenPath {
+                from { transform: translate(var(--from-x), var(--from-y)); }
+                to { transform: translate(var(--to-x), var(--to-y)); }
+              }
+              .animate-chicken-path {
+                animation: chickenPath linear forwards;
+                left: 0;
+                top: 0;
+              }
+            `}</style>
           </div>
+        )}
+
+        {isBlinded && (
+          <div className="fixed inset-0 z-[9999] bg-white animate-blind-fade pointer-events-none" />
         )}
 
         {/* ── RESULTS SCREEN ───────────────────────────── */}
@@ -470,7 +910,7 @@ export default function CrosshairChallengePage() {
                     {stats.score}
                   </p>
                   <p className="text-[10px] font-bold uppercase text-text-muted mt-1">
-                    Targets Hit
+                    Score
                   </p>
                 </div>
                 <div className="rounded-xl border border-border bg-bg-surface p-4 text-center">
@@ -517,7 +957,7 @@ export default function CrosshairChallengePage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-text-secondary">
-                      Hits ({stats.score} x 3 XP)
+                      Score ({stats.score} x 3 XP)
                     </span>
                     <span className="font-bold tabular-nums">
                       +{stats.score * 3}
