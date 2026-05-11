@@ -9,7 +9,6 @@ import {
   fantasyPlayers,
   games,
   navigation,
-  newsComments,
 } from "../data/platform.js";
 
 export const listNavigation: RouteHandler = (_req, res) => json(res, navigation);
@@ -20,6 +19,3 @@ export const listFantasyLeaderboard: RouteHandler = (_req, res) => json(res, fan
 export const listFantasyPlayers: RouteHandler = (_req, res) => json(res, fantasyPlayers);
 export const listBookmakers: RouteHandler = (_req, res) => json(res, bookmakers);
 export const listBettingOdds: RouteHandler = (_req, res) => json(res, bettingOdds);
-export const getNewsComments: RouteHandler = (_req, res, params) => {
-  json(res, newsComments.map((comment, index) => ({ id: `${params.id}-${index + 1}`, ...comment })));
-};
