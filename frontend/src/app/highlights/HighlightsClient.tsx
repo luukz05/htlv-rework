@@ -132,7 +132,7 @@ export default function HighlightsClient({ highlights }: HighlightsClientProps) 
 
                     <div className="flex items-center gap-1.5">
                       <TeamLogo
-                        src={featured.teamLogo}
+                        src={featured.teamLogo ?? ""}
                         name={featured.team}
                         size={14}
                       />
@@ -261,7 +261,7 @@ export default function HighlightsClient({ highlights }: HighlightsClientProps) 
 
                     <span className="text-xs font-semibold">{hl.player}</span>
 
-                    <TeamLogo src={hl.teamLogo} name={hl.team} size={14} />
+                    <TeamLogo src={hl.teamLogo ?? ""} name={hl.team} size={14} />
                   </div>
 
                   <h3 className="mb-1.5 text-sm font-semibold leading-tight transition-colors group-hover:text-blue-light">
