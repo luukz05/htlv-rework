@@ -7,16 +7,34 @@ const defaultOrigins = [
   "http://localhost:3000",
   "https://htlv-rework.vercel.app",
 ];
-const allowedOrigins = new Set(
-  (process.env.FRONTEND_ORIGIN || defaultOrigins.join(","))
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean),
-);
+const configuredOrigins = (process.env.FRONTEND_ORIGIN || defaultOrigins.join(","))
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean);
+const allowedOrigins = new Set(configuredOrigins);
+
+// Derive Vercel project prefixes from configured origins so preview deploys are
+// auto-allowed without manual env config. E.g. `https://htlv-rework.vercel.app`
+// → allows `https://htlv-rework-<anything>.vercel.app`.
+const vercelProjectPrefixes = new Set<string>();
+for (const origin of configuredOrigins) {
+  const m = origin.match(/^https:\/\/([a-z0-9-]+)\.vercel\.app$/);
+  if (m) vercelProjectPrefixes.add(m[1]);
+}
+
 const router = createRouter();
 
-const isAllowedOrigin = (origin: string) =>
-  allowedOrigins.has(origin) || /^https:\/\/htlv-rework-[a-z0-9-]+\.vercel\.app$/.test(origin);
+const isAllowedOrigin = (origin: string) => {
+  if (allowedOrigins.has(origin)) return true;
+  const m = origin.match(/^https:\/\/([a-z0-9-]+)\.vercel\.app$/);
+  if (m) {
+    const host = m[1];
+    for (const prefix of vercelProjectPrefixes) {
+      if (host === prefix || host.startsWith(`${prefix}-`)) return true;
+    }
+  }
+  return false;
+};
 
 const server = createServer((req, res) => {
   const origin = req.headers.origin;
@@ -41,6 +59,10 @@ getDb()
   .then(() => {
     server.listen(port, () => {
       console.log(`Backend running on http://localhost:${port}`);
+      console.log(`Allowed origins:`, [...allowedOrigins]);
+      if (vercelProjectPrefixes.size > 0) {
+        console.log(`Vercel preview prefixes:`, [...vercelProjectPrefixes]);
+      }
     });
   })
   .catch((err) => {

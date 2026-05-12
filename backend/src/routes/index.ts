@@ -61,6 +61,7 @@ import {
   toggleCommentLike,
 } from "../controllers/commentsController.js";
 import {
+  authDiag,
   getMe,
   login,
   logout,
@@ -80,6 +81,7 @@ export function createRouter() {
   router.post("/auth/register", register);
   router.post("/auth/login", login);
   router.post("/auth/logout", logout);
+  router.get("/auth/diag", authDiag);
   router.get("/users/me", getMe);
   router.patch("/users/me/profile", updateMe);
   router.post("/users/me/games/:gameId/result", recordGameResult);

@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import type { RouteHandler } from "../http/router.js";
 import { readJsonBody } from "../http/body.js";
 import { badRequest, conflict, json, unauthorized } from "../http/response.js";
-import { clearSessionCookie, getSessionToken, setSessionCookie } from "../http/cookies.js";
+import { clearSessionCookie, describeCookieMode, getSessionToken, setSessionCookie } from "../http/cookies.js";
 import { hashPassword, signToken, verifyPassword, verifyToken } from "../lib/auth.js";
 import {
   defaultProfile,
@@ -79,8 +79,8 @@ function nextDailyStreak(profile: UserProfile, today: string): number {
   return profile.lastPlayedDate === yesterdayISODate() ? profile.dailyStreak + 1 : 1;
 }
 
-function issueSession(res: Parameters<RouteHandler>[1], userId: string) {
-  setSessionCookie(res, signToken({ userId }));
+function issueSession(req: Parameters<RouteHandler>[0], res: Parameters<RouteHandler>[1], userId: string) {
+  setSessionCookie(res, signToken({ userId }), req);
 }
 
 export const register: RouteHandler = async (req, res) => {
@@ -112,7 +112,7 @@ export const register: RouteHandler = async (req, res) => {
     profile: defaultProfile(),
   };
   await users.insertOne(doc);
-  issueSession(res, doc._id.toString());
+  issueSession(req, res, doc._id.toString());
   json(res, { user: toPublicUser(doc) }, 201);
 };
 
@@ -130,13 +130,35 @@ export const login: RouteHandler = async (req, res) => {
   const ok = await verifyPassword(password, user.passwordHash);
   if (!ok) return unauthorized(res, "Invalid credentials");
 
-  issueSession(res, user._id.toString());
+  issueSession(req, res, user._id.toString());
   json(res, { user: toPublicUser(user) });
 };
 
-export const logout: RouteHandler = (_req, res) => {
-  clearSessionCookie(res);
+export const logout: RouteHandler = (req, res) => {
+  clearSessionCookie(res, req);
   json(res, { ok: true });
+};
+
+export const authDiag: RouteHandler = async (req, res) => {
+  const token = getSessionToken(req);
+  let tokenStatus: "missing" | "invalid" | "valid" = "missing";
+  let userId: string | null = null;
+  if (token) {
+    const payload = verifyToken(token);
+    if (payload) {
+      tokenStatus = "valid";
+      userId = payload.userId;
+    } else {
+      tokenStatus = "invalid";
+    }
+  }
+  json(res, {
+    cookieMode: describeCookieMode(req),
+    tokenStatus,
+    userId,
+    cookieHeaderPresent: Boolean(req.headers.cookie),
+    sessionCookieName: "hltv_session",
+  });
 };
 
 export const getMe: RouteHandler = async (req, res) => {
@@ -171,10 +193,18 @@ export const updateMe: RouteHandler = async (req, res) => {
 
 export const recordGameResult: RouteHandler = async (req, res, params) => {
   const user = await authedUser(req);
-  if (!user) return unauthorized(res);
+  if (!user) {
+    console.warn(
+      `[recordGameResult] unauthorized — origin=${req.headers.origin || "-"} hasCookie=${Boolean(req.headers.cookie)}`,
+    );
+    return unauthorized(res);
+  }
 
   const gameId = params.gameId;
-  if (!isGameId(gameId)) return badRequest(res, "Invalid game id");
+  if (!isGameId(gameId)) {
+    console.warn(`[recordGameResult] invalid gameId=${gameId} user=${user._id.toString()}`);
+    return badRequest(res, "Invalid game id");
+  }
 
   const debounceKey = `${user._id.toString()}:${gameId}`;
   const now = Date.now();
@@ -189,7 +219,12 @@ export const recordGameResult: RouteHandler = async (req, res, params) => {
 
   const body = await readJsonBody<unknown>(req);
   const scored = validateAndScore(gameId, body, user.profile);
-  if (!scored) return badRequest(res, "Invalid game result");
+  if (!scored) {
+    console.warn(
+      `[recordGameResult] validation failed gameId=${gameId} user=${user._id.toString()} body=${JSON.stringify(body)}`,
+    );
+    return badRequest(res, "Invalid game result");
+  }
 
   const today = todayISODate();
   const dailyStreak = nextDailyStreak(user.profile, today);
