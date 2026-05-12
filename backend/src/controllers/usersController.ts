@@ -239,7 +239,7 @@ export const recordGameResult: RouteHandler = async (req, res, params) => {
   );
   if (cappedAchievementXp > 0) addXP(updated.profile, cappedAchievementXp);
 
-  if (newAchievements.length > 0 || cappedAchievementXp > 0) {
+  if (grantedXp > 0 || newAchievements.length > 0 || cappedAchievementXp > 0) {
     const persist: Record<string, unknown> = {
       "profile.xp": updated.profile.xp,
       "profile.level": updated.profile.level,
