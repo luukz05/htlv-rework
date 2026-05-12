@@ -6,7 +6,7 @@ export type GameStats = {
   guessLineup: { played: number; perfectRounds: number };
   higherLower: { played: number; highStreak: number; totalCorrect: number };
   mapGuesser: { played: number; perfectRounds: number; totalCorrect: number };
-  crosshair: { played: number; highScore: number; bestAccuracy: number };
+  crosshair: { played: number; highScore: number; bestAccuracy: number; flashedTimes: number };
   transferTrivia: { played: number; perfectAnswers: number; totalCorrect: number };
 };
 
@@ -61,7 +61,7 @@ export function defaultProfile(): UserProfile {
       guessLineup: { played: 0, perfectRounds: 0 },
       higherLower: { played: 0, highStreak: 0, totalCorrect: 0 },
       mapGuesser: { played: 0, perfectRounds: 0, totalCorrect: 0 },
-      crosshair: { played: 0, highScore: 0, bestAccuracy: 0 },
+      crosshair: { played: 0, highScore: 0, bestAccuracy: 0, flashedTimes: 0 },
       transferTrivia: { played: 0, perfectAnswers: 0, totalCorrect: 0 },
     },
   };

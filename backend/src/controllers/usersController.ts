@@ -266,5 +266,13 @@ export const recordGameResult: RouteHandler = async (req, res, params) => {
     }
   }
 
-  json(res, { user: toPublicUser(updated), newAchievements, xpCapped });
+  const xpGained = grantedXp + cappedAchievementXp;
+  json(res, {
+    user: toPublicUser(updated),
+    newAchievements,
+    xpGained,
+    xpGameGranted: grantedXp,
+    xpAchievementGranted: cappedAchievementXp,
+    xpCapped,
+  });
 };

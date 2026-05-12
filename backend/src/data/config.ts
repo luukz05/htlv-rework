@@ -62,6 +62,7 @@ export const achievements = [
   { id: "sharpshooter", name: "Sharpshooter", description: "Hit 20+ targets in Crosshair Challenge", icon: "target", xpReward: 20 },
   { id: "aimbot", name: "Aimbot", description: "Hit 30+ targets in Crosshair Challenge", icon: "bot", xpReward: 40 },
   { id: "precision", name: "Precision", description: "90%+ accuracy in Crosshair Challenge", icon: "bow", xpReward: 30 },
+  { id: "flashed", name: "Flashed", description: "Get blinded by a flashbang in Crosshair Challenge", icon: "burst", xpReward: 10 },
   { id: "callout-master", name: "Callout Master", description: "Perfect round in Map Guesser", icon: "map", xpReward: 50 },
   { id: "lineup-legend", name: "Lineup Legend", description: "Name all 5 players in under 20s", icon: "users", xpReward: 50 },
   { id: "agent", name: "Agent", description: "5 perfect answers in Transfer Trivia", icon: "briefcase", xpReward: 75 },

@@ -105,6 +105,8 @@ export function validateAndScore(
       if (!isFiniteInt(input.score, 0, 200)) return null;
       if (!isFiniteInt(input.hits, 0, 500)) return null;
       if (!isFiniteInt(input.misses, 0, 500)) return null;
+      if (input.flashed !== undefined && typeof input.flashed !== "boolean") return null;
+      if (!isFiniteInt(input.flashedCount, 0, 100) && input.flashedCount !== undefined) return null;
       const score = input.score;
       const hits = input.hits;
       const misses = input.misses;
@@ -112,10 +114,18 @@ export function validateAndScore(
       const totalShots = hits + misses;
       const accuracy = totalShots > 0 ? Math.round((hits / totalShots) * 100) : 0;
       const xp = score * 3 + (accuracy >= 90 ? 40 : accuracy >= 70 ? 20 : 0);
+      const inc: Record<string, number> = { "profile.gameStats.crosshair.played": 1 };
+      const flashedCount =
+        typeof input.flashedCount === "number"
+          ? input.flashedCount
+          : input.flashed === true
+            ? 1
+            : 0;
+      if (flashedCount > 0) inc["profile.gameStats.crosshair.flashedTimes"] = flashedCount;
       return cap(
         {
           xp,
-          inc: { "profile.gameStats.crosshair.played": 1 },
+          inc,
           max: {
             "profile.gameStats.crosshair.highScore": score,
             "profile.gameStats.crosshair.bestAccuracy": accuracy,
@@ -155,11 +165,25 @@ export function validateAndScore(
     case "transferTrivia": {
       if (!Array.isArray(input.scores) || input.scores.length !== 5) return null;
       for (const value of input.scores) {
-        if (!isFiniteInt(value, -50, 100)) return null;
+        if (!isFiniteInt(value, -50, 150)) return null;
       }
       const scores = input.scores as number[];
+      const perfectRoundsInput = input.perfectRounds;
+      if (
+        !Array.isArray(perfectRoundsInput) ||
+        perfectRoundsInput.length !== 5 ||
+        !perfectRoundsInput.every((v) => typeof v === "boolean")
+      ) {
+        return null;
+      }
+      const perfectRounds = perfectRoundsInput as boolean[];
       const positive = scores.filter((value) => value > 0).length;
-      const perfect = scores.filter((value) => value >= 25).length;
+      let perfect = 0;
+      for (let i = 0; i < 5; i++) {
+        if (!perfectRounds[i]) continue;
+        const s = scores[i];
+        if (s >= 35 && (s - 25) % 10 === 0 && s <= 105) perfect++;
+      }
       const xp = scores.reduce((sum, value) => sum + Math.max(value, 0), 0) + 15;
       return cap(
         {
@@ -191,6 +215,7 @@ export function computeNewAchievements(profile: UserProfile): string[] {
     ["sharpshooter", s.crosshair.highScore >= 20],
     ["aimbot", s.crosshair.highScore >= 30],
     ["precision", s.crosshair.bestAccuracy >= 90],
+    ["flashed", (s.crosshair.flashedTimes ?? 0) >= 1],
     ["callout-master", s.mapGuesser.perfectRounds >= 1],
     ["lineup-legend", s.guessLineup.perfectRounds >= 1],
     ["agent", s.transferTrivia.perfectAnswers >= 5],
