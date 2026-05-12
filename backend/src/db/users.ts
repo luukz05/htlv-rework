@@ -17,6 +17,8 @@ export type UserProfile = {
   gamesPlayed: number;
   dailyStreak: number;
   lastPlayedDate: string;
+  dailyXp: number;
+  dailyXpDate: string;
   achievements: string[];
   gameStats: GameStats;
 };
@@ -51,6 +53,8 @@ export function defaultProfile(): UserProfile {
     gamesPlayed: 0,
     dailyStreak: 0,
     lastPlayedDate: "",
+    dailyXp: 0,
+    dailyXpDate: "",
     achievements: [],
     gameStats: {
       csdle: { played: 0, won: 0, streak: 0, maxStreak: 0, distribution: [0, 0, 0, 0, 0, 0, 0, 0] },
