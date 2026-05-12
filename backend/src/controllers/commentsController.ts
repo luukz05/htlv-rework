@@ -8,6 +8,20 @@ import {
   type CommentTargetType,
 } from "../db/comments.js";
 import { getAuthedUser, rankForLevel, relativeTime } from "../lib/session.js";
+import { news } from "../data/mock.js";
+
+const TARGET_ID_RE = /^\d{1,10}$/;
+const newsIds = new Set(news.map((article) => String(article.id)));
+
+function validateTargetId(targetType: CommentTargetType, targetId: string): { ok: true } | { ok: false; status: 400 | 404; message: string } {
+  if (!TARGET_ID_RE.test(targetId)) {
+    return { ok: false, status: 400, message: "Invalid target id" };
+  }
+  if (targetType === "news" && !newsIds.has(targetId)) {
+    return { ok: false, status: 404, message: "News article not found" };
+  }
+  return { ok: true };
+}
 
 function serializeComment(doc: CommentDoc, viewerId: ObjectId | null) {
   return {
@@ -26,6 +40,12 @@ function listFactory(targetType: CommentTargetType): RouteHandler {
   return async (req, res, params) => {
     const targetId = params.id;
     if (!targetId) return badRequest(res, "Missing target id");
+    const validation = validateTargetId(targetType, targetId);
+    if (!validation.ok) {
+      return validation.status === 404
+        ? notFound(res, validation.message)
+        : badRequest(res, validation.message);
+    }
     const viewer = await getAuthedUser(req);
     const c = await commentsCollection();
     const docs = await c
@@ -43,6 +63,12 @@ function createFactory(targetType: CommentTargetType): RouteHandler {
     if (!user) return unauthorized(res);
     const targetId = params.id;
     if (!targetId) return badRequest(res, "Missing target id");
+    const validation = validateTargetId(targetType, targetId);
+    if (!validation.ok) {
+      return validation.status === 404
+        ? notFound(res, validation.message)
+        : badRequest(res, validation.message);
+    }
 
     const body = await readJsonBody<{ body?: string }>(req);
     const text = (body.body || "").trim();

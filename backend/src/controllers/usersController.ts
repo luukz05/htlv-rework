@@ -9,10 +9,10 @@ import {
   toPublicUser,
   usersCollection,
   type UserDocument,
-  type GameStats,
   type UserProfile,
 } from "../db/users.js";
 import { achievements } from "../data/platform.js";
+import { computeNewAchievements, DAILY_XP_CAP, isGameId, validateAndScore } from "../lib/scoring.js";
 
 const USERNAME_RE = /^[a-zA-Z0-9_]{3,20}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -61,49 +61,22 @@ function addXP(profile: UserProfile, amount: number) {
   profile.totalXpEarned += amount;
 }
 
-function updateDailyStreak(profile: UserProfile) {
-  const today = new Date().toISOString().split("T")[0];
-  if (profile.lastPlayedDate === today) return;
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split("T")[0];
-  profile.dailyStreak = profile.lastPlayedDate === yesterdayStr ? profile.dailyStreak + 1 : 1;
-  profile.lastPlayedDate = today;
+const SUBMIT_DEBOUNCE_MS = 2000;
+const lastSubmitAt = new Map<string, number>();
+
+function todayISODate() {
+  return new Date().toISOString().split("T")[0];
 }
 
-function unlockAchievements(profile: UserProfile) {
-  const before = new Set(profile.achievements);
-  const s = profile.gameStats;
-  const checks: [string, boolean][] = [
-    ["first-blood", s.csdle.won >= 1],
-    ["one-tap", s.csdle.distribution[0] >= 1],
-    ["weekly-warrior", s.csdle.streak >= 7],
-    ["hot-streak", s.higherLower.highStreak >= 5],
-    ["on-fire", s.higherLower.highStreak >= 10],
-    ["unstoppable", s.higherLower.highStreak >= 15],
-    ["sharpshooter", s.crosshair.highScore >= 20],
-    ["aimbot", s.crosshair.highScore >= 30],
-    ["precision", s.crosshair.bestAccuracy >= 90],
-    ["callout-master", s.mapGuesser.perfectRounds >= 1],
-    ["lineup-legend", s.guessLineup.perfectRounds >= 1],
-    ["agent", s.transferTrivia.perfectAnswers >= 5],
-    [
-      "jack-of-all-trades",
-      s.csdle.played > 0 &&
-        s.guessLineup.played > 0 &&
-        s.higherLower.played > 0 &&
-        s.mapGuesser.played > 0 &&
-        s.crosshair.played > 0 &&
-        s.transferTrivia.played > 0,
-    ],
-    ["gold-nova", profile.level >= 10],
-    ["master-guardian", profile.level >= 20],
-    ["veteran", profile.gamesPlayed >= 100],
-  ];
-  for (const [id, ok] of checks) {
-    if (ok && !profile.achievements.includes(id)) profile.achievements.push(id);
-  }
-  return profile.achievements.filter((id) => !before.has(id));
+function yesterdayISODate() {
+  const date = new Date();
+  date.setDate(date.getDate() - 1);
+  return date.toISOString().split("T")[0];
+}
+
+function nextDailyStreak(profile: UserProfile, today: string): number {
+  if (profile.lastPlayedDate === today) return profile.dailyStreak;
+  return profile.lastPlayedDate === yesterdayISODate() ? profile.dailyStreak + 1 : 1;
 }
 
 function issueSession(res: Parameters<RouteHandler>[1], userId: string) {
@@ -200,31 +173,98 @@ export const recordGameResult: RouteHandler = async (req, res, params) => {
   const user = await authedUser(req);
   if (!user) return unauthorized(res);
 
-  const body = await readJsonBody<{
-    xp?: number;
-    stats?: Partial<Record<keyof GameStats, Record<string, number | number[]>>>;
-  }>(req);
+  const gameId = params.gameId;
+  if (!isGameId(gameId)) return badRequest(res, "Invalid game id");
 
-  const gameId = params.gameId as keyof GameStats;
-  const profile = user.profile;
-  if (!profile.gameStats[gameId]) return badRequest(res, "Invalid game id");
+  const debounceKey = `${user._id.toString()}:${gameId}`;
+  const now = Date.now();
+  const last = lastSubmitAt.get(debounceKey) ?? 0;
+  if (now - last < SUBMIT_DEBOUNCE_MS) {
+    res.statusCode = 429;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(JSON.stringify({ error: "Slow down" }));
+    return;
+  }
+  lastSubmitAt.set(debounceKey, now);
 
-  updateDailyStreak(profile);
-  profile.gamesPlayed += 1;
-  Object.assign(profile.gameStats[gameId], body.stats?.[gameId] || {});
-  addXP(profile, Number(body.xp || 0));
+  const body = await readJsonBody<unknown>(req);
+  const scored = validateAndScore(gameId, body, user.profile);
+  if (!scored) return badRequest(res, "Invalid game result");
 
-  const newAchievements = unlockAchievements(profile);
-  const reward = achievements
-    .filter((a) => newAchievements.includes(a.id))
-    .reduce((sum, a) => sum + a.xpReward, 0);
-  if (reward > 0) addXP(profile, reward);
+  const today = todayISODate();
+  const dailyStreak = nextDailyStreak(user.profile, today);
+
+  const sameDay = user.profile.dailyXpDate === today;
+  const dailySoFar = sameDay ? user.profile.dailyXp : 0;
+  const remainingDaily = Math.max(0, DAILY_XP_CAP - dailySoFar);
+  const grantedXp = Math.min(scored.xp, remainingDaily);
+  const xpCapped = grantedXp < scored.xp;
+
+  const setFields: Record<string, unknown> = {
+    ...scored.set,
+    "profile.lastPlayedDate": today,
+    "profile.dailyStreak": dailyStreak,
+    "profile.dailyXpDate": today,
+    "profile.dailyXp": dailySoFar + grantedXp,
+    updatedAt: new Date(),
+  };
+
+  const incFields: Record<string, number> = {
+    "profile.gamesPlayed": 1,
+    ...scored.inc,
+  };
 
   const users = await usersCollection();
-  await users.updateOne(
+  const updated = await users.findOneAndUpdate(
     { _id: user._id },
-    { $set: { profile, updatedAt: new Date() } },
+    {
+      $inc: incFields,
+      ...(Object.keys(scored.max).length > 0 ? { $max: scored.max } : {}),
+      $set: setFields,
+    },
+    { returnDocument: "after" },
   );
+  if (!updated) return unauthorized(res);
 
-  json(res, { user: toPublicUser({ ...user, profile }), newAchievements });
+  if (grantedXp > 0) addXP(updated.profile, grantedXp);
+
+  const newAchievements = computeNewAchievements(updated.profile);
+  const achievementXp = achievements
+    .filter((entry) => newAchievements.includes(entry.id))
+    .reduce((sum, entry) => sum + entry.xpReward, 0);
+
+  const cappedAchievementXp = Math.min(
+    achievementXp,
+    Math.max(0, DAILY_XP_CAP - (updated.profile.dailyXp ?? 0)),
+  );
+  if (cappedAchievementXp > 0) addXP(updated.profile, cappedAchievementXp);
+
+  if (newAchievements.length > 0 || cappedAchievementXp > 0) {
+    const persist: Record<string, unknown> = {
+      "profile.xp": updated.profile.xp,
+      "profile.level": updated.profile.level,
+      "profile.totalXpEarned": updated.profile.totalXpEarned,
+      updatedAt: new Date(),
+    };
+    if (cappedAchievementXp > 0) {
+      persist["profile.dailyXp"] = updated.profile.dailyXp + cappedAchievementXp;
+      updated.profile.dailyXp += cappedAchievementXp;
+    }
+    await users.updateOne(
+      { _id: user._id },
+      {
+        $set: persist,
+        ...(newAchievements.length > 0
+          ? { $addToSet: { "profile.achievements": { $each: newAchievements } } }
+          : {}),
+      },
+    );
+    if (newAchievements.length > 0) {
+      for (const id of newAchievements) {
+        if (!updated.profile.achievements.includes(id)) updated.profile.achievements.push(id);
+      }
+    }
+  }
+
+  json(res, { user: toPublicUser(updated), newAchievements, xpCapped });
 };

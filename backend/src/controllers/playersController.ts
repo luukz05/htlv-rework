@@ -1,10 +1,16 @@
 import type { RouteHandler } from "../http/router.js";
 import { badRequest, json, notFound } from "../http/response.js";
-import { playerOfTheWeek, playerProfiles, topPlayers } from "../data/mock.js";
+import { playerOfTheWeek } from "../data/mock.js";
 import type { Player, PlayerProfile } from "../data/mock.js";
+import {
+  getPlayerProfileFromDb,
+  listPlayerProfilesFromDb,
+  listTopPlayersFromDb,
+} from "../db/players.js";
 
-export const listPlayers: RouteHandler = (_req, res) => {
-  json(res, playerProfiles);
+export const listPlayers: RouteHandler = async (_req, res) => {
+  const profiles = await listPlayerProfilesFromDb();
+  json(res, profiles);
 };
 
 function profileToPlayer(profile: PlayerProfile): Player {
@@ -36,7 +42,12 @@ function profileToPlayer(profile: PlayerProfile): Player {
   };
 }
 
-export const listTopPlayers: RouteHandler = (_req, res) => {
+export const listTopPlayers: RouteHandler = async (_req, res) => {
+  const [topPlayers, playerProfiles] = await Promise.all([
+    listTopPlayersFromDb(),
+    listPlayerProfilesFromDb(),
+  ]);
+
   const topPlayerIds = new Set(topPlayers.map((p) => p.id));
   const extras: Player[] = playerProfiles
     .filter((p) => !topPlayerIds.has(p.id))
@@ -56,14 +67,14 @@ export const getPlayerOfTheWeek: RouteHandler = (_req, res) => {
   json(res, playerOfTheWeek);
 };
 
-export const getPlayer: RouteHandler = (_req, res, params) => {
+export const getPlayer: RouteHandler = async (_req, res, params) => {
   const id = Number(params.id);
   if (!Number.isFinite(id)) {
     badRequest(res, "Invalid player id");
     return;
   }
 
-  const player = playerProfiles.find((profile) => profile.id === id);
+  const player = await getPlayerProfileFromDb(id);
   if (!player) {
     notFound(res, "Player not found");
     return;

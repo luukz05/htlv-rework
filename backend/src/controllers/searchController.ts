@@ -1,6 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { json } from "../http/response.js";
-import { teamProfiles, playerProfiles, events } from "../data/mock.js";
+import { listEventsFromDb } from "../db/events.js";
+import { listPlayerProfilesFromDb } from "../db/players.js";
+import { listTeamProfilesFromDb } from "../db/teamProfiles.js";
 
 function normalize(str: string): string {
   return str
@@ -14,7 +16,7 @@ function normalize(str: string): string {
     .replace(/7/g, "t");
 }
 
-export function globalSearch(req: IncomingMessage, res: ServerResponse) {
+export async function globalSearch(req: IncomingMessage, res: ServerResponse) {
   const url = new URL(req.url || "", `http://${req.headers.host || "localhost"}`);
   const query = url.searchParams.get("q") || "";
   const q = query.toLowerCase().trim();
@@ -23,6 +25,12 @@ export function globalSearch(req: IncomingMessage, res: ServerResponse) {
   if (!q) {
     return json(res, { teams: [], players: [], events: [] });
   }
+
+  const [teamProfiles, playerProfiles, events] = await Promise.all([
+    listTeamProfilesFromDb(),
+    listPlayerProfilesFromDb(),
+    listEventsFromDb(),
+  ]);
 
   const filteredTeams = teamProfiles
     .filter((team) => {
