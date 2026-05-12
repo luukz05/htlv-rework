@@ -35,12 +35,17 @@ export default function LoginPage() {
     <main className="mx-auto max-w-[440px] px-5 py-16">
       <div className="rounded-xl border border-border bg-bg-card p-8 card-glow animate-fade-in-up">
         <div className="flex justify-center mb-6">
-          <div className="flex items-center gap-2">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <path d="M6 8h5v16H6zM13 14h5v10h-5zM20 10h5v14h-5z" fill="#2563eb"/>
-            </svg>
-            <span className="text-xl font-bold text-text-primary">WikiHowl</span>
-          </div>
+          <Link href="/" className="flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://steamcommunity-a.akamaihd.net/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJai0ki7VeTHjMmuOHaC619h7delpVHoVhH4kJHf-SNM4bz9bKY_dPWQWDCUkLxy57g_H3DgkB5w42uAzIv4I3meOAQlApdwFO5YrFDmxUNp_lL7/256fx256f"
+              alt="WikiHowl"
+              className="h-12 w-12 object-contain"
+            />
+            <span className="text-2xl font-normal tracking-wide text-text-primary leading-none [font-family:var(--font-display)]">
+              WikiHowl
+            </span>
+          </Link>
         </div>
 
         <h1 className="text-xl font-bold text-center mb-1">Welcome back</h1>
