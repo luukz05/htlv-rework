@@ -1,20 +1,20 @@
-import { ObjectId, type Collection, type Db } from "mongodb";
+import type { Collection, Db, ObjectId } from "mongodb";
 import { getDb } from "./client.js";
-import {
-  academyGuides as seedGuides,
-  highlights as seedHighlights,
-  roundHighlight as seedRoundHighlight,
-  streams as seedStreams,
-} from "../data/mock.js";
-import { galleries as seedGalleries } from "../data/platform.js";
 import type {
   Guide,
   Highlight,
   RoundHighlight,
   Stream,
-} from "../data/mock.js";
+} from "../data/types.js";
 
-type GalleryItem = (typeof seedGalleries)[number];
+type GalleryItem = {
+  id: number;
+  title: string;
+  category: string;
+  images: number;
+  image: string | undefined;
+  date: string;
+};
 
 export type AcademyGuideDoc = { _id: ObjectId } & Guide;
 export type HighlightDoc = { _id: ObjectId } & Highlight;
@@ -98,34 +98,19 @@ export async function listGalleriesFromDb(): Promise<GalleryItem[]> {
   return docs as unknown as GalleryItem[];
 }
 
-export async function ensureContentSeed(db: Db) {
+export async function ensureContentIndexes(db: Db) {
   const academy = db.collection<AcademyGuideDoc>("academyGuides");
   await academy.createIndex({ id: 1 }, { unique: true, name: "uniq_guide_id" });
-  if ((await academy.estimatedDocumentCount()) === 0 && seedGuides.length > 0) {
-    await academy.insertMany(seedGuides.map((g) => ({ _id: new ObjectId(), ...g })));
-  }
 
   const hl = db.collection<HighlightDoc>("highlights");
   await hl.createIndex({ id: 1 }, { unique: true, name: "uniq_highlight_id" });
-  if ((await hl.estimatedDocumentCount()) === 0 && seedHighlights.length > 0) {
-    await hl.insertMany(seedHighlights.map((h) => ({ _id: new ObjectId(), ...h })));
-  }
 
   const rh = db.collection<RoundHighlightDoc>("roundHighlight");
   await rh.createIndex({ key: 1 }, { unique: true, name: "uniq_round_key" });
-  if ((await rh.estimatedDocumentCount()) === 0) {
-    await rh.insertOne({ _id: new ObjectId(), key: "current", ...seedRoundHighlight });
-  }
 
   const st = db.collection<StreamDoc>("streams");
   await st.createIndex({ id: 1 }, { unique: true, name: "uniq_stream_id" });
-  if ((await st.estimatedDocumentCount()) === 0 && seedStreams.length > 0) {
-    await st.insertMany(seedStreams.map((s) => ({ _id: new ObjectId(), ...s })));
-  }
 
   const gal = db.collection<GalleryDoc>("galleries");
   await gal.createIndex({ id: 1 }, { unique: true, name: "uniq_gallery_id" });
-  if ((await gal.estimatedDocumentCount()) === 0 && seedGalleries.length > 0) {
-    await gal.insertMany(seedGalleries.map((g) => ({ _id: new ObjectId(), ...g })));
-  }
 }

@@ -1,10 +1,6 @@
-import { ObjectId, type Collection, type Db } from "mongodb";
+import type { Collection, Db, ObjectId } from "mongodb";
 import { getDb } from "./client.js";
-import {
-  teamProfiles as seedProfiles,
-  teamRosters as seedRosters,
-} from "../data/mock.js";
-import type { TeamProfile, TeamRoster } from "../data/mock.js";
+import type { TeamProfile, TeamRoster } from "../data/types.js";
 
 export type TeamProfileDoc = {
   _id: ObjectId;
@@ -45,23 +41,13 @@ export async function listTeamRostersFromDb(): Promise<TeamRoster[]> {
   return docs as unknown as TeamRoster[];
 }
 
-export async function ensureTeamProfilesSeed(db: Db) {
+export async function ensureTeamProfilesIndexes(db: Db) {
   const profiles = db.collection<TeamProfileDoc>("teamProfiles");
   await profiles.createIndex({ id: 1 }, { unique: true, name: "uniq_team_profile_id" });
-  if ((await profiles.estimatedDocumentCount()) === 0 && seedProfiles.length > 0) {
-    await profiles.insertMany(
-      seedProfiles.map((p) => ({ _id: new ObjectId(), ...p })),
-    );
-  }
 
   const rosters = db.collection<TeamRosterDoc>("teamRosters");
   await rosters.createIndex(
     { teamName: 1 },
     { unique: true, name: "uniq_roster_team" },
   );
-  if ((await rosters.estimatedDocumentCount()) === 0 && seedRosters.length > 0) {
-    await rosters.insertMany(
-      seedRosters.map((r) => ({ _id: new ObjectId(), ...r })),
-    );
-  }
 }

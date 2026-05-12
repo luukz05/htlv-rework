@@ -1,7 +1,6 @@
-import { ObjectId, type Collection, type Db } from "mongodb";
+import { type Collection, type Db, ObjectId } from "mongodb";
 import { getDb } from "./client.js";
-import { news as seedNews } from "../data/mock.js";
-import type { NewsArticle } from "../data/mock.js";
+import type { NewsArticle } from "../data/types.js";
 
 export type NewsDoc = {
   _id: ObjectId;
@@ -27,14 +26,7 @@ export async function getNewsByIdFromDb(id: number): Promise<NewsArticle | null>
   return (doc as unknown as NewsArticle | null) ?? null;
 }
 
-export async function ensureNewsSeed(db: Db) {
+export async function ensureNewsIndexes(db: Db) {
   const col = db.collection<NewsDoc>("news");
   await col.createIndex({ id: 1 }, { unique: true, name: "uniq_news_id" });
-  const count = await col.estimatedDocumentCount();
-  if (count > 0) return;
-
-  if (seedNews.length === 0) return;
-  await col.insertMany(
-    seedNews.map((n) => ({ _id: new ObjectId(), ...n })),
-  );
 }

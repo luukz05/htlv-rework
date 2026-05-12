@@ -1,7 +1,6 @@
-import { ObjectId, type Collection, type Db } from "mongodb";
+import type { Collection, Db, ObjectId } from "mongodb";
 import { getDb } from "./client.js";
-import { ranking as seedRanking } from "../data/mock.js";
-import type { RankedTeam } from "../data/mock.js";
+import type { RankedTeam } from "../data/types.js";
 
 export type RankingDoc = {
   _id: ObjectId;
@@ -21,14 +20,7 @@ export async function listRankingFromDb(): Promise<RankedTeam[]> {
   return docs as unknown as RankedTeam[];
 }
 
-export async function ensureRankingSeed(db: Db) {
+export async function ensureRankingIndexes(db: Db) {
   const col = db.collection<RankingDoc>("ranking");
   await col.createIndex({ rank: 1 }, { unique: true, name: "uniq_rank" });
-  const count = await col.estimatedDocumentCount();
-  if (count > 0) return;
-
-  if (seedRanking.length === 0) return;
-  await col.insertMany(
-    seedRanking.map((r) => ({ _id: new ObjectId(), ...r })),
-  );
 }

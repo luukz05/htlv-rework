@@ -1,13 +1,7 @@
-import { ObjectId, type Collection, type Db } from "mongodb";
+import { type Collection, type Db, ObjectId } from "mongodb";
 import { getDb } from "./client.js";
-import {
-  liveMatches,
-  recentResults,
-  sameEvent,
-  simulateTournament,
-  upcomingMatches,
-} from "../data/mock.js";
-import type { Match } from "../data/mock.js";
+import type { Match } from "../data/types.js";
+import { sameEvent, simulateTournament } from "../lib/tournament.js";
 import { listTeamsFromDb } from "./teams.js";
 import { listEventsFromDb } from "./events.js";
 
@@ -56,17 +50,24 @@ export async function getExtendedMatchesFromDb(): Promise<Match[]> {
   return allExtended;
 }
 
-export async function ensureMatchesSeed(db: Db) {
+export async function getBettingOddsFromDb(bookmakers: string[]): Promise<{
+  match: Match;
+  odds: { bookmaker: string; team1: number; team2: number }[];
+}[]> {
+  const all = await listMatchesFromDb();
+  const upcoming = all.filter((m) => m.status === "upcoming");
+  return upcoming.map((match, index) => ({
+    match,
+    odds: bookmakers.map((bookmaker, bookmakerIndex) => ({
+      bookmaker,
+      team1: Number((1.75 + index * 0.08 + bookmakerIndex * 0.03).toFixed(2)),
+      team2: Number((2.05 - index * 0.04 + bookmakerIndex * 0.02).toFixed(2)),
+    })),
+  }));
+}
+
+export async function ensureMatchesIndexes(db: Db) {
   const col = db.collection<MatchDoc>("matches");
   await col.createIndex({ id: 1 }, { unique: true, name: "uniq_match_id" });
   await col.createIndex({ status: 1, id: 1 });
-  const count = await col.estimatedDocumentCount();
-  if (count > 0) return;
-
-  const seed: Match[] = [...liveMatches, ...upcomingMatches, ...recentResults];
-  if (seed.length === 0) return;
-
-  await col.insertMany(
-    seed.map((m) => ({ _id: new ObjectId(), ...m })),
-  );
 }

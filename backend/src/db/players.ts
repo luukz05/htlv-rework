@@ -1,7 +1,6 @@
-import { ObjectId, type Collection, type Db } from "mongodb";
+import type { Collection, Db, ObjectId } from "mongodb";
 import { getDb } from "./client.js";
-import { playerProfiles as seedProfiles, topPlayers as seedTop } from "../data/mock.js";
-import type { Player, PlayerProfile } from "../data/mock.js";
+import type { Player, PlayerProfile } from "../data/types.js";
 
 export type TopPlayerDoc = {
   _id: ObjectId;
@@ -45,20 +44,24 @@ export async function getPlayerProfileFromDb(id: number): Promise<PlayerProfile 
   return (doc as unknown as PlayerProfile | null) ?? null;
 }
 
-export async function ensurePlayersSeed(db: Db) {
+export async function getFantasyPlayersFromDb(): Promise<
+  (Player & { fantasyPoints: number; price: string; owned: string })[]
+> {
+  const top = await listTopPlayersFromDb();
+  return top.slice(0, 8).map((player, index) => ({
+    ...player,
+    fantasyPoints: 320 - index * 26,
+    price: (5.0 - index * 0.4).toFixed(1),
+    owned: `${85 - index * 7}%`,
+  }));
+}
+
+export async function ensurePlayersIndexes(db: Db) {
   const top = db.collection<TopPlayerDoc>("topPlayers");
   await top.createIndex({ id: 1 }, { unique: true, name: "uniq_top_id" });
   await top.createIndex({ rank: 1 });
-  if ((await top.estimatedDocumentCount()) === 0 && seedTop.length > 0) {
-    await top.insertMany(seedTop.map((p) => ({ _id: new ObjectId(), ...p })));
-  }
 
   const profiles = db.collection<PlayerProfileDoc>("playerProfiles");
   await profiles.createIndex({ id: 1 }, { unique: true, name: "uniq_profile_id" });
   await profiles.createIndex({ rank: 1 });
-  if ((await profiles.estimatedDocumentCount()) === 0 && seedProfiles.length > 0) {
-    await profiles.insertMany(
-      seedProfiles.map((p) => ({ _id: new ObjectId(), ...p })),
-    );
-  }
 }

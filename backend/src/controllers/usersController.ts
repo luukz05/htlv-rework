@@ -11,7 +11,7 @@ import {
   type UserDocument,
   type UserProfile,
 } from "../db/users.js";
-import { achievements } from "../data/platform.js";
+import { achievements } from "../data/config.js";
 import { computeNewAchievements, DAILY_XP_CAP, isGameId, validateAndScore } from "../lib/scoring.js";
 
 const USERNAME_RE = /^[a-zA-Z0-9_]{3,20}$/;

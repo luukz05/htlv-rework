@@ -1,7 +1,7 @@
 import type { RouteHandler } from "../http/router.js";
 import { badRequest, json, notFound } from "../http/response.js";
-import { playerOfTheWeek } from "../data/mock.js";
-import type { Player, PlayerProfile } from "../data/mock.js";
+import { playerOfTheWeek } from "../data/config.js";
+import type { Player, PlayerProfile } from "../data/types.js";
 import {
   getPlayerProfileFromDb,
   listPlayerProfilesFromDb,
@@ -63,8 +63,11 @@ export const listTopPlayers: RouteHandler = async (_req, res) => {
   json(res, [...top, ...extras]);
 };
 
-export const getPlayerOfTheWeek: RouteHandler = (_req, res) => {
-  json(res, playerOfTheWeek);
+export const getPlayerOfTheWeek: RouteHandler = async (_req, res) => {
+  const topPlayers = await listTopPlayersFromDb();
+  const { playerId, ...meta } = playerOfTheWeek;
+  const player = topPlayers.find((p) => p.id === playerId) ?? topPlayers[0];
+  json(res, { ...meta, player });
 };
 
 export const getPlayer: RouteHandler = async (_req, res, params) => {

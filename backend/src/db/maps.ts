@@ -1,7 +1,6 @@
-import { ObjectId, type Collection, type Db } from "mongodb";
+import type { Collection, Db, ObjectId } from "mongodb";
 import { getDb } from "./client.js";
-import { gameMaps as seedMaps } from "../data/mock.js";
-import type { GameMap, MapCalloutQuiz } from "../data/mock.js";
+import type { GameMap, MapCalloutQuiz } from "../data/types.js";
 
 export type GameMapDoc = {
   _id: ObjectId;
@@ -39,12 +38,7 @@ export async function buildMapCalloutQuizzesFromDb(): Promise<MapCalloutQuiz[]> 
   );
 }
 
-export async function ensureGameMapsSeed(db: Db) {
+export async function ensureGameMapsIndexes(db: Db) {
   const col = db.collection<GameMapDoc>("gameMaps");
   await col.createIndex({ slug: 1 }, { unique: true, name: "uniq_map_slug" });
-  if ((await col.estimatedDocumentCount()) === 0 && seedMaps.length > 0) {
-    await col.insertMany(
-      seedMaps.map((m) => ({ _id: new ObjectId(), ...m })),
-    );
-  }
 }

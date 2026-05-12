@@ -1,4 +1,27 @@
-import { news, topPlayers, upcomingMatches } from "./mock.js";
+import type { Team } from "./types.js";
+
+// Curated picks and runtime placeholders edited directly in code.
+// (Seed arrays live in mock.ts and are copied to MongoDB at first boot.)
+
+export const TBD_TEAM: Team = {
+  name: "TBD",
+  shortname: "TBD",
+  color: "#666",
+  logo: "",
+};
+
+// The `playerId` references a top-players row in MongoDB. Controller
+// assembles the full PlayerHighlight at request time.
+export const playerOfTheWeek = {
+  playerId: 1,
+  event: "PGL ASTANA 2026",
+  maps: 12,
+  kills: 312,
+  deaths: 187,
+  title: "Player of the Week",
+};
+
+// -- Site / UI config --
 
 export const navigation = [
   { label: "News", href: "/news" },
@@ -61,32 +84,4 @@ export const fantasyLeaderboard = [
   { rank: 10, name: "GlobalElite1", points: 2480, team: "Elite Squad", change: "0" },
 ];
 
-export const fantasyPlayers = topPlayers.slice(0, 8).map((player, index) => ({
-  ...player,
-  fantasyPoints: 320 - index * 26,
-  price: (5.0 - index * 0.4).toFixed(1),
-  owned: `${85 - index * 7}%`,
-}));
-
 export const bookmakers = ["Betway", "GG.bet", "Pinnacle"];
-
-export const bettingOdds = upcomingMatches.map((match, index) => ({
-  match,
-  odds: bookmakers.map((bookmaker, bookmakerIndex) => ({
-    bookmaker,
-    team1: Number((1.75 + index * 0.08 + bookmakerIndex * 0.03).toFixed(2)),
-    team2: Number((2.05 - index * 0.04 + bookmakerIndex * 0.02).toFixed(2)),
-  })),
-}));
-
-export const galleries = [
-  { id: 1, title: "IEM Katowice 2026 - Grand Final", category: "Events", images: 48, image: news[0]?.image, date: "Mar 3, 2026" },
-  { id: 2, title: "BLAST Premier Spring - Opening Day", category: "Events", images: 32, image: news[4]?.image, date: "Mar 1, 2026" },
-  { id: 3, title: "NAVI - Behind the Scenes at IEM", category: "Behind the Scenes", images: 24, image: news[8]?.image, date: "Feb 28, 2026" },
-  { id: 4, title: "FaZe Clan - Bootcamp Photos", category: "Teams", images: 18, image: news[6]?.image, date: "Feb 25, 2026" },
-  { id: 5, title: "ESL Pro League Season 21 - Venue Reveal", category: "Events", images: 36, image: news[7]?.image, date: "Feb 22, 2026" },
-  { id: 6, title: "G2 Esports - New Facility Tour", category: "Teams", images: 22, image: news[6]?.image, date: "Feb 20, 2026" },
-  { id: 7, title: "Vitality - Player Portraits 2026", category: "Teams", images: 15, image: news[1]?.image, date: "Feb 18, 2026" },
-  { id: 8, title: "PGL Major Copenhagen - Stage Setup", category: "Behind the Scenes", images: 28, image: news[11]?.image, date: "Feb 15, 2026" },
-  { id: 9, title: "Trophy Collection - Major Trophies Through the Years", category: "Behind the Scenes", images: 40, image: news[3]?.image, date: "Feb 10, 2026" },
-];

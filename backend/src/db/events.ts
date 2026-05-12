@@ -1,7 +1,6 @@
-import { ObjectId, type Collection, type Db } from "mongodb";
+import type { Collection, Db, ObjectId } from "mongodb";
 import { getDb } from "./client.js";
-import { events as seedEvents } from "../data/mock.js";
-import type { Event } from "../data/mock.js";
+import type { Event } from "../data/types.js";
 
 export type EventDoc = {
   _id: ObjectId;
@@ -27,14 +26,7 @@ export async function getEventByIdFromDb(id: number): Promise<Event | null> {
   return (doc as unknown as Event | null) ?? null;
 }
 
-export async function ensureEventsSeed(db: Db) {
+export async function ensureEventsIndexes(db: Db) {
   const col = db.collection<EventDoc>("events");
   await col.createIndex({ id: 1 }, { unique: true, name: "uniq_event_id" });
-  const count = await col.estimatedDocumentCount();
-  if (count > 0) return;
-
-  if (seedEvents.length === 0) return;
-  await col.insertMany(
-    seedEvents.map((e) => ({ _id: new ObjectId(), ...e })),
-  );
 }

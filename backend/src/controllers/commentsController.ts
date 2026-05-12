@@ -8,17 +8,22 @@ import {
   type CommentTargetType,
 } from "../db/comments.js";
 import { getAuthedUser, rankForLevel, relativeTime } from "../lib/session.js";
-import { news } from "../data/mock.js";
+import { getNewsByIdFromDb } from "../db/news.js";
 
 const TARGET_ID_RE = /^\d{1,10}$/;
-const newsIds = new Set(news.map((article) => String(article.id)));
 
-function validateTargetId(targetType: CommentTargetType, targetId: string): { ok: true } | { ok: false; status: 400 | 404; message: string } {
+async function validateTargetId(
+  targetType: CommentTargetType,
+  targetId: string,
+): Promise<{ ok: true } | { ok: false; status: 400 | 404; message: string }> {
   if (!TARGET_ID_RE.test(targetId)) {
     return { ok: false, status: 400, message: "Invalid target id" };
   }
-  if (targetType === "news" && !newsIds.has(targetId)) {
-    return { ok: false, status: 404, message: "News article not found" };
+  if (targetType === "news") {
+    const article = await getNewsByIdFromDb(Number(targetId));
+    if (!article) {
+      return { ok: false, status: 404, message: "News article not found" };
+    }
   }
   return { ok: true };
 }
@@ -40,7 +45,7 @@ function listFactory(targetType: CommentTargetType): RouteHandler {
   return async (req, res, params) => {
     const targetId = params.id;
     if (!targetId) return badRequest(res, "Missing target id");
-    const validation = validateTargetId(targetType, targetId);
+    const validation = await validateTargetId(targetType, targetId);
     if (!validation.ok) {
       return validation.status === 404
         ? notFound(res, validation.message)
@@ -63,7 +68,7 @@ function createFactory(targetType: CommentTargetType): RouteHandler {
     if (!user) return unauthorized(res);
     const targetId = params.id;
     if (!targetId) return badRequest(res, "Missing target id");
-    const validation = validateTargetId(targetType, targetId);
+    const validation = await validateTargetId(targetType, targetId);
     if (!validation.ok) {
       return validation.status === 404
         ? notFound(res, validation.message)

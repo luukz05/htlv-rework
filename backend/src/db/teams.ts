@@ -1,7 +1,6 @@
-import { ObjectId, type Collection, type Db } from "mongodb";
+import type { Collection, Db, ObjectId } from "mongodb";
 import { getDb } from "./client.js";
-import { teams as seedTeams } from "../data/mock.js";
-import type { Team } from "../data/mock.js";
+import type { Team } from "../data/types.js";
 
 export type TeamDoc = {
   _id: ObjectId;
@@ -22,20 +21,7 @@ export async function listTeamsFromDb(): Promise<Team[]> {
   return docs as unknown as Team[];
 }
 
-export async function ensureTeamsSeed(db: Db) {
+export async function ensureTeamsIndexes(db: Db) {
   const col = db.collection<TeamDoc>("teams");
   await col.createIndex({ name: 1 }, { unique: true, name: "uniq_name" });
-  const count = await col.estimatedDocumentCount();
-  if (count > 0) return;
-
-  if (seedTeams.length === 0) return;
-  await col.insertMany(
-    seedTeams.map((t) => ({
-      _id: new ObjectId(),
-      name: t.name,
-      shortname: t.shortname,
-      color: t.color,
-      logo: t.logo,
-    })),
-  );
 }
