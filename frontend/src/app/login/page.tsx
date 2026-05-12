@@ -39,12 +39,12 @@ export default function LoginPage() {
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
               <path d="M6 8h5v16H6zM13 14h5v10h-5zM20 10h5v14h-5z" fill="#2563eb"/>
             </svg>
-            <span className="text-xl font-bold text-text-primary">HLTV</span>
+            <span className="text-xl font-bold text-text-primary">WikiHowl</span>
           </div>
         </div>
 
         <h1 className="text-xl font-bold text-center mb-1">Welcome back</h1>
-        <p className="text-sm text-text-muted text-center mb-6">Sign in to your HLTV account</p>
+        <p className="text-sm text-text-muted text-center mb-6">Sign in to your WikiHowl account</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

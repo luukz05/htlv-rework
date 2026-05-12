@@ -45,12 +45,12 @@ export default function RegisterPage() {
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
               <path d="M6 8h5v16H6zM13 14h5v10h-5zM20 10h5v14h-5z" fill="#2563eb"/>
             </svg>
-            <span className="text-xl font-bold text-text-primary">HLTV</span>
+            <span className="text-xl font-bold text-text-primary">WikiHowl</span>
           </div>
         </div>
 
         <h1 className="text-xl font-bold text-center mb-1">Create an account</h1>
-        <p className="text-sm text-text-muted text-center mb-6">Join the HLTV community</p>
+        <p className="text-sm text-text-muted text-center mb-6">Join the WikiHowl community</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
