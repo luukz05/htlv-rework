@@ -29,25 +29,27 @@ export function getSessionToken(req: IncomingMessage): string | null {
 }
 
 export function setSessionCookie(res: ServerResponse, token: string) {
+  const secure = shouldUseSecure();
   const parts = [
     `${SESSION_COOKIE}=${encodeURIComponent(token)}`,
     "HttpOnly",
-    "SameSite=Lax",
+    `SameSite=${secure ? "None" : "Lax"}`,
     "Path=/",
     `Max-Age=${MAX_AGE_SECONDS}`,
   ];
-  if (shouldUseSecure()) parts.push("Secure");
+  if (secure) parts.push("Secure");
   res.setHeader("Set-Cookie", parts.join("; "));
 }
 
 export function clearSessionCookie(res: ServerResponse) {
+  const secure = shouldUseSecure();
   const parts = [
     `${SESSION_COOKIE}=`,
     "HttpOnly",
-    "SameSite=Lax",
+    `SameSite=${secure ? "None" : "Lax"}`,
     "Path=/",
     "Max-Age=0",
   ];
-  if (shouldUseSecure()) parts.push("Secure");
+  if (secure) parts.push("Secure");
   res.setHeader("Set-Cookie", parts.join("; "));
 }
