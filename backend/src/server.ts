@@ -3,12 +3,24 @@ import { createRouter } from "./routes/index.js";
 import { getDb } from "./db/client.js";
 
 const port = Number(process.env.PORT || 4000);
-const allowedOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
+const defaultOrigins = [
+  "http://localhost:3000",
+  "https://htlv-rework.vercel.app",
+];
+const allowedOrigins = new Set(
+  (process.env.FRONTEND_ORIGIN || defaultOrigins.join(","))
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean),
+);
 const router = createRouter();
+
+const isAllowedOrigin = (origin: string) =>
+  allowedOrigins.has(origin) || /^https:\/\/htlv-rework-[a-z0-9-]+\.vercel\.app$/.test(origin);
 
 const server = createServer((req, res) => {
   const origin = req.headers.origin;
-  if (origin && origin === allowedOrigin) {
+  if (origin && isAllowedOrigin(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
     res.setHeader("Access-Control-Allow-Credentials", "true");
