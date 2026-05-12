@@ -24,7 +24,7 @@ const navLinks = [
       { label: "Players", href: "/rankings/players" },
     ],
   },
-  { label: "Hall of Fame", href: "/hall-of-fame" },
+  { label: "Hall of Fame", shortLabel: "HOF", href: "/hall-of-fame" },
   {
     label: "Media",
     href: "/galleries",
@@ -38,7 +38,7 @@ const navLinks = [
     href: "/forums",
     children: [
       { label: "Forums", href: "/forums" },
-      { label: "Fantasy", href: "/fantasy" },
+      { label: "Fantasy", href: "/fantasy", isPreview: true },
       { label: "Betting", href: "/betting" },
       { label: "Academy", href: "/academy" },
     ],
@@ -97,13 +97,18 @@ function NavDropdown({
               <Link
                 key={child.href}
                 href={child.href}
-                className={`block rounded-lg px-3 py-2 text-xs font-medium transition-all ${
+                className={`flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all ${
                   isActive(child.href)
                     ? "bg-blue/10 text-blue-light"
                     : "text-text-secondary hover:bg-bg-card hover:text-text-primary"
                 }`}
               >
-                {child.label}
+                <span>{child.label}</span>
+                {child.isPreview && (
+                  <span className="rounded-full bg-yellow/15 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-yellow leading-none">
+                    Preview
+                  </span>
+                )}
               </Link>
             ))}
           </div>
@@ -276,7 +281,7 @@ function DataRibbon() {
           </span>
         </RibbonGroup>
 
-        <div className="grid h-11 min-w-[360px] shrink-0 grid-cols-[auto_repeat(5,minmax(44px,1fr))] items-center gap-2">
+        <div className="hidden h-11 min-w-[360px] shrink-0 grid-cols-[auto_repeat(5,minmax(44px,1fr))] items-center gap-2 lg:grid">
           <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">
             Top 5 players
           </span>
@@ -299,9 +304,9 @@ function DataRibbon() {
 
         <Link
           href={`/events/${mainEvent.id}`}
-          className="flex h-11 min-w-max flex-1 items-center justify-end gap-2 transition-colors hover:text-text-primary"
+          className="hidden h-11 min-w-max flex-1 items-center justify-end gap-2 transition-colors hover:text-text-primary xl:flex"
         >
-          <span className="shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted">
+          <span className="hidden shrink-0 text-[10px] sm:text-[9px] font-black uppercase tracking-[0.16em] text-text-muted 2xl:inline">
             Evento do mes
           </span>
           <span className="max-w-40 truncate text-xs font-bold text-text-primary">
@@ -310,7 +315,7 @@ function DataRibbon() {
           <span className="rounded bg-yellow/15 px-1.5 py-0.5 text-[10px] font-black uppercase text-yellow">
             {mainEvent.tier}-Tier
           </span>
-          <span className="hidden text-[10px] font-bold uppercase tracking-wider text-text-muted lg:inline">
+          <span className="hidden text-[10px] font-bold uppercase tracking-wider text-text-muted 2xl:inline">
             {mainEvent.location}
           </span>
         </Link>
@@ -356,20 +361,19 @@ export default function Header() {
     <>
       <header className="sticky top-0 z-50 border-b border-border bg-bg-surface/95 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-[1460px] items-center gap-1 px-4 sm:px-5">
-          <Link href="/" className="mr-3 flex items-center gap-2 shrink-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+          <Link href="/" className="mr-2 flex items-center gap-2 shrink-0 xl:mr-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://steamcommunity-a.akamaihd.net/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJai0ki7VeTHjMmuOHaC619h7delpVHoVhH4kJHf-SNM4bz9bKY_dPWQWDCUkLxy57g_H3DgkB5w42uAzIv4I3meOAQlApdwFO5YrFDmxUNp_lL7/256fx256f"
               alt="WikiHowl"
-              className="h-15 w-15 object-contain"
+              className="h-10 w-10 object-contain lg:h-12 lg:w-12"
             />
-            <span className="text-3xl font-normal tracking-wide text-text-primary leading-none [font-family:var(--font-display)]">
+            <span className="text-xl font-normal tracking-wide text-text-primary leading-none [font-family:var(--font-display)] sm:text-2xl lg:text-3xl">
               WikiHowl
             </span>
           </Link>
 
-          <nav className="hidden h-15 items-center lg:flex">
+          <nav className="hidden h-full items-center xl:flex">
             {navLinks.map((link) => {
               if (link.children) {
                 return (
@@ -390,7 +394,14 @@ export default function Header() {
                       : "text-text-secondary hover:text-text-primary"
                   }`}
                 >
-                  {link.label}
+                  {link.shortLabel ? (
+                    <>
+                      <span className="2xl:hidden">{link.shortLabel}</span>
+                      <span className="hidden 2xl:inline">{link.label}</span>
+                    </>
+                  ) : (
+                    link.label
+                  )}
                   {link.isNew && (
                     <span className="ml-1 text-[10px] sm:text-[8px] font-black uppercase bg-red text-white px-1 py-0.5 rounded-full leading-none">
                       NEW
@@ -410,7 +421,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
-              className="relative z-[210] flex h-10 w-10 items-center justify-center rounded-lg text-text-primary transition-colors hover:bg-bg-card lg:hidden"
+              className="relative z-[210] flex h-10 w-10 items-center justify-center rounded-lg text-text-primary transition-colors hover:bg-bg-card xl:hidden"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
               aria-controls="mobile-nav-drawer"
@@ -444,7 +455,7 @@ export default function Header() {
             role="dialog"
             aria-modal="true"
             aria-hidden={!mobileOpen}
-            className={`fixed inset-0 z-[250] lg:hidden ${mobileOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+            className={`fixed inset-0 z-[250] xl:hidden ${mobileOpen ? "pointer-events-auto" : "pointer-events-none"}`}
             style={{ height: "100dvh" }}
           >
             <button
@@ -497,13 +508,18 @@ export default function Header() {
                               key={child.href}
                               href={child.href}
                               onClick={() => setMobileOpen(false)}
-                              className={`rounded-lg px-3 py-2.5 text-sm font-medium ${
+                              className={`flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-sm font-medium ${
                                 isActive(child.href)
                                   ? "text-blue-light bg-blue/10"
                                   : "text-text-secondary hover:text-text-primary hover:bg-bg-card"
                               }`}
                             >
-                              {child.label}
+                              <span>{child.label}</span>
+                              {child.isPreview && (
+                                <span className="rounded-full bg-yellow/15 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-yellow leading-none">
+                                  Preview
+                                </span>
+                              )}
                             </Link>
                           ))}
                         </div>

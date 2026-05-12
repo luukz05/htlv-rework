@@ -45,7 +45,7 @@ export default async function HeroMatch() {
           </span>
         </div>
 
-        <div className="flex flex-col items-center justify-center gap-8 md:flex-row md:gap-35">
+        <div className="flex flex-col items-center justify-center gap-8 lg:flex-row lg:gap-35">
           <div className="flex items-center gap-6 md:gap-10 animate-scale-in">
             {/* Team 1 */}
             <div className="flex flex-col items-center gap-3 group">
@@ -97,7 +97,7 @@ export default async function HeroMatch() {
           </div>
 
           {/* Actions */}
-          <div className="w-full max-w-md space-y-4 animate-slide-in md:w-[340px] md:shrink-0">
+          <div className="w-full max-w-md space-y-4 animate-slide-in lg:w-[340px] lg:shrink-0">
             <div className="flex flex-col gap-2.5">
               <a href={match.broadcastUrl || "#"} target={match.broadcastUrl ? "_blank" : undefined} rel={match.broadcastUrl ? "noreferrer" : undefined} className="flex items-center justify-center gap-2 rounded-lg bg-blue px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-blue-light hover:shadow-lg hover:shadow-blue/20 hover:-translate-y-0.5 active:scale-95">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>

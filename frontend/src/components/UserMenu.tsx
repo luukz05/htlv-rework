@@ -50,9 +50,10 @@ export default function UserMenu() {
         </Link>
         <Link
           href="/register"
-          className="hidden sm:block rounded-lg border border-border px-3.5 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary hover:border-border-hover"
+          className="hidden sm:block whitespace-nowrap rounded-lg border border-border px-3.5 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary hover:border-border-hover"
         >
-          Sign Up
+          <span className="xl:hidden 2xl:inline">Sign Up</span>
+          <span className="hidden xl:inline 2xl:hidden">Join</span>
         </Link>
       </>
     );

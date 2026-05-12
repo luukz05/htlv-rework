@@ -124,16 +124,6 @@ export default async function AcademyPage() {
         })}
       </div>
 
-      {/* Map Utility CTA */}
-      <div className="mt-12 rounded-xl border border-border bg-bg-card p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 card-glow animate-fade-in-up">
-        <div className="flex-1">
-          <h2 className="text-lg font-bold mb-2">Looking for Map-Specific Utility?</h2>
-          <p className="text-sm text-text-secondary">Check out our individual map pages for detailed smoke, flash, and molotov lineups with step-by-step instructions.</p>
-        </div>
-        <Link href="/maps" className="shrink-0 rounded-xl bg-blue px-6 py-3 text-sm font-bold text-white transition-all hover:bg-blue-light hover:shadow-lg hover:shadow-blue/20">
-          Browse Maps
-        </Link>
-      </div>
     </main>
   );
 }

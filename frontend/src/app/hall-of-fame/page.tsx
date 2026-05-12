@@ -36,7 +36,7 @@ export default function HallOfFamePage() {
               src={featuredProfile.heroImage}
               alt=""
               aria-hidden="true"
-              className="absolute inset-0 hidden h-full w-full object-cover object-right object-center sm:block"
+              className="absolute inset-0 hidden h-full w-full object-cover object-center sm:block md:object-right"
             />
             <div className="absolute inset-0 hidden bg-gradient-to-r from-bg-body via-bg-body/90 to-bg-body/45 sm:block" />
             <div className="absolute inset-0 hidden bg-gradient-to-t from-bg-body via-transparent to-bg-body/20 sm:block" />
