@@ -189,6 +189,7 @@ export default function CrosshairChallengePage() {
   const flashbangRef = useRef<Flashbang | null>(null);
   const flashDodgedRef = useRef(false);
   const flashedCountRef = useRef(0);
+  const goldenHitsRef = useRef(0);
   const phaseRef = useRef(phase);
   const timeLeftRef = useRef(timeLeft);
 
@@ -383,6 +384,7 @@ export default function CrosshairChallengePage() {
     flashbangRef.current = null;
     flashDodgedRef.current = false;
     flashedCountRef.current = 0;
+    goldenHitsRef.current = 0;
     clearFlashTimers();
     setHitEffects([]);
     setExplosionFlash(false);
@@ -449,6 +451,7 @@ export default function CrosshairChallengePage() {
           hits: s.hits,
           misses: s.misses,
           flashedCount: flashedCountRef.current,
+          goldenHits: goldenHitsRef.current,
         })
           .then(({ newAchievements: achs, xpGained, xpCapped: capped }) => {
             setXpEarned(xpGained);
@@ -586,6 +589,7 @@ export default function CrosshairChallengePage() {
       return;
     }
 
+    goldenHitsRef.current += 1;
     setStats((prev) => ({
       ...prev,
       score: prev.score + GOLDEN_CHICKEN_BONUS,

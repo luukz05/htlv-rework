@@ -102,15 +102,19 @@ export function validateAndScore(
     }
 
     case "crosshair": {
-      if (!isFiniteInt(input.score, 0, 200)) return null;
+      if (!isFiniteInt(input.score, 0, 1000)) return null;
       if (!isFiniteInt(input.hits, 0, 500)) return null;
       if (!isFiniteInt(input.misses, 0, 500)) return null;
       if (input.flashed !== undefined && typeof input.flashed !== "boolean") return null;
       if (!isFiniteInt(input.flashedCount, 0, 100) && input.flashedCount !== undefined) return null;
+      if (!isFiniteInt(input.goldenHits, 0, 200) && input.goldenHits !== undefined) return null;
       const score = input.score;
       const hits = input.hits;
       const misses = input.misses;
-      if (score > hits) return null;
+      // score = hits + 5*goldenHits when goldenHits provided; otherwise tolerate up to +5*200 bonus.
+      const goldenHits = typeof input.goldenHits === "number" ? input.goldenHits : null;
+      const maxAllowedScore = goldenHits !== null ? hits + 5 * goldenHits : hits + 5 * 200;
+      if (score > maxAllowedScore) return null;
       const totalShots = hits + misses;
       const accuracy = totalShots > 0 ? Math.round((hits / totalShots) * 100) : 0;
       const xp = score * 3 + (accuracy >= 90 ? 40 : accuracy >= 70 ? 20 : 0);
@@ -169,20 +173,29 @@ export function validateAndScore(
       }
       const scores = input.scores as number[];
       const perfectRoundsInput = input.perfectRounds;
-      if (
-        !Array.isArray(perfectRoundsInput) ||
-        perfectRoundsInput.length !== 5 ||
-        !perfectRoundsInput.every((v) => typeof v === "boolean")
-      ) {
-        return null;
+      let perfectRounds: boolean[] | null = null;
+      if (perfectRoundsInput !== undefined) {
+        if (
+          !Array.isArray(perfectRoundsInput) ||
+          perfectRoundsInput.length !== 5 ||
+          !perfectRoundsInput.every((v) => typeof v === "boolean")
+        ) {
+          return null;
+        }
+        perfectRounds = perfectRoundsInput as boolean[];
       }
-      const perfectRounds = perfectRoundsInput as boolean[];
       const positive = scores.filter((value) => value > 0).length;
       let perfect = 0;
-      for (let i = 0; i < 5; i++) {
-        if (!perfectRounds[i]) continue;
-        const s = scores[i];
-        if (s >= 35 && (s - 25) % 10 === 0 && s <= 105) perfect++;
+      if (perfectRounds) {
+        for (let i = 0; i < 5; i++) {
+          if (!perfectRounds[i]) continue;
+          const s = scores[i];
+          if (s >= 35 && (s - 25) % 10 === 0 && s <= 105) perfect++;
+        }
+      } else {
+        // Legacy clients without perfectRounds: fall back to the score signature
+        // of a perfect round (correctCount*10 + 25 bonus, ends in 5, in [35, 105]).
+        perfect = scores.filter((s) => s >= 35 && (s - 25) % 10 === 0 && s <= 105).length;
       }
       const xp = scores.reduce((sum, value) => sum + Math.max(value, 0), 0) + 15;
       return cap(

@@ -26,7 +26,7 @@ import type {
 export type GameResultPayload =
   | { game: "csdle"; solved: boolean; guesses: number }
   | { game: "higherLower"; streak: number }
-  | { game: "crosshair"; score: number; hits: number; misses: number; flashed?: boolean; flashedCount?: number }
+  | { game: "crosshair"; score: number; hits: number; misses: number; flashed?: boolean; flashedCount?: number; goldenHits?: number }
   | { game: "mapGuesser"; score: number }
   | { game: "guessLineup"; correctCount: number; elapsedMs: number }
   | { game: "transferTrivia"; scores: number[]; perfectRounds: boolean[] };
