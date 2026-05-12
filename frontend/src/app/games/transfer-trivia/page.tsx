@@ -171,13 +171,7 @@ export default function TransferTriviaPage() {
       }).length;
 
       if (user) {
-        const prev = user.profile.gameStats.transferTrivia;
-        const nextStats = {
-          played: prev.played + 1,
-          perfectAnswers: prev.perfectAnswers + perfectCount,
-          totalCorrect: prev.totalCorrect + scores.filter((s) => s > 0).length,
-        };
-        recordGameResult("transferTrivia", { xp: totalXP, stats: { transferTrivia: nextStats } })
+        recordGameResult("transferTrivia", { scores })
           .then(({ newAchievements: achs }) => setNewAchievements(achs))
           .catch((err) => console.error("Failed to record Transfer Trivia result", err));
       }

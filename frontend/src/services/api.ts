@@ -21,8 +21,15 @@ import type {
   GlobalSearchResult,
   AuthUser,
   AuthResponse,
-  GameStats,
 } from "./types";
+
+export type GameResultPayload =
+  | { game: "csdle"; solved: boolean; guesses: number }
+  | { game: "higherLower"; streak: number }
+  | { game: "crosshair"; score: number; hits: number; misses: number }
+  | { game: "mapGuesser"; score: number }
+  | { game: "guessLineup"; correctCount: number; elapsedMs: number }
+  | { game: "transferTrivia"; scores: number[] };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -76,11 +83,15 @@ export const api = {
   logout: () => apiSend<{ ok: true }>("/auth/logout", "POST"),
   me: () => apiGet<AuthResponse>("/users/me"),
   updateMe: (body: { username?: string }) => apiSend<AuthResponse>("/users/me/profile", "PATCH", body),
-  recordGameResult: (
-    gameId: string,
-    body: { xp?: number; stats?: Partial<Record<keyof GameStats, Record<string, number | number[]>>> },
+  recordGameResult: <G extends GameResultPayload["game"]>(
+    gameId: G,
+    body: Omit<Extract<GameResultPayload, { game: G }>, "game">,
   ) =>
-    apiSend<{ user: AuthUser; newAchievements: string[] }>(`/users/me/games/${gameId}/result`, "POST", body),
+    apiSend<{ user: AuthUser; newAchievements: string[]; xpCapped: boolean }>(
+      `/users/me/games/${gameId}/result`,
+      "POST",
+      body,
+    ),
 
   achievements: () => apiGet<unknown[]>("/achievements"),
   dailyChallenges: () => apiGet<unknown[]>("/daily-challenges"),

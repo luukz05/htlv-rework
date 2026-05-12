@@ -1,13 +1,13 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { ApiError, api } from "@/services/api";
-import type { AuthUser, GameStats } from "@/services/types";
+import { ApiError, api, type GameResultPayload } from "@/services/api";
+import type { AuthUser } from "@/services/types";
 
-type RecordResultInput = {
-  xp: number;
-  stats: Partial<Record<keyof GameStats, Record<string, number | number[]>>>;
-};
+type RecordGameResult = <G extends GameResultPayload["game"]>(
+  gameId: G,
+  body: Omit<Extract<GameResultPayload, { game: G }>, "game">,
+) => Promise<{ newAchievements: string[]; xpCapped: boolean }>;
 
 type AuthState = {
   user: AuthUser | null;
@@ -16,7 +16,7 @@ type AuthState = {
   register: (input: { username: string; email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
-  recordGameResult: (gameId: keyof GameStats, body: RecordResultInput) => Promise<{ newAchievements: string[] }>;
+  recordGameResult: RecordGameResult;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -63,11 +63,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const recordGameResult = useCallback(
-    async (gameId: keyof GameStats, body: RecordResultInput) => {
+  const recordGameResult = useCallback<RecordGameResult>(
+    async (gameId, body) => {
       const response = await api.recordGameResult(gameId, body);
       setUser(response.user);
-      return { newAchievements: response.newAchievements };
+      return { newAchievements: response.newAchievements, xpCapped: response.xpCapped };
     },
     [],
   );

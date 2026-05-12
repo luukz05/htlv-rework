@@ -205,31 +205,22 @@ export default function CsdlePage() {
       persist(newGuesses, isSolved, isFailed);
 
       if (isSolved || isFailed) {
-        let earned = 0;
-        if (isSolved) {
-          const guessNum = newGuesses.length;
-          earned = guessNum === 1 ? 100 : guessNum <= 3 ? 60 : guessNum <= 5 ? 40 : 25;
-        } else {
-          earned = 5; // participation XP
-        }
+        const earned = isSolved
+          ? newGuesses.length === 1
+            ? 100
+            : newGuesses.length <= 3
+              ? 60
+              : newGuesses.length <= 5
+                ? 40
+                : 25
+          : 5;
         setXpEarned(earned);
 
         if (profile) {
-          const prev = profile.gameStats.csdle;
-          const nextStats = {
-            played: prev.played + 1,
-            won: isSolved ? prev.won + 1 : prev.won,
-            streak: isSolved ? prev.streak + 1 : 0,
-            maxStreak: isSolved ? Math.max(prev.maxStreak, prev.streak + 1) : prev.maxStreak,
-            distribution: (() => {
-              if (!isSolved) return prev.distribution;
-              const dist = [...prev.distribution];
-              const idx = Math.min(newGuesses.length - 1, 7);
-              dist[idx]++;
-              return dist;
-            })(),
-          };
-          recordGameResult("csdle", { xp: earned, stats: { csdle: nextStats } }).catch((err) => {
+          recordGameResult("csdle", {
+            solved: isSolved,
+            guesses: newGuesses.length,
+          }).catch((err) => {
             console.error("Failed to record CS-dle result", err);
           });
         }
@@ -237,7 +228,7 @@ export default function CsdlePage() {
         setTimeout(() => setShowModal(true), 1200);
       }
     },
-    [guesses, solved, failed, answer, guessedIds, persist, profile],
+    [guesses, solved, failed, answer, guessedIds, persist, profile, recordGameResult],
   );
 
   const shareResult = useCallback(() => {

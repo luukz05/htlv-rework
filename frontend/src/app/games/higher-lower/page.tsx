@@ -124,13 +124,7 @@ export default function HigherLowerPage() {
           setXpEarned(earned);
 
           if (profile) {
-            const prev = profile.gameStats.higherLower;
-            const nextStats = {
-              played: prev.played + 1,
-              totalCorrect: prev.totalCorrect + streak,
-              highStreak: Math.max(prev.highStreak, streak),
-            };
-            recordGameResult("higherLower", { xp: earned, stats: { higherLower: nextStats } }).catch((err) => {
+            recordGameResult("higherLower", { streak }).catch((err) => {
               console.error("Failed to record Higher-Lower result", err);
             });
           }

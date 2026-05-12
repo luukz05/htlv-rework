@@ -8122,7 +8122,7 @@ export const TBD_TEAM: Team = {
   logo: "",
 };
 
-function sameEvent(matchEvent: string, eventName: string) {
+export function sameEvent(matchEvent: string, eventName: string) {
   const normalize = (value: string) =>
     value
       .toLowerCase()
@@ -8141,7 +8141,7 @@ function getMatchTime(index: number) {
   return ["10:00", "13:00", "16:00", "19:00", "22:00"][index % 5];
 }
 
-function simulateTournament(event: Event, teams: Team[]): Match[] {
+export function simulateTournament(event: Event, teams: Team[]): Match[] {
   const generated: Match[] = [];
   const teamCount = teams.length;
   const totalMatches = teamCount >= 16 ? 40 : 20;

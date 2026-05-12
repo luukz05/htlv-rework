@@ -13,7 +13,6 @@
 
 # testing
 /coverage
-/.codex
 
 # next.js
 /.next/

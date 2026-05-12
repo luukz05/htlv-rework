@@ -155,13 +155,7 @@ export default function MapGuesserPage() {
     setXpEarned(xp);
 
     if (user) {
-      const prev = user.profile.gameStats.mapGuesser;
-      const nextStats = {
-        played: prev.played + 1,
-        totalCorrect: prev.totalCorrect + finalScore,
-        perfectRounds: finalScore === TOTAL_QUESTIONS ? prev.perfectRounds + 1 : prev.perfectRounds,
-      };
-      recordGameResult("mapGuesser", { xp, stats: { mapGuesser: nextStats } })
+      recordGameResult("mapGuesser", { score: finalScore })
         .then(({ newAchievements: achs }) => {
           if (achs.length) setNewAchievements(achs);
         })

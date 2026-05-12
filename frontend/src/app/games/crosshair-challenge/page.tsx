@@ -439,13 +439,11 @@ export default function CrosshairChallengePage() {
       setXpEarned(xp);
 
       if (user) {
-        const prev = user.profile.gameStats.crosshair;
-        const nextStats = {
-          played: prev.played + 1,
-          highScore: Math.max(prev.highScore, s.score),
-          bestAccuracy: Math.max(prev.bestAccuracy, accuracy),
-        };
-        recordGameResult("crosshair", { xp, stats: { crosshair: nextStats } })
+        recordGameResult("crosshair", {
+          score: s.score,
+          hits: s.hits,
+          misses: s.misses,
+        })
           .then(({ newAchievements: achs }) => {
             if (achs.length) setNewAchievements(achs);
           })

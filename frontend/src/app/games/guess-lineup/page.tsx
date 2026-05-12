@@ -116,12 +116,7 @@ export default function GuessLineupPage() {
     if (!user) return;
 
     const elapsedMs = Date.now() - startTimeRef.current;
-    const prev = user.profile.gameStats.guessLineup;
-    const nextStats = {
-      played: prev.played + 1,
-      perfectRounds: correctCount === 5 && elapsedMs < 20_000 ? prev.perfectRounds + 1 : prev.perfectRounds,
-    };
-    recordGameResult("guessLineup", { xp: total, stats: { guessLineup: nextStats } })
+    recordGameResult("guessLineup", { correctCount, elapsedMs })
       .then(({ newAchievements: achs }) => {
         if (achs.length) setNewAchievements(achs);
       })
