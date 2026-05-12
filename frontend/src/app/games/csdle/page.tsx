@@ -10,6 +10,7 @@ import { getDailySeed, getTimeUntilMidnight } from "@/lib/daily-seed";
 import { useAuth } from "@/lib/auth-context";
 import SignInWall from "@/components/SignInWall";
 import { usePageTitle } from "@/lib/use-page-title";
+import { ACHIEVEMENTS } from "@/lib/gamification";
 
 /* ---------- types ---------- */
 interface ClueCell {
@@ -109,6 +110,7 @@ export default function CsdlePage() {
   const [showModal, setShowModal] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Determine daily answer
@@ -220,9 +222,13 @@ export default function CsdlePage() {
           recordGameResult("csdle", {
             solved: isSolved,
             guesses: newGuesses.length,
-          }).catch((err) => {
-            console.error("Failed to record CS-dle result", err);
-          });
+          })
+            .then(({ newAchievements: achs }) => {
+              if (achs.length) setNewAchievements(achs);
+            })
+            .catch((err) => {
+              console.error("Failed to record CS-dle result", err);
+            });
         }
 
         setTimeout(() => setShowModal(true), 1200);
@@ -465,6 +471,26 @@ export default function CsdlePage() {
             <div className="rounded-xl border border-blue/30 bg-blue/10 p-3 text-center mb-4">
               <p className="text-sm font-bold text-blue-light">+{xpEarned} XP earned</p>
             </div>
+
+            {/* New achievements */}
+            {newAchievements.length > 0 && (
+              <div className="mb-4 space-y-2">
+                {newAchievements.map((id) => {
+                  const ach = ACHIEVEMENTS.find((a) => a.id === id);
+                  if (!ach) return null;
+                  return (
+                    <div
+                      key={id}
+                      className="rounded-lg border border-yellow/30 bg-yellow/10 px-3 py-2 text-xs animate-fade-in-up"
+                    >
+                      <span className="mr-2">{ach.icon}</span>
+                      <span className="font-bold text-yellow">{ach.name}</span>
+                      <span className="text-text-secondary ml-1">&mdash; {ach.description}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Timer */}
             <p className="text-xs text-text-muted text-center mb-4 tabular-nums">

@@ -8,6 +8,7 @@ import CountryFlag from "@/components/CountryFlag";
 import { useAuth } from "@/lib/auth-context";
 import SignInWall from "@/components/SignInWall";
 import { usePageTitle } from "@/lib/use-page-title";
+import { ACHIEVEMENTS } from "@/lib/gamification";
 
 /* ---------- helpers ---------- */
 const HL_STREAK_KEY = "wikihowl-hl-best-streak";
@@ -41,6 +42,7 @@ export default function HigherLowerPage() {
   const [lastAnswer, setLastAnswer] = useState<"correct" | "wrong" | null>(null);
   const [slideClass, setSlideClass] = useState("");
   const [xpEarned, setXpEarned] = useState(0);
+  const [newAchievements, setNewAchievements] = useState<string[]>([]);
 
   // Init
   useEffect(() => {
@@ -124,9 +126,13 @@ export default function HigherLowerPage() {
           setXpEarned(earned);
 
           if (profile) {
-            recordGameResult("higherLower", { streak }).catch((err) => {
-              console.error("Failed to record Higher-Lower result", err);
-            });
+            recordGameResult("higherLower", { streak })
+              .then(({ newAchievements: achs }) => {
+                if (achs.length) setNewAchievements(achs);
+              })
+              .catch((err) => {
+                console.error("Failed to record Higher-Lower result", err);
+              });
           }
 
           setPhase("gameover");
@@ -146,6 +152,7 @@ export default function HigherLowerPage() {
     setLastAnswer(null);
     setSlideClass("");
     setXpEarned(0);
+    setNewAchievements([]);
   }, [topPlayers]);
 
   const isRevealing = phase === "revealing" || phase === "gameover";
@@ -381,9 +388,28 @@ export default function HigherLowerPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-blue/30 bg-blue/10 p-3 text-center mb-6">
+            <div className="rounded-xl border border-blue/30 bg-blue/10 p-3 text-center mb-4">
               <p className="text-sm font-bold text-blue-light">+{xpEarned} XP earned</p>
             </div>
+
+            {newAchievements.length > 0 && (
+              <div className="mb-4 space-y-2">
+                {newAchievements.map((id) => {
+                  const ach = ACHIEVEMENTS.find((a) => a.id === id);
+                  if (!ach) return null;
+                  return (
+                    <div
+                      key={id}
+                      className="rounded-lg border border-yellow/30 bg-yellow/10 px-3 py-2 text-xs animate-fade-in-up"
+                    >
+                      <span className="mr-2">{ach.icon}</span>
+                      <span className="font-bold text-yellow">{ach.name}</span>
+                      <span className="text-text-secondary ml-1">&mdash; {ach.description}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             <button
               onClick={playAgain}
