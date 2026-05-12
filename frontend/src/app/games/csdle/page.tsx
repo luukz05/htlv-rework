@@ -109,6 +109,7 @@ export default function CsdlePage() {
   const [timer, setTimer] = useState(getTimeUntilMidnight());
   const [showModal, setShowModal] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
+  const [xpCapped, setXpCapped] = useState(false);
   const [copied, setCopied] = useState(false);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -223,7 +224,9 @@ export default function CsdlePage() {
             solved: isSolved,
             guesses: newGuesses.length,
           })
-            .then(({ newAchievements: achs }) => {
+            .then(({ newAchievements: achs, xpGained, xpCapped: capped }) => {
+              setXpEarned(xpGained);
+              setXpCapped(capped);
               if (achs.length) setNewAchievements(achs);
             })
             .catch((err) => {
@@ -470,6 +473,9 @@ export default function CsdlePage() {
             {/* XP Earned */}
             <div className="rounded-xl border border-blue/30 bg-blue/10 p-3 text-center mb-4">
               <p className="text-sm font-bold text-blue-light">+{xpEarned} XP earned</p>
+              {xpCapped && (
+                <p className="text-[10px] text-yellow mt-1">Daily XP cap reached</p>
+              )}
             </div>
 
             {/* New achievements */}

@@ -42,6 +42,7 @@ export default function HigherLowerPage() {
   const [lastAnswer, setLastAnswer] = useState<"correct" | "wrong" | null>(null);
   const [slideClass, setSlideClass] = useState("");
   const [xpEarned, setXpEarned] = useState(0);
+  const [xpCapped, setXpCapped] = useState(false);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
 
   // Init
@@ -127,7 +128,9 @@ export default function HigherLowerPage() {
 
           if (profile) {
             recordGameResult("higherLower", { streak })
-              .then(({ newAchievements: achs }) => {
+              .then(({ newAchievements: achs, xpGained, xpCapped: capped }) => {
+                setXpEarned(xpGained);
+                setXpCapped(capped);
                 if (achs.length) setNewAchievements(achs);
               })
               .catch((err) => {
@@ -152,6 +155,7 @@ export default function HigherLowerPage() {
     setLastAnswer(null);
     setSlideClass("");
     setXpEarned(0);
+    setXpCapped(false);
     setNewAchievements([]);
   }, [topPlayers]);
 
@@ -390,6 +394,9 @@ export default function HigherLowerPage() {
 
             <div className="rounded-xl border border-blue/30 bg-blue/10 p-3 text-center mb-4">
               <p className="text-sm font-bold text-blue-light">+{xpEarned} XP earned</p>
+              {xpCapped && (
+                <p className="text-[10px] text-yellow mt-1">Daily XP cap reached</p>
+              )}
             </div>
 
             {newAchievements.length > 0 && (

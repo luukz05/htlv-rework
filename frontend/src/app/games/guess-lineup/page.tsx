@@ -41,6 +41,7 @@ export default function GuessLineupPage() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [shake, setShake] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
+  const [xpCapped, setXpCapped] = useState(false);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -78,6 +79,7 @@ export default function GuessLineupPage() {
     setSuggestions([]);
     setShake(false);
     setXpEarned(0);
+    setXpCapped(false);
     setNewAchievements([]);
     startTimeRef.current = Date.now();
   }, [teamRosters]);
@@ -117,7 +119,9 @@ export default function GuessLineupPage() {
 
     const elapsedMs = Date.now() - startTimeRef.current;
     recordGameResult("guessLineup", { correctCount, elapsedMs })
-      .then(({ newAchievements: achs }) => {
+      .then(({ newAchievements: achs, xpGained, xpCapped: capped }) => {
+        setXpEarned(xpGained);
+        setXpCapped(capped);
         if (achs.length) setNewAchievements(achs);
       })
       .catch((err) => console.error("Failed to record Guess Lineup result", err));
@@ -403,6 +407,9 @@ export default function GuessLineupPage() {
                   <p className="text-[10px] font-bold uppercase text-text-muted">
                     XP Earned
                   </p>
+                  {xpCapped && (
+                    <p className="text-[10px] text-yellow mt-1">Daily cap reached</p>
+                  )}
                 </div>
               </div>
 

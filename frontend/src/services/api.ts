@@ -26,10 +26,10 @@ import type {
 export type GameResultPayload =
   | { game: "csdle"; solved: boolean; guesses: number }
   | { game: "higherLower"; streak: number }
-  | { game: "crosshair"; score: number; hits: number; misses: number }
+  | { game: "crosshair"; score: number; hits: number; misses: number; flashed?: boolean; flashedCount?: number }
   | { game: "mapGuesser"; score: number }
   | { game: "guessLineup"; correctCount: number; elapsedMs: number }
-  | { game: "transferTrivia"; scores: number[] };
+  | { game: "transferTrivia"; scores: number[]; perfectRounds: boolean[] };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -87,11 +87,14 @@ export const api = {
     gameId: G,
     body: Omit<Extract<GameResultPayload, { game: G }>, "game">,
   ) =>
-    apiSend<{ user: AuthUser; newAchievements: string[]; xpCapped: boolean }>(
-      `/users/me/games/${gameId}/result`,
-      "POST",
-      body,
-    ),
+    apiSend<{
+      user: AuthUser;
+      newAchievements: string[];
+      xpGained: number;
+      xpGameGranted: number;
+      xpAchievementGranted: number;
+      xpCapped: boolean;
+    }>(`/users/me/games/${gameId}/result`, "POST", body),
 
   achievements: () => apiGet<unknown[]>("/achievements"),
   dailyChallenges: () => apiGet<unknown[]>("/daily-challenges"),

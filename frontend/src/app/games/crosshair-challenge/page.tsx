@@ -168,6 +168,7 @@ export default function CrosshairChallengePage() {
   >([]);
   const [explosionFlash, setExplosionFlash] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
+  const [xpCapped, setXpCapped] = useState(false);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
 
   const gameAreaRef = useRef<HTMLDivElement>(null);
@@ -187,6 +188,7 @@ export default function CrosshairChallengePage() {
   const missedShotsRef = useRef(missedShots);
   const flashbangRef = useRef<Flashbang | null>(null);
   const flashDodgedRef = useRef(false);
+  const flashedCountRef = useRef(0);
   const phaseRef = useRef(phase);
   const timeLeftRef = useRef(timeLeft);
 
@@ -355,6 +357,7 @@ export default function CrosshairChallengePage() {
           return;
         }
 
+        flashedCountRef.current += 1;
         setIsBlinded(true);
         blindTimerRef.current = setTimeout(() => setIsBlinded(false), FLASH_BLIND_MS);
         scheduleFlashbang();
@@ -379,10 +382,12 @@ export default function CrosshairChallengePage() {
     setFlashFeedback(null);
     flashbangRef.current = null;
     flashDodgedRef.current = false;
+    flashedCountRef.current = 0;
     clearFlashTimers();
     setHitEffects([]);
     setExplosionFlash(false);
     setXpEarned(0);
+    setXpCapped(false);
     setNewAchievements([]);
     targetIdRef.current = 0;
 
@@ -443,8 +448,11 @@ export default function CrosshairChallengePage() {
           score: s.score,
           hits: s.hits,
           misses: s.misses,
+          flashedCount: flashedCountRef.current,
         })
-          .then(({ newAchievements: achs }) => {
+          .then(({ newAchievements: achs, xpGained, xpCapped: capped }) => {
+            setXpEarned(xpGained);
+            setXpCapped(capped);
             if (achs.length) setNewAchievements(achs);
           })
           .catch((err) => console.error("Failed to record Crosshair result", err));
@@ -1088,6 +1096,9 @@ export default function CrosshairChallengePage() {
                 <p className="text-[10px] font-bold uppercase text-text-muted mt-1">
                   Experience Earned
                 </p>
+                {xpCapped && (
+                  <p className="text-[10px] text-yellow mt-1">Daily XP cap reached</p>
+                )}
               </div>
 
               {/* Detailed breakdown */}

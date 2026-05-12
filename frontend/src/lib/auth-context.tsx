@@ -7,7 +7,13 @@ import type { AuthUser } from "@/services/types";
 type RecordGameResult = <G extends GameResultPayload["game"]>(
   gameId: G,
   body: Omit<Extract<GameResultPayload, { game: G }>, "game">,
-) => Promise<{ newAchievements: string[]; xpCapped: boolean }>;
+) => Promise<{
+  newAchievements: string[];
+  xpGained: number;
+  xpGameGranted: number;
+  xpAchievementGranted: number;
+  xpCapped: boolean;
+}>;
 
 type AuthState = {
   user: AuthUser | null;
@@ -67,7 +73,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (gameId, body) => {
       const response = await api.recordGameResult(gameId, body);
       setUser(response.user);
-      return { newAchievements: response.newAchievements, xpCapped: response.xpCapped };
+      return {
+        newAchievements: response.newAchievements,
+        xpGained: response.xpGained,
+        xpGameGranted: response.xpGameGranted,
+        xpAchievementGranted: response.xpAchievementGranted,
+        xpCapped: response.xpCapped,
+      };
     },
     [],
   );

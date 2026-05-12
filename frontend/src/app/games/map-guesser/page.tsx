@@ -79,6 +79,7 @@ export default function MapGuesserPage() {
   const [game, setGame] = useState<GameState | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [xpEarned, setXpEarned] = useState(0);
+  const [xpCapped, setXpCapped] = useState(false);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
 
   useEffect(() => {
@@ -113,6 +114,7 @@ export default function MapGuesserPage() {
     setPhase("playing");
     setSelected(null);
     setXpEarned(0);
+    setXpCapped(false);
     setNewAchievements([]);
   }, [mapCalloutQuizzes, gameMaps]);
 
@@ -156,7 +158,9 @@ export default function MapGuesserPage() {
 
     if (user) {
       recordGameResult("mapGuesser", { score: finalScore })
-        .then(({ newAchievements: achs }) => {
+        .then(({ newAchievements: achs, xpGained, xpCapped: capped }) => {
+          setXpEarned(xpGained);
+          setXpCapped(capped);
           if (achs.length) setNewAchievements(achs);
         })
         .catch((err) => console.error("Failed to record Map Guesser result", err));
@@ -373,6 +377,9 @@ export default function MapGuesserPage() {
                 <p className="text-[10px] font-bold uppercase text-text-muted mt-1">
                   XP Earned
                 </p>
+                {xpCapped && (
+                  <p className="text-[10px] text-yellow mt-1">Daily cap reached</p>
+                )}
               </div>
             </div>
 

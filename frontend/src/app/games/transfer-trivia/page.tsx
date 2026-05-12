@@ -73,9 +73,12 @@ export default function TransferTriviaPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [submitted, setSubmitted] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
+  const [perfectRounds, setPerfectRounds] = useState<boolean[]>([]);
   const [usedPlayerIds, setUsedPlayerIds] = useState<Set<number>>(new Set());
   const [gameFinished, setGameFinished] = useState(false);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
+  const [serverXp, setServerXp] = useState<number | null>(null);
+  const [xpCapped, setXpCapped] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   /* Load profile on mount */
@@ -158,21 +161,19 @@ export default function TransferTriviaPage() {
     if (perfectRound) roundScore += POINTS_PERFECT_BONUS;
 
     setScores((prev) => [...prev, roundScore]);
+    setPerfectRounds((prev) => [...prev, perfectRound]);
   }, [roundData, submitted, selected, correctNames]);
 
   const handleNextRound = useCallback(() => {
     const nextRound = round + 1;
     if (nextRound >= TOTAL_ROUNDS) {
-      /* End game */
-      const totalXP = scores.reduce((sum, s) => sum + Math.max(s, 0), 0) + 15; /* base XP for playing */
-      const perfectCount = scores.filter((s, _i) => {
-        /* Reconstruct if perfect - a round with bonus means perfect */
-        return s >= POINTS_PERFECT_BONUS;
-      }).length;
-
       if (user) {
-        recordGameResult("transferTrivia", { scores })
-          .then(({ newAchievements: achs }) => setNewAchievements(achs))
+        recordGameResult("transferTrivia", { scores, perfectRounds })
+          .then(({ newAchievements: achs, xpGained, xpCapped: capped }) => {
+            setServerXp(xpGained);
+            setXpCapped(capped);
+            setNewAchievements(achs);
+          })
           .catch((err) => console.error("Failed to record Transfer Trivia result", err));
       }
 
@@ -186,15 +187,18 @@ export default function TransferTriviaPage() {
       setRoundData(rd);
       setUsedPlayerIds((prev) => new Set(prev).add(rd.player.id));
     }
-  }, [round, scores, user, recordGameResult, usedPlayerIds, playerProfiles, teams]);
+  }, [round, scores, perfectRounds, user, recordGameResult, usedPlayerIds, playerProfiles, teams]);
 
   const handlePlayAgain = useCallback(() => {
     setRound(0);
     setScores([]);
+    setPerfectRounds([]);
     setSelected(new Set());
     setSubmitted(false);
     setGameFinished(false);
     setNewAchievements([]);
+    setServerXp(null);
+    setXpCapped(false);
     const newUsed = new Set<number>();
     const rd = buildRound(playerProfiles, teams, newUsed);
     if (!rd) return;
@@ -267,8 +271,14 @@ export default function TransferTriviaPage() {
           </div>
 
           <p className="text-sm text-text-muted mb-2">
-            XP earned: <span className="text-green font-bold">+{scores.reduce((sum, s) => sum + Math.max(s, 0), 0) + 15}</span>
+            XP earned:{" "}
+            <span className="text-green font-bold">
+              +{serverXp ?? scores.reduce((sum, s) => sum + Math.max(s, 0), 0) + 15}
+            </span>
           </p>
+          {xpCapped && (
+            <p className="text-[10px] text-yellow mb-2">Daily XP cap reached</p>
+          )}
 
           {/* New achievements */}
           {newAchievements.length > 0 && (

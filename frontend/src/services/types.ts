@@ -351,7 +351,7 @@ export interface GameStats {
   guessLineup: { played: number; perfectRounds: number };
   higherLower: { played: number; highStreak: number; totalCorrect: number };
   mapGuesser: { played: number; perfectRounds: number; totalCorrect: number };
-  crosshair: { played: number; highScore: number; bestAccuracy: number };
+  crosshair: { played: number; highScore: number; bestAccuracy: number; flashedTimes: number };
   transferTrivia: { played: number; perfectAnswers: number; totalCorrect: number };
 }
 
