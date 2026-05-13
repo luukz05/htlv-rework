@@ -11,7 +11,7 @@ import { usePageTitle } from "@/lib/use-page-title";
 import { ACHIEVEMENTS } from "@/lib/gamification";
 
 /* ---------- helpers ---------- */
-const HL_STREAK_KEY = "wikihowl-hl-best-streak";
+const hlStreakKeyFor = (userId: string) => `wikihowl-hl-best-streak-${userId}`;
 
 function pickTwo(players: Player[], exclude?: number): [Player, Player] {
   const pool = [...players];
@@ -45,14 +45,9 @@ export default function HigherLowerPage() {
   const [xpCapped, setXpCapped] = useState(false);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
 
-  // Init
+  // Fetch players once on mount
   useEffect(() => {
     let ignore = false;
-
-    try {
-      const stored = localStorage.getItem(HL_STREAK_KEY);
-      if (stored) setBestStreak(Number(stored));
-    } catch { /* ignore */ }
 
     api.topPlayers()
       .then((players) => {
@@ -74,6 +69,20 @@ export default function HigherLowerPage() {
     };
   }, []);
 
+  // Load per-user best streak (resets when account changes)
+  useEffect(() => {
+    if (!user) {
+      setBestStreak(0);
+      return;
+    }
+    try {
+      const stored = localStorage.getItem(hlStreakKeyFor(user.id));
+      setBestStreak(stored ? Number(stored) : 0);
+    } catch {
+      setBestStreak(0);
+    }
+  }, [user]);
+
   const handleGuess = useCallback(
     (choice: "higher" | "lower") => {
       if (phase !== "playing") return;
@@ -94,7 +103,9 @@ export default function HigherLowerPage() {
 
         if (newStreak > bestStreak) {
           setBestStreak(newStreak);
-          try { localStorage.setItem(HL_STREAK_KEY, String(newStreak)); } catch { /* */ }
+          if (user) {
+            try { localStorage.setItem(hlStreakKeyFor(user.id), String(newStreak)); } catch { /* */ }
+          }
         }
 
         // After reveal animation, slide next player in
@@ -142,7 +153,7 @@ export default function HigherLowerPage() {
         }, 1200);
       }
     },
-    [phase, leftPlayer, rightPlayer, topPlayers, streak, bestStreak, profile, recordGameResult],
+    [phase, leftPlayer, rightPlayer, topPlayers, streak, bestStreak, profile, recordGameResult, user],
   );
 
   const playAgain = useCallback(() => {

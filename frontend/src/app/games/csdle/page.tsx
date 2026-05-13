@@ -34,7 +34,7 @@ interface SavedState {
 
 /* ---------- helpers ---------- */
 const MAX_GUESSES = 8;
-const STORAGE_KEY = "wikihowl-csdle-state";
+const storageKeyFor = (userId: string) => `wikihowl-csdle-state-${userId}`;
 const REGIONS: Record<string, string> = {
   RU: "Europe", UA: "Europe", FR: "Europe", BA: "Europe", EE: "Europe",
   LV: "Europe", IL: "Europe", SK: "Europe", NO: "Europe", BR: "Americas",
@@ -137,12 +137,18 @@ export default function CsdlePage() {
     };
   }, []);
 
-  // Load saved state
+  // Load saved state (scoped per user so accounts don't share daily progress)
   useEffect(() => {
-    if (!answer) return;
+    if (!answer || !user) return;
+
+    // Reset state in case we switched accounts within the same session
+    setGuesses([]);
+    setSolved(false);
+    setFailed(false);
+    setShowModal(false);
 
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(storageKeyFor(user.id));
       if (raw) {
         const saved: SavedState = JSON.parse(raw);
         if (saved.date === todayStr()) {
@@ -159,7 +165,7 @@ export default function CsdlePage() {
         }
       }
     } catch { /* ignore */ }
-  }, [answer, playerProfiles]);
+  }, [answer, playerProfiles, user]);
 
   // Midnight timer
   useEffect(() => {
@@ -167,16 +173,17 @@ export default function CsdlePage() {
     return () => clearInterval(id);
   }, []);
 
-  // Persist state
+  // Persist state (scoped per user)
   const persist = useCallback((rows: GuessRow[], s: boolean, f: boolean) => {
+    if (!user) return;
     const state: SavedState = {
       date: todayStr(),
       guesses: rows.map((r) => r.player.id),
       solved: s,
       failed: f,
     };
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
-  }, []);
+    try { localStorage.setItem(storageKeyFor(user.id), JSON.stringify(state)); } catch { /* ignore */ }
+  }, [user]);
 
   // Filter suggestions
   const guessedIds = useMemo(() => new Set(guesses.map((g) => g.player.id)), [guesses]);

@@ -164,7 +164,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                     </div>
                   </th>
                   <th
-                    className="w-full py-2 px-3 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5"
+                    className="py-2 px-3 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5"
                     onClick={() => requestSort("username")}
                   >
                     <div className="flex items-center gap-1">
@@ -176,7 +176,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                   <StatHeader label="Games" defKey="gamesPlayed" sortKey="gamesPlayed" hideOn="sm" />
                   <StatHeader label="Streak" defKey="dailyStreak" sortKey="dailyStreak" hideOn="md" />
                   <th
-                    className="py-2 px-4 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 text-right rounded-tr-xl"
+                    className="hidden lg:table-cell py-2 px-4 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 text-right rounded-tr-xl"
                     onClick={() => requestSort("achievementsCount")}
                   >
                     <div className="flex items-center justify-end gap-1">
@@ -208,8 +208,8 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                           #{user.rank}
                         </span>
                       </td>
-                      <td className="w-full py-1.5 px-3 min-w-0">
-                        <div className="flex items-center gap-2 min-w-0">
+                      <td className="py-1.5 px-3">
+                        <div className="flex items-center gap-2">
                           <div
                             className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-black text-white ${
                               isPodium ? "bg-gradient-to-br from-blue to-blue-light" : "bg-blue/70"
@@ -218,9 +218,9 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                           >
                             {user.username.slice(0, 1).toUpperCase()}
                           </div>
-                          <div className="flex flex-col leading-tight min-w-0">
-                            <span className="text-[12px] font-bold text-text-primary truncate">{user.username}</span>
-                            <span className="text-[10px] sm:text-[9px] font-bold uppercase tracking-wider text-text-muted truncate">
+                          <div className="flex flex-col leading-tight">
+                            <span className="text-[12px] font-bold text-text-primary">{user.username}</span>
+                            <span className="text-[10px] sm:text-[9px] font-bold uppercase tracking-wider text-text-muted">
                               {getLevelName(user.level)}
                             </span>
                           </div>
@@ -246,7 +246,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                           {user.dailyStreak}d
                         </span>
                       </td>
-                      <td className="py-1.5 px-4 text-right text-[11px] font-bold tabular-nums text-yellow whitespace-nowrap">
+                      <td className="hidden lg:table-cell py-1.5 px-4 text-right text-[11px] font-bold tabular-nums text-yellow whitespace-nowrap">
                         {user.achievementsCount}
                       </td>
                     </tr>
