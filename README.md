@@ -2,7 +2,7 @@
 
 Reimplementação do HLTV.org como um portal moderno de Counter-Strike — notícias, partidas ao vivo, rankings, perfis de times e jogadores, fórum, fantasy, betting odds, galleries, highlights, academy e uma suíte de minigames com sistema de XP/níveis/achievements.
 
-Monorepo simples com **frontend Next.js 16 / React 19** e **backend Node HTTP nativo + MongoDB**, ambos em TypeScript.
+Monorepo simples com **frontend Next.js 16 / React 19** e **backend Express 5 + MongoDB**, ambos em TypeScript.
 
 ---
 
@@ -38,7 +38,8 @@ Monorepo simples com **frontend Next.js 16 / React 19** e **backend Node HTTP na
 - Fontes: Roboto + Passion One via `next/font/google`
 
 **Backend**
-- Node.js (HTTP nativo — sem Express/Fastify)
+- Node.js 20+
+- **Express `5.x`** + `cors` middleware
 - TypeScript `5.9.3`, ESM (`NodeNext`)
 - MongoDB driver `7.x`
 - `bcryptjs` para hash de senha
@@ -61,10 +62,10 @@ htlv-rework/
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── src/
-│       ├── server.ts         # bootstrap HTTP + CORS + conexão Mongo
+│       ├── server.ts         # bootstrap: createApp() + listen, aguarda Mongo
 │       ├── routes/
-│       │   └── index.ts      # registro de todas as rotas
-│       ├── controllers/      # handlers por domínio
+│       │   └── index.ts      # createApp(): monta cors + express.json + rotas
+│       ├── controllers/      # handlers Express por domínio
 │       │   ├── usersController.ts
 │       │   ├── playersController.ts
 │       │   ├── teamsController.ts
@@ -75,10 +76,8 @@ htlv-rework/
 │       │   ├── platformController.ts  # navigation, games, achievements, fantasy, betting
 │       │   └── searchController.ts    # busca global
 │       ├── http/
-│       │   ├── router.ts     # Router minimalista com pattern matching
-│       │   ├── response.ts   # helpers json/notFound/badRequest/...
-│       │   ├── body.ts       # readJsonBody
-│       │   └── cookies.ts    # cookie de sessão HttpOnly
+│       │   ├── response.ts   # helpers json/notFound/badRequest/... sobre res
+│       │   └── cookies.ts    # cookie de sessão HttpOnly (parse/set/clear)
 │       ├── lib/
 │       │   ├── auth.ts       # bcrypt + jwt (sign/verify)
 │       │   ├── session.ts    # getAuthedUser, rankForLevel, relativeTime
@@ -179,11 +178,11 @@ npm --prefix frontend install
 | `MONGODB_DB`        | Nome do banco                                              | `hltv`                    |
 | `JWT_SECRET`        | Segredo para assinar tokens (obrigatório)                  | —                         |
 | `JWT_EXPIRES_IN`    | TTL do token JWT (ex: `7d`, `12h`)                         | `7d`                      |
-| `FRONTEND_ORIGIN`   | Origem permitida em CORS (deve casar exatamente)           | `http://localhost:3000`   |
+| `FRONTEND_ORIGIN`   | Origens permitidas em CORS (CSV; previews `*.vercel.app` derivados do host base) | `http://localhost:3000,https://htlv-rework.vercel.app` |
 | `PORT`              | Porta do servidor HTTP                                     | `4000`                    |
 | `COOKIE_SECURE`     | Força flag `Secure` no cookie (`true`/`false`)             | `true` se `NODE_ENV=production` |
 
-> O cookie de sessão (`hltv_session`) é sempre `HttpOnly`, `SameSite=Lax`, com `Max-Age` de 7 dias.
+> O cookie de sessão (`hltv_session`) é `HttpOnly`, `Path=/`, `Max-Age=7d`. `SameSite=None; Secure` em cross-site HTTPS (ex.: Vercel → Render) e `SameSite=Lax` em dev local HTTP — decidido em runtime por `http/cookies.ts` a partir de `Origin` / `X-Forwarded-Proto` / `COOKIE_SECURE`.
 
 ### Frontend
 
@@ -238,10 +237,11 @@ Para deploy, hospede backend e frontend separadamente e configure `NEXT_PUBLIC_A
 
 ### Stack interna
 
-- HTTP server **nativo** (`node:http`), sem framework. CORS é tratado em `server.ts` com whitelist de uma única origem (`FRONTEND_ORIGIN`).
-- Router próprio em `src/http/router.ts` (~70 linhas): converte `/foo/:id` em regex e popula `params` no handler.
-- Controllers retornam JSON via helpers `json/notFound/badRequest/unauthorized/conflict`.
-- Camada `db/` expõe `*Collection()` + funções `*FromDb()` por domínio. `getDb()` é singleton com `ensure*Indexes` no primeiro acesso.
+- **Express 5** como camada HTTP. Toda a configuração de app vive em `src/routes/index.ts:createApp()`, que retorna o `Express` já com middlewares + rotas montadas. `src/server.ts` apenas aguarda `getDb()` e chama `app.listen(PORT)`.
+- **CORS** via pacote `cors` com função `origin: (origin, cb) => …`. Allowlist vem de `FRONTEND_ORIGIN` (CSV) + derivação automática de previews `https://<projeto>-*.vercel.app` para cada host base configurado. Credentials habilitadas.
+- **Body parsing** via `express.json({ limit: "100kb" })`. Handlers leem `req.body` direto.
+- **Handlers** usam `RequestHandler` do Express (path params tipados onde existem: `RequestHandler<{ id: string }>`, `{ slug }`, `{ gameId }`). Respondem JSON via helpers `json/notFound/badRequest/unauthorized/conflict` em `src/http/response.ts`, que envelopam `res.status().json(...)`.
+- **Camada `db/`** expõe `*Collection()` + funções `*FromDb()` por domínio. `getDb()` é singleton com `ensure*Indexes` no primeiro acesso.
 - Dados estáticos de configuração (navegação, games, achievements, daily challenges) ficam em `src/data/config.ts`. Domain types em `src/data/types.ts`.
 - O dataset *seed* foi removido — coleções precisam ser populadas manualmente (ou via script externo) no MongoDB. Apenas índices são garantidos no boot.
 
@@ -249,7 +249,9 @@ Para deploy, hospede backend e frontend separadamente e configure `NEXT_PUBLIC_A
 
 - **ESM puro** (`"type": "module"`), imports usam `.js` mesmo em arquivos `.ts` (requirement do `NodeNext`).
 - Erros do Mongo crasham o boot com `process.exit(1)` (visível em `server.ts`).
-- Bodies JSON limitados implicitamente pelo `readJsonBody` (sem tamanho máximo configurado — atenção em produção).
+- Bodies JSON com limite de **100kb** (`express.json`). Bodies inválidos viram `400 Bad Request` automaticamente.
+- Ordem de registro de rotas no `createApp()` importa: rotas específicas (`/players/top`, `/teams/cards`, `/matches/live`, etc.) **antes** de `/<resource>/:id`.
+- Tipos do Express (`@types/express`, `@types/cors`) ficam em `dependencies` (não em devDependencies) porque o build em produção (Render) só instala `dependencies`.
 - Debounce de submissão de minigames em memória (`Map<userId:gameId, lastTimestamp>`) para evitar spam (2s).
 
 ---
@@ -305,6 +307,7 @@ Base URL: `http://localhost:4000` (configurável). Todas as rotas retornam JSON.
 GET  /health
 GET  /navigation
 GET  /search?q=<term>
+GET  /auth/diag                             # diagnóstico de cookie/JWT
 ```
 
 ### Auth & usuário
@@ -381,10 +384,10 @@ curl -i -X POST http://localhost:4000/auth/register \
 
 ## Autenticação e sessão
 
-1. `register`/`login` criam um JWT (`{ userId }`, expira em 7d) assinado com `JWT_SECRET`.
-2. O token é gravado num cookie `hltv_session` (`HttpOnly`, `SameSite=Lax`, `Path=/`, `Secure` em produção). O cliente nunca lê o token.
+1. `register`/`login` criam um JWT (`{ userId }`, expira em `JWT_EXPIRES_IN`, default `7d`) assinado com `JWT_SECRET`.
+2. O token é gravado num cookie `hltv_session` (`HttpOnly`, `Path=/`, `Max-Age=7d`). O modo de cookie é decidido em runtime: `SameSite=None; Secure` em cross-site HTTPS (Origin/X-Forwarded-Proto `https://...`) e `SameSite=Lax` em dev HTTP. `COOKIE_SECURE=true|false` força o modo. O cliente nunca lê o token.
 3. Em requests subsequentes, `getAuthedUser(req)` em `lib/session.ts` lê o cookie, verifica o JWT e busca o documento de usuário no Mongo.
-4. CORS em `server.ts` autoriza **uma única** origem (`FRONTEND_ORIGIN`) e habilita `Access-Control-Allow-Credentials: true`.
+4. CORS no `createApp()` aceita as origens listadas em `FRONTEND_ORIGIN` (CSV) **mais** previews `https://<projeto>-*.vercel.app` derivados de cada host base. `Access-Control-Allow-Credentials: true`.
 
 **Validações de input**
 - `username`: regex `^[a-zA-Z0-9_]{3,20}$`
@@ -457,8 +460,8 @@ Implementado em `backend/src/lib/scoring.ts` + `controllers/usersController.ts` 
 
 Esforços já aplicados (commit `9e89701` / observados no código):
 
-- **Cookies**: `HttpOnly`, `SameSite=Lax`, `Secure` em produção.
-- **CORS** com whitelist de origem única (não `*`) e credentials habilitadas.
+- **Cookies**: `HttpOnly` sempre; `SameSite=None; Secure` em cross-site HTTPS, `SameSite=Lax` em dev HTTP (decidido por request).
+- **CORS** com allowlist (não `*`): origens explícitas em `FRONTEND_ORIGIN` + previews `*.vercel.app` derivados, com credentials habilitadas.
 - **Validação** de IDs com `ObjectId.isValid` + regex (`TARGET_ID_RE`, `USERNAME_RE`, `EMAIL_RE`).
 - **Bcrypt** para senhas (rounds = 10).
 - **JWT** com `JWT_SECRET` obrigatório (não usa default).
@@ -470,7 +473,7 @@ Pontos de atenção:
 
 - `backend/.env` está em `.gitignore` mas **mesmo assim contém credenciais reais** localmente — não comitar.
 - Não há rate limit global (apenas debounce nos games). Considere reverse proxy / WAF em produção.
-- `readJsonBody` não impõe tamanho máximo — adicione limite em produção.
+- Body JSON está limitado a 100kb via `express.json`. Ajuste em `routes/index.ts` se algum endpoint precisar de mais.
 
 ---
 
