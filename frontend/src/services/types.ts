@@ -376,3 +376,16 @@ export interface AuthUser {
 export interface AuthResponse {
   user: AuthUser;
 }
+
+export interface LeaderboardUser {
+  rank: number;
+  id: string;
+  username: string;
+  level: number;
+  xp: number;
+  totalXpEarned: number;
+  gamesPlayed: number;
+  dailyStreak: number;
+  achievementsCount: number;
+  joinedAt: string | null;
+}

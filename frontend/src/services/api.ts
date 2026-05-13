@@ -21,6 +21,7 @@ import type {
   GlobalSearchResult,
   AuthUser,
   AuthResponse,
+  LeaderboardUser,
 } from "./types";
 
 export type GameResultPayload =
@@ -82,6 +83,7 @@ export const api = {
     apiSend<AuthResponse>("/auth/login", "POST", body),
   logout: () => apiSend<{ ok: true }>("/auth/logout", "POST"),
   me: () => apiGet<AuthResponse>("/users/me"),
+  usersLeaderboard: (limit = 100) => apiGet<LeaderboardUser[]>(`/users/leaderboard?limit=${limit}`),
   updateMe: (body: { username?: string }) => apiSend<AuthResponse>("/users/me/profile", "PATCH", body),
   recordGameResult: <G extends GameResultPayload["game"]>(
     gameId: G,

@@ -160,6 +160,47 @@ export const authDiag: RequestHandler = async (req, res) => {
   });
 };
 
+export const listLeaderboard: RequestHandler = async (req, res) => {
+  const rawLimit = Number(req.query.limit);
+  const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(Math.trunc(rawLimit), 200) : 100;
+
+  const users = await usersCollection();
+  const docs = await users
+    .find(
+      {},
+      {
+        projection: {
+          username: 1,
+          createdAt: 1,
+          "profile.level": 1,
+          "profile.xp": 1,
+          "profile.totalXpEarned": 1,
+          "profile.gamesPlayed": 1,
+          "profile.dailyStreak": 1,
+          "profile.achievements": 1,
+        },
+      },
+    )
+    .sort({ "profile.totalXpEarned": -1, "profile.level": -1, createdAt: 1 })
+    .limit(limit)
+    .toArray();
+
+  const entries = docs.map((doc, idx) => ({
+    rank: idx + 1,
+    id: doc._id.toString(),
+    username: doc.username,
+    level: doc.profile?.level ?? 1,
+    xp: doc.profile?.xp ?? 0,
+    totalXpEarned: doc.profile?.totalXpEarned ?? 0,
+    gamesPlayed: doc.profile?.gamesPlayed ?? 0,
+    dailyStreak: doc.profile?.dailyStreak ?? 0,
+    achievementsCount: doc.profile?.achievements?.length ?? 0,
+    joinedAt: doc.createdAt instanceof Date ? doc.createdAt.toISOString() : null,
+  }));
+
+  json(res, entries);
+};
+
 export const getMe: RequestHandler = async (req, res) => {
   const user = await authedUser(req);
   if (!user) return unauthorized(res);

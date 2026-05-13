@@ -64,6 +64,7 @@ import {
 import {
   authDiag,
   getMe,
+  listLeaderboard,
   login,
   logout,
   recordGameResult,
@@ -137,6 +138,7 @@ export function createApp(): Express {
   app.post("/auth/login", login);
   app.post("/auth/logout", logout);
   app.get("/auth/diag", authDiag);
+  app.get("/users/leaderboard", listLeaderboard);
   app.get("/users/me", getMe);
   app.patch("/users/me/profile", updateMe);
   app.post("/users/me/games/:gameId/result", recordGameResult);

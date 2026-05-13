@@ -9,6 +9,7 @@ export default function RankingsNavTabs() {
   const tabs = [
     { label: "Teams", href: "/rankings/teams" },
     { label: "Players", href: "/rankings/players" },
+    { label: "Users", href: "/rankings/users" },
   ];
 
   return (
