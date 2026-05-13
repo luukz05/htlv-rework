@@ -164,7 +164,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                     </div>
                   </th>
                   <th
-                    className="py-2 px-3 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5"
+                    className="w-full py-2 px-3 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5"
                     onClick={() => requestSort("username")}
                   >
                     <div className="flex items-center gap-1">
@@ -176,7 +176,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                   <StatHeader label="Games" defKey="gamesPlayed" sortKey="gamesPlayed" hideOn="sm" />
                   <StatHeader label="Streak" defKey="dailyStreak" sortKey="dailyStreak" hideOn="md" />
                   <th
-                    className="hidden lg:table-cell py-2 px-4 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 text-right rounded-tr-xl"
+                    className="py-2 px-4 text-[10px] sm:text-[9px] font-black text-text-muted uppercase tracking-wider cursor-pointer hover:bg-white/5 text-right rounded-tr-xl"
                     onClick={() => requestSort("achievementsCount")}
                   >
                     <div className="flex items-center justify-end gap-1">
@@ -208,7 +208,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                           #{user.rank}
                         </span>
                       </td>
-                      <td className="py-1.5 px-3 min-w-0">
+                      <td className="w-full py-1.5 px-3 min-w-0">
                         <div className="flex items-center gap-2 min-w-0">
                           <div
                             className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-black text-white ${
@@ -226,18 +226,18 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                           </div>
                         </div>
                       </td>
-                      <td className="py-1.5 px-2 text-center">
+                      <td className="py-1.5 px-2 text-center whitespace-nowrap">
                         <span className="inline-flex items-center justify-center rounded bg-blue/15 px-1.5 py-0.5 text-[11px] font-black tabular-nums text-blue-light">
                           {user.level}
                         </span>
                       </td>
-                      <td className="py-1.5 px-2 text-right text-[12px] font-black tabular-nums text-text-primary">
+                      <td className="py-1.5 px-2 text-right text-[12px] font-black tabular-nums text-text-primary whitespace-nowrap">
                         {user.totalXpEarned.toLocaleString()}
                       </td>
-                      <td className="hidden sm:table-cell py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
+                      <td className="hidden sm:table-cell py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary whitespace-nowrap">
                         {user.gamesPlayed.toLocaleString()}
                       </td>
-                      <td className="hidden md:table-cell py-1.5 px-2 text-center">
+                      <td className="hidden md:table-cell py-1.5 px-2 text-center whitespace-nowrap">
                         <span
                           className={`text-[10px] font-black tabular-nums px-1 py-0 rounded ${
                             user.dailyStreak > 0 ? "bg-green/10 text-green" : "text-text-muted"
@@ -246,7 +246,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                           {user.dailyStreak}d
                         </span>
                       </td>
-                      <td className="hidden lg:table-cell py-1.5 px-4 text-right text-[11px] font-bold tabular-nums text-yellow">
+                      <td className="py-1.5 px-4 text-right text-[11px] font-bold tabular-nums text-yellow whitespace-nowrap">
                         {user.achievementsCount}
                       </td>
                     </tr>
