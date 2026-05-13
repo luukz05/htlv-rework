@@ -1,6 +1,5 @@
 import { ObjectId } from "mongodb";
-import type { RouteHandler } from "../http/router.js";
-import { readJsonBody } from "../http/body.js";
+import type { Request, RequestHandler, Response } from "express";
 import { badRequest, conflict, json, unauthorized } from "../http/response.js";
 import { clearSessionCookie, describeCookieMode, getSessionToken, setSessionCookie } from "../http/cookies.js";
 import { hashPassword, signToken, verifyPassword, verifyToken } from "../lib/auth.js";
@@ -17,7 +16,7 @@ import { computeNewAchievements, DAILY_XP_CAP, isGameId, validateAndScore } from
 const USERNAME_RE = /^[a-zA-Z0-9_]{3,20}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-async function authedUser(req: Parameters<RouteHandler>[0]): Promise<UserDocument | null> {
+async function authedUser(req: Request): Promise<UserDocument | null> {
   const token = getSessionToken(req);
   if (!token) return null;
   const payload = verifyToken(token);
@@ -79,12 +78,12 @@ function nextDailyStreak(profile: UserProfile, today: string): number {
   return profile.lastPlayedDate === yesterdayISODate() ? profile.dailyStreak + 1 : 1;
 }
 
-function issueSession(req: Parameters<RouteHandler>[0], res: Parameters<RouteHandler>[1], userId: string) {
+function issueSession(req: Request, res: Response, userId: string) {
   setSessionCookie(res, signToken({ userId }), req);
 }
 
-export const register: RouteHandler = async (req, res) => {
-  const body = await readJsonBody<{ username?: string; email?: string; password?: string }>(req);
+export const register: RequestHandler = async (req, res) => {
+  const body = (req.body ?? {}) as { username?: string; email?: string; password?: string };
   const username = (body.username || "").trim();
   const email = (body.email || "").trim().toLowerCase();
   const password = body.password || "";
@@ -116,8 +115,8 @@ export const register: RouteHandler = async (req, res) => {
   json(res, { user: toPublicUser(doc) }, 201);
 };
 
-export const login: RouteHandler = async (req, res) => {
-  const body = await readJsonBody<{ email?: string; password?: string }>(req);
+export const login: RequestHandler = async (req, res) => {
+  const body = (req.body ?? {}) as { email?: string; password?: string };
   const email = (body.email || "").trim().toLowerCase();
   const password = body.password || "";
 
@@ -134,12 +133,12 @@ export const login: RouteHandler = async (req, res) => {
   json(res, { user: toPublicUser(user) });
 };
 
-export const logout: RouteHandler = (req, res) => {
+export const logout: RequestHandler = (req, res) => {
   clearSessionCookie(res, req);
   json(res, { ok: true });
 };
 
-export const authDiag: RouteHandler = async (req, res) => {
+export const authDiag: RequestHandler = async (req, res) => {
   const token = getSessionToken(req);
   let tokenStatus: "missing" | "invalid" | "valid" = "missing";
   let userId: string | null = null;
@@ -161,17 +160,17 @@ export const authDiag: RouteHandler = async (req, res) => {
   });
 };
 
-export const getMe: RouteHandler = async (req, res) => {
+export const getMe: RequestHandler = async (req, res) => {
   const user = await authedUser(req);
   if (!user) return unauthorized(res);
   json(res, { user: toPublicUser(user) });
 };
 
-export const updateMe: RouteHandler = async (req, res) => {
+export const updateMe: RequestHandler = async (req, res) => {
   const user = await authedUser(req);
   if (!user) return unauthorized(res);
 
-  const body = await readJsonBody<{ username?: string }>(req);
+  const body = (req.body ?? {}) as { username?: string };
   const updates: Partial<UserDocument> = { updatedAt: new Date() };
 
   if (typeof body.username === "string") {
@@ -191,7 +190,7 @@ export const updateMe: RouteHandler = async (req, res) => {
   json(res, { user: toPublicUser(updated!) });
 };
 
-export const recordGameResult: RouteHandler = async (req, res, params) => {
+export const recordGameResult: RequestHandler<{ gameId: string }> = async (req, res) => {
   const user = await authedUser(req);
   if (!user) {
     console.warn(
@@ -200,7 +199,7 @@ export const recordGameResult: RouteHandler = async (req, res, params) => {
     return unauthorized(res);
   }
 
-  const gameId = params.gameId;
+  const gameId = req.params.gameId;
   if (!isGameId(gameId)) {
     console.warn(`[recordGameResult] invalid gameId=${gameId} user=${user._id.toString()}`);
     return badRequest(res, "Invalid game id");
@@ -210,14 +209,12 @@ export const recordGameResult: RouteHandler = async (req, res, params) => {
   const now = Date.now();
   const last = lastSubmitAt.get(debounceKey) ?? 0;
   if (now - last < SUBMIT_DEBOUNCE_MS) {
-    res.statusCode = 429;
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.end(JSON.stringify({ error: "Slow down" }));
+    res.status(429).json({ error: "Slow down" });
     return;
   }
   lastSubmitAt.set(debounceKey, now);
 
-  const body = await readJsonBody<unknown>(req);
+  const body = req.body as unknown;
   const scored = validateAndScore(gameId, body, user.profile);
   if (!scored) {
     console.warn(

@@ -1,4 +1,4 @@
-import type { RouteHandler } from "../http/router.js";
+import type { RequestHandler } from "express";
 import { badRequest, json, notFound } from "../http/response.js";
 import { playerOfTheWeek } from "../data/config.js";
 import type { Player, PlayerProfile } from "../data/types.js";
@@ -8,7 +8,7 @@ import {
   listTopPlayersFromDb,
 } from "../db/players.js";
 
-export const listPlayers: RouteHandler = async (_req, res) => {
+export const listPlayers: RequestHandler = async (_req, res) => {
   const profiles = await listPlayerProfilesFromDb();
   json(res, profiles);
 };
@@ -42,7 +42,7 @@ function profileToPlayer(profile: PlayerProfile): Player {
   };
 }
 
-export const listTopPlayers: RouteHandler = async (_req, res) => {
+export const listTopPlayers: RequestHandler = async (_req, res) => {
   const [topPlayers, playerProfiles] = await Promise.all([
     listTopPlayersFromDb(),
     listPlayerProfilesFromDb(),
@@ -63,15 +63,15 @@ export const listTopPlayers: RouteHandler = async (_req, res) => {
   json(res, [...top, ...extras]);
 };
 
-export const getPlayerOfTheWeek: RouteHandler = async (_req, res) => {
+export const getPlayerOfTheWeek: RequestHandler = async (_req, res) => {
   const topPlayers = await listTopPlayersFromDb();
   const { playerId, ...meta } = playerOfTheWeek;
   const player = topPlayers.find((p) => p.id === playerId) ?? topPlayers[0];
   json(res, { ...meta, player });
 };
 
-export const getPlayer: RouteHandler = async (_req, res, params) => {
-  const id = Number(params.id);
+export const getPlayer: RequestHandler<{ id: string }> = async (req, res) => {
+  const id = Number(req.params.id);
   if (!Number.isFinite(id)) {
     badRequest(res, "Invalid player id");
     return;

@@ -1,4 +1,5 @@
-import { Router } from "../http/router.js";
+import express, { type Express } from "express";
+import cors from "cors";
 import { json } from "../http/response.js";
 import {
   getPlayer,
@@ -71,78 +72,132 @@ import {
 } from "../controllers/usersController.js";
 import { globalSearch } from "../controllers/searchController.js";
 
-export function createRouter() {
-  const router = new Router();
+function buildAllowedOriginChecker() {
+  const defaultOrigins = [
+    "http://localhost:3000",
+    "https://htlv-rework.vercel.app",
+  ];
+  const configuredOrigins = (process.env.FRONTEND_ORIGIN || defaultOrigins.join(","))
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const allowedOrigins = new Set(configuredOrigins);
 
-  router.get("/health", (_req, res) => json(res, { ok: true }));
-  router.get("/navigation", listNavigation);
-  router.get("/search", globalSearch);
+  // Derive Vercel project prefixes from configured origins so preview deploys are
+  // auto-allowed without manual env config. E.g. `https://htlv-rework.vercel.app`
+  // → allows `https://htlv-rework-<anything>.vercel.app`.
+  const vercelProjectPrefixes = new Set<string>();
+  for (const origin of configuredOrigins) {
+    const m = origin.match(/^https:\/\/([a-z0-9-]+)\.vercel\.app$/);
+    if (m) vercelProjectPrefixes.add(m[1]);
+  }
 
-  router.post("/auth/register", register);
-  router.post("/auth/login", login);
-  router.post("/auth/logout", logout);
-  router.get("/auth/diag", authDiag);
-  router.get("/users/me", getMe);
-  router.patch("/users/me/profile", updateMe);
-  router.post("/users/me/games/:gameId/result", recordGameResult);
+  const isAllowedOrigin = (origin: string) => {
+    if (allowedOrigins.has(origin)) return true;
+    const m = origin.match(/^https:\/\/([a-z0-9-]+)\.vercel\.app$/);
+    if (m) {
+      const host = m[1];
+      for (const prefix of vercelProjectPrefixes) {
+        if (host === prefix || host.startsWith(`${prefix}-`)) return true;
+      }
+    }
+    return false;
+  };
 
-  router.get("/achievements", listAchievements);
-  router.get("/daily-challenges", listDailyChallenges);
-  router.get("/games", listGames);
+  return { isAllowedOrigin, allowedOrigins, vercelProjectPrefixes };
+}
 
-  router.get("/fantasy/leaderboard", listFantasyLeaderboard);
-  router.get("/fantasy/players", listFantasyPlayers);
-  router.get("/betting/bookmakers", listBookmakers);
-  router.get("/betting/odds", listBettingOdds);
- 
-  router.get("/players/top", listTopPlayers);
-  router.get("/players/of-the-week", getPlayerOfTheWeek);
-  router.get("/players/:id", getPlayer);
-  router.get("/players", listPlayers);
+export function createApp(): Express {
+  const app = express();
 
-  router.get("/teams/cards", listTeamCards);
-  router.get("/teams/rosters", listTeamRosters);
-  router.get("/teams/:id", getTeam);
-  router.get("/teams", listTeams);
-  router.get("/rankings", listRanking);
+  const { isAllowedOrigin, allowedOrigins, vercelProjectPrefixes } = buildAllowedOriginChecker();
+  console.log(`Allowed origins:`, [...allowedOrigins]);
+  if (vercelProjectPrefixes.size > 0) {
+    console.log(`Vercel preview prefixes:`, [...vercelProjectPrefixes]);
+  }
 
-  router.get("/matches/live", listLiveMatches);
-  router.get("/matches/upcoming", listUpcomingMatches);
-  router.get("/matches/results", listResults);
-  router.get("/matches/:id", getMatch);
-  router.get("/matches", listMatches);
+  app.use(
+    cors({
+      origin: (origin, cb) => {
+        if (!origin) return cb(null, true);
+        cb(null, isAllowedOrigin(origin));
+      },
+      credentials: true,
+      methods: ["GET", "POST", "PATCH", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    }),
+  );
+  app.use(express.json({ limit: "100kb" }));
 
-  router.get("/news/:id/comments", listNewsComments);
-  router.post("/news/:id/comments", createNewsComment);
-  router.get("/news/:id", getNews);
-  router.get("/news", listNews);
+  app.get("/health", (_req, res) => json(res, { ok: true }));
+  app.get("/navigation", listNavigation);
+  app.get("/search", globalSearch);
 
-  router.get("/matches/:id/comments", listMatchComments);
-  router.post("/matches/:id/comments", createMatchComment);
+  app.post("/auth/register", register);
+  app.post("/auth/login", login);
+  app.post("/auth/logout", logout);
+  app.get("/auth/diag", authDiag);
+  app.get("/users/me", getMe);
+  app.patch("/users/me/profile", updateMe);
+  app.post("/users/me/games/:gameId/result", recordGameResult);
 
-  router.post("/comments/:id/like", toggleCommentLike);
+  app.get("/achievements", listAchievements);
+  app.get("/daily-challenges", listDailyChallenges);
+  app.get("/games", listGames);
 
-  router.get("/events/:id", getEvent);
-  router.get("/events", listEvents);
+  app.get("/fantasy/leaderboard", listFantasyLeaderboard);
+  app.get("/fantasy/players", listFantasyPlayers);
+  app.get("/betting/bookmakers", listBookmakers);
+  app.get("/betting/odds", listBettingOdds);
 
-  router.get("/forums/:id/replies", getForumReplies);
-  router.post("/forums/:id/replies", createForumReply);
-  router.get("/forums/:id", getForum);
-  router.get("/forums", listForums);
-  router.post("/forums", createForumThread);
-  router.post("/forum-replies/:id/like", toggleForumReplyLike);
+  app.get("/players/top", listTopPlayers);
+  app.get("/players/of-the-week", getPlayerOfTheWeek);
+  app.get("/players/:id", getPlayer);
+  app.get("/players", listPlayers);
 
-  router.get("/maps/:slug", getMap);
-  router.get("/maps", listMaps);
-  router.get("/map-callout-quizzes", listMapCalloutQuizzes);
+  app.get("/teams/cards", listTeamCards);
+  app.get("/teams/rosters", listTeamRosters);
+  app.get("/teams/:id", getTeam);
+  app.get("/teams", listTeams);
+  app.get("/rankings", listRanking);
 
-  router.get("/academy/:id", getAcademyGuide);
-  router.get("/academy", listAcademy);
+  app.get("/matches/live", listLiveMatches);
+  app.get("/matches/upcoming", listUpcomingMatches);
+  app.get("/matches/results", listResults);
+  app.get("/matches/:id", getMatch);
+  app.get("/matches", listMatches);
 
-  router.get("/highlights/round", getRoundHighlight);
-  router.get("/highlights", listHighlights);
-  router.get("/streams", listStreams);
-  router.get("/galleries", listGalleries);
+  app.get("/news/:id/comments", listNewsComments);
+  app.post("/news/:id/comments", createNewsComment);
+  app.get("/news/:id", getNews);
+  app.get("/news", listNews);
 
-  return router;
+  app.get("/matches/:id/comments", listMatchComments);
+  app.post("/matches/:id/comments", createMatchComment);
+
+  app.post("/comments/:id/like", toggleCommentLike);
+
+  app.get("/events/:id", getEvent);
+  app.get("/events", listEvents);
+
+  app.get("/forums/:id/replies", getForumReplies);
+  app.post("/forums/:id/replies", createForumReply);
+  app.get("/forums/:id", getForum);
+  app.get("/forums", listForums);
+  app.post("/forums", createForumThread);
+  app.post("/forum-replies/:id/like", toggleForumReplyLike);
+
+  app.get("/maps/:slug", getMap);
+  app.get("/maps", listMaps);
+  app.get("/map-callout-quizzes", listMapCalloutQuizzes);
+
+  app.get("/academy/:id", getAcademyGuide);
+  app.get("/academy", listAcademy);
+
+  app.get("/highlights/round", getRoundHighlight);
+  app.get("/highlights", listHighlights);
+  app.get("/streams", listStreams);
+  app.get("/galleries", listGalleries);
+
+  return app;
 }

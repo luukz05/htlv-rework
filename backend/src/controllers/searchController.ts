@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
+import type { Request, Response } from "express";
 import { json } from "../http/response.js";
 import { listEventsFromDb } from "../db/events.js";
 import { listPlayerProfilesFromDb } from "../db/players.js";
@@ -16,9 +16,8 @@ function normalize(str: string): string {
     .replace(/7/g, "t");
 }
 
-export async function globalSearch(req: IncomingMessage, res: ServerResponse) {
-  const url = new URL(req.url || "", `http://${req.headers.host || "localhost"}`);
-  const query = url.searchParams.get("q") || "";
+export async function globalSearch(req: Request, res: Response) {
+  const query = typeof req.query.q === "string" ? req.query.q : "";
   const q = query.toLowerCase().trim();
   const nQ = normalize(query);
 

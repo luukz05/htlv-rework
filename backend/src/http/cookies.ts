@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
+import type { Request, Response } from "express";
 
 const SESSION_COOKIE = "hltv_session";
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
@@ -16,7 +16,7 @@ function envOverride(): boolean | null {
  * `SameSite=None; Secure` so the browser stores and sends the cookie.
  * Localhost dev keeps `SameSite=Lax` (no Secure) so it works over HTTP.
  */
-function shouldUseSecure(req?: IncomingMessage): boolean {
+function shouldUseSecure(req?: Request): boolean {
   const override = envOverride();
   if (override !== null) return override;
 
@@ -33,7 +33,7 @@ function shouldUseSecure(req?: IncomingMessage): boolean {
   return process.env.NODE_ENV === "production";
 }
 
-export function parseCookies(req: IncomingMessage): Record<string, string> {
+export function parseCookies(req: Request): Record<string, string> {
   const header = req.headers.cookie;
   if (!header) return {};
   const out: Record<string, string> = {};
@@ -47,11 +47,11 @@ export function parseCookies(req: IncomingMessage): Record<string, string> {
   return out;
 }
 
-export function getSessionToken(req: IncomingMessage): string | null {
+export function getSessionToken(req: Request): string | null {
   return parseCookies(req)[SESSION_COOKIE] ?? null;
 }
 
-export function setSessionCookie(res: ServerResponse, token: string, req?: IncomingMessage) {
+export function setSessionCookie(res: Response, token: string, req?: Request) {
   const secure = shouldUseSecure(req);
   const parts = [
     `${SESSION_COOKIE}=${encodeURIComponent(token)}`,
@@ -64,7 +64,7 @@ export function setSessionCookie(res: ServerResponse, token: string, req?: Incom
   res.setHeader("Set-Cookie", parts.join("; "));
 }
 
-export function clearSessionCookie(res: ServerResponse, req?: IncomingMessage) {
+export function clearSessionCookie(res: Response, req?: Request) {
   const secure = shouldUseSecure(req);
   const parts = [
     `${SESSION_COOKIE}=`,
@@ -77,7 +77,7 @@ export function clearSessionCookie(res: ServerResponse, req?: IncomingMessage) {
   res.setHeader("Set-Cookie", parts.join("; "));
 }
 
-export function describeCookieMode(req?: IncomingMessage): {
+export function describeCookieMode(req?: Request): {
   secure: boolean;
   sameSite: "None" | "Lax";
   nodeEnv: string | undefined;

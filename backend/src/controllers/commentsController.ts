@@ -1,6 +1,5 @@
 import { ObjectId } from "mongodb";
-import type { RouteHandler } from "../http/router.js";
-import { readJsonBody } from "../http/body.js";
+import type { RequestHandler } from "express";
 import { badRequest, json, notFound, unauthorized } from "../http/response.js";
 import {
   commentsCollection,
@@ -41,9 +40,9 @@ function serializeComment(doc: CommentDoc, viewerId: ObjectId | null) {
   };
 }
 
-function listFactory(targetType: CommentTargetType): RouteHandler {
-  return async (req, res, params) => {
-    const targetId = params.id;
+function listFactory(targetType: CommentTargetType): RequestHandler<{ id: string }> {
+  return async (req, res) => {
+    const targetId = req.params.id;
     if (!targetId) return badRequest(res, "Missing target id");
     const validation = await validateTargetId(targetType, targetId);
     if (!validation.ok) {
@@ -62,11 +61,11 @@ function listFactory(targetType: CommentTargetType): RouteHandler {
   };
 }
 
-function createFactory(targetType: CommentTargetType): RouteHandler {
-  return async (req, res, params) => {
+function createFactory(targetType: CommentTargetType): RequestHandler<{ id: string }> {
+  return async (req, res) => {
     const user = await getAuthedUser(req);
     if (!user) return unauthorized(res);
-    const targetId = params.id;
+    const targetId = req.params.id;
     if (!targetId) return badRequest(res, "Missing target id");
     const validation = await validateTargetId(targetType, targetId);
     if (!validation.ok) {
@@ -75,7 +74,7 @@ function createFactory(targetType: CommentTargetType): RouteHandler {
         : badRequest(res, validation.message);
     }
 
-    const body = await readJsonBody<{ body?: string }>(req);
+    const body = (req.body ?? {}) as { body?: string };
     const text = (body.body || "").trim();
     if (text.length < 1 || text.length > 4000) {
       return badRequest(res, "Comment must be 1-4000 characters");
@@ -104,13 +103,13 @@ export const createNewsComment = createFactory("news");
 export const listMatchComments = listFactory("match");
 export const createMatchComment = createFactory("match");
 
-export const toggleCommentLike: RouteHandler = async (req, res, params) => {
+export const toggleCommentLike: RequestHandler<{ id: string }> = async (req, res) => {
   const user = await getAuthedUser(req);
   if (!user) return unauthorized(res);
-  if (!ObjectId.isValid(params.id)) return badRequest(res, "Invalid comment id");
+  if (!ObjectId.isValid(req.params.id)) return badRequest(res, "Invalid comment id");
 
   const c = await commentsCollection();
-  const id = new ObjectId(params.id);
+  const id = new ObjectId(req.params.id);
   const doc = await c.findOne({ _id: id });
   if (!doc) return notFound(res, "Comment not found");
 

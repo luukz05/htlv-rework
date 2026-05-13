@@ -1,4 +1,4 @@
-import type { RouteHandler } from "../http/router.js";
+import type { RequestHandler } from "express";
 import { json, notFound } from "../http/response.js";
 import { listTeamsFromDb } from "../db/teams.js";
 import { listRankingFromDb } from "../db/ranking.js";
@@ -8,13 +8,13 @@ import {
   listTeamRostersFromDb,
 } from "../db/teamProfiles.js";
 
-export const listTeams: RouteHandler = async (_req, res) => {
+export const listTeams: RequestHandler = async (_req, res) => {
   const profiles = await listTeamProfilesFromDb();
   json(res, profiles);
 };
 
-export const getTeam: RouteHandler = async (_req, res, params) => {
-  const team = await getTeamProfileFromDb(params.id);
+export const getTeam: RequestHandler<{ id: string }> = async (req, res) => {
+  const team = await getTeamProfileFromDb(req.params.id);
   if (!team) {
     notFound(res, "Team not found");
     return;
@@ -23,17 +23,17 @@ export const getTeam: RouteHandler = async (_req, res, params) => {
   json(res, team);
 };
 
-export const listTeamRosters: RouteHandler = async (_req, res) => {
+export const listTeamRosters: RequestHandler = async (_req, res) => {
   const rosters = await listTeamRostersFromDb();
   json(res, rosters);
 };
 
-export const listRanking: RouteHandler = async (_req, res) => {
+export const listRanking: RequestHandler = async (_req, res) => {
   const ranking = await listRankingFromDb();
   json(res, ranking);
 };
 
-export const listTeamCards: RouteHandler = async (_req, res) => {
+export const listTeamCards: RequestHandler = async (_req, res) => {
   const teams = await listTeamsFromDb();
   json(res, teams);
 };

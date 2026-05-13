@@ -1,10 +1,10 @@
-import type { IncomingMessage } from "node:http";
+import type { Request } from "express";
 import { ObjectId } from "mongodb";
 import { getSessionToken } from "../http/cookies.js";
 import { usersCollection, type UserDocument } from "../db/users.js";
 import { verifyToken } from "./auth.js";
 
-export async function getAuthedUser(req: IncomingMessage): Promise<UserDocument | null> {
+export async function getAuthedUser(req: Request): Promise<UserDocument | null> {
   const token = getSessionToken(req);
   if (!token) return null;
   const payload = verifyToken(token);

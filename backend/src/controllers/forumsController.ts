@@ -1,6 +1,5 @@
 import { ObjectId } from "mongodb";
-import type { RouteHandler } from "../http/router.js";
-import { readJsonBody } from "../http/body.js";
+import type { RequestHandler } from "express";
 import { badRequest, json, notFound, unauthorized } from "../http/response.js";
 import {
   forumRepliesCollection,
@@ -48,7 +47,7 @@ function serializeReply(doc: ForumReplyDoc, viewerId: ObjectId | null) {
   };
 }
 
-export const listForums: RouteHandler = async (_req, res) => {
+export const listForums: RequestHandler = async (_req, res) => {
   const threads = await forumThreadsCollection();
   const docs = await threads
     .find({})
@@ -58,10 +57,10 @@ export const listForums: RouteHandler = async (_req, res) => {
   json(res, docs.map(serializeThread));
 };
 
-export const getForum: RouteHandler = async (_req, res, params) => {
-  if (!ObjectId.isValid(params.id)) return badRequest(res, "Invalid forum id");
+export const getForum: RequestHandler<{ id: string }> = async (req, res) => {
+  if (!ObjectId.isValid(req.params.id)) return badRequest(res, "Invalid forum id");
   const threads = await forumThreadsCollection();
-  const id = new ObjectId(params.id);
+  const id = new ObjectId(req.params.id);
   const doc = await threads.findOneAndUpdate(
     { _id: id },
     { $inc: { views: 1 } },
@@ -71,23 +70,23 @@ export const getForum: RouteHandler = async (_req, res, params) => {
   json(res, serializeThread(doc));
 };
 
-export const getForumReplies: RouteHandler = async (req, res, params) => {
-  if (!ObjectId.isValid(params.id)) return badRequest(res, "Invalid forum id");
+export const getForumReplies: RequestHandler<{ id: string }> = async (req, res) => {
+  if (!ObjectId.isValid(req.params.id)) return badRequest(res, "Invalid forum id");
   const viewer = await getAuthedUser(req);
   const replies = await forumRepliesCollection();
   const docs = await replies
-    .find({ threadId: new ObjectId(params.id) })
+    .find({ threadId: new ObjectId(req.params.id) })
     .sort({ createdAt: 1 })
     .limit(500)
     .toArray();
   json(res, docs.map((doc) => serializeReply(doc, viewer?._id ?? null)));
 };
 
-export const createForumThread: RouteHandler = async (req, res) => {
+export const createForumThread: RequestHandler = async (req, res) => {
   const user = await getAuthedUser(req);
   if (!user) return unauthorized(res);
 
-  const body = await readJsonBody<{ title?: string; category?: string; body?: string }>(req);
+  const body = (req.body ?? {}) as { title?: string; category?: string; body?: string };
   const title = (body.title || "").trim();
   const category = (body.category || "").trim();
   const text = (body.body || "").trim();
@@ -122,19 +121,19 @@ export const createForumThread: RouteHandler = async (req, res) => {
   json(res, serializeThread(doc), 201);
 };
 
-export const createForumReply: RouteHandler = async (req, res, params) => {
+export const createForumReply: RequestHandler<{ id: string }> = async (req, res) => {
   const user = await getAuthedUser(req);
   if (!user) return unauthorized(res);
-  if (!ObjectId.isValid(params.id)) return badRequest(res, "Invalid forum id");
+  if (!ObjectId.isValid(req.params.id)) return badRequest(res, "Invalid forum id");
 
-  const body = await readJsonBody<{ body?: string }>(req);
+  const body = (req.body ?? {}) as { body?: string };
   const text = (body.body || "").trim();
   if (text.length < 1 || text.length > 4000) {
     return badRequest(res, "Reply must be 1-4000 characters");
   }
 
   const threads = await forumThreadsCollection();
-  const threadId = new ObjectId(params.id);
+  const threadId = new ObjectId(req.params.id);
   const thread = await threads.findOne({ _id: threadId });
   if (!thread) return notFound(res, "Forum thread not found");
 
@@ -160,13 +159,13 @@ export const createForumReply: RouteHandler = async (req, res, params) => {
   json(res, serializeReply(reply, user._id), 201);
 };
 
-export const toggleForumReplyLike: RouteHandler = async (req, res, params) => {
+export const toggleForumReplyLike: RequestHandler<{ id: string }> = async (req, res) => {
   const user = await getAuthedUser(req);
   if (!user) return unauthorized(res);
-  if (!ObjectId.isValid(params.id)) return badRequest(res, "Invalid reply id");
+  if (!ObjectId.isValid(req.params.id)) return badRequest(res, "Invalid reply id");
 
   const replies = await forumRepliesCollection();
-  const id = new ObjectId(params.id);
+  const id = new ObjectId(req.params.id);
   const reply = await replies.findOne({ _id: id });
   if (!reply) return notFound(res, "Reply not found");
 
