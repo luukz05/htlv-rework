@@ -16,6 +16,7 @@ export default function Footer() {
       links: [
         { label: "Players", href: "/rankings/players" },
         { label: "Rankings", href: "/rankings/teams" },
+        { label: "Users", href: "/rankings/users" },
         { label: "Galleries", href: "/galleries" },
         { label: "Highlights", href: "/highlights" },
         { label: "Hall of Fame", shortLabel: "HOF", href: "/hall-of-fame" },

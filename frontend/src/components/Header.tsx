@@ -22,6 +22,7 @@ const navLinks = [
     children: [
       { label: "Teams", href: "/rankings/teams" },
       { label: "Players", href: "/rankings/players" },
+      { label: "Users", href: "/rankings/users" },
     ],
   },
   { label: "Hall of Fame", shortLabel: "HOF", href: "/hall-of-fame" },

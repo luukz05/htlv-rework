@@ -190,8 +190,6 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
               </thead>
               <tbody className="divide-y divide-border/60">
                 {sortedUsers.map((user) => {
-                  const xpForNext = getXpForNextLevel(user.level);
-                  const progressPercent = xpForNext > 0 ? Math.min(100, Math.round((user.xp / xpForNext) * 100)) : 0;
                   const isPodium = user.rank <= 3;
                   return (
                     <tr key={user.id} className="group hover:bg-bg-card-hover transition-colors">
@@ -210,10 +208,10 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                           #{user.rank}
                         </span>
                       </td>
-                      <td className="py-1.5 px-3">
-                        <div className="flex items-center gap-2">
+                      <td className="py-1.5 px-3 min-w-0">
+                        <div className="flex items-center gap-2 min-w-0">
                           <div
-                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-black text-white ${
+                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-black text-white ${
                               isPodium ? "bg-gradient-to-br from-blue to-blue-light" : "bg-blue/70"
                             }`}
                             aria-hidden="true"
@@ -233,18 +231,8 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                           {user.level}
                         </span>
                       </td>
-                      <td className="py-1.5 px-2 text-right">
-                        <div className="flex flex-col items-end gap-0.5">
-                          <span className="text-[12px] font-black tabular-nums text-text-primary">
-                            {user.totalXpEarned.toLocaleString()}
-                          </span>
-                          <div className="h-1 w-20 overflow-hidden rounded-full bg-bg-input">
-                            <div
-                              className="h-full bg-gradient-to-r from-blue to-blue-light transition-all"
-                              style={{ width: `${progressPercent}%` }}
-                            />
-                          </div>
-                        </div>
+                      <td className="py-1.5 px-2 text-right text-[12px] font-black tabular-nums text-text-primary">
+                        {user.totalXpEarned.toLocaleString()}
                       </td>
                       <td className="hidden sm:table-cell py-1.5 px-2 text-center text-[11px] font-bold tabular-nums text-text-primary">
                         {user.gamesPlayed.toLocaleString()}
